@@ -1,6 +1,6 @@
 ---
 name: hermes-snapshot-diff-validator
-description: Pattern de validation pour batchs Shopify avec apply+rollback.
+description: Validation pattern for Shopify batches with apply+rollback.
 version: 0.1.0
 author: Hermes auto-meta grand-run-2026-W20
 category: devops
@@ -11,21 +11,21 @@ tags:
 ---
 
 ### When to Use
-Utiliser ce pattern lorsque vous effectuez des mutations test (productUpdate, collectionCreate, etc.) sur Shopify qui doivent être impérativement annulées (rollback) pour garder un environnement clean.
+Use this pattern when performing test mutations (productUpdate, collectionCreate, etc.) on Shopify that must be reverted (rollback) to keep a clean environment.
 
 ### Procedure
-1. Requêter l'état actuel des entités (snapshot BEFORE).
-2. Appliquer la mutation attendue.
-3. Vérifier le succès de la mutation (snapshot AFTER-APPLY).
-4. Appliquer le rollback (mutation inverse ou `fileUpdate` restaurateur).
-5. Vérifier que l'état final est identique au snapshot BEFORE (snapshot AFTER-ROLLBACK).
-6. Comparez BEFORE et AFTER-ROLLBACK pour confirmer qu'aucun résidu n'est présent (diff vide).
+1. Query the current state of the entities (BEFORE snapshot).
+2. Apply the expected mutation.
+3. Verify the mutation succeeded (AFTER-APPLY snapshot).
+4. Apply the rollback (inverse mutation or restoring `fileUpdate`).
+5. Verify the final state matches the BEFORE snapshot (AFTER-ROLLBACK snapshot).
+6. Compare BEFORE and AFTER-ROLLBACK to confirm no residue remains (empty diff).
 
 ### Pitfalls
-- Oublier de capturer un état complet avant la mutation.
-- Ne pas vérifier le `null` retourné en cas d'erreur API, ce qui fausse le rollback.
-- Confondre GID et Handle (priorisez toujours les GIDs pour les mutations).
+- Forgetting to capture a complete state before the mutation.
+- Not checking the `null` returned on API error, which falsifies the rollback.
+- Confusing GID and Handle (always prioritize GIDs for mutations).
 
 ### Verification
-- `Diff BEFORE vs AFTER-ROLLBACK == VIDE`.
-- Retourner systématiquement l'ID de l'entité rollbackée pour confirmation.
+- `Diff BEFORE vs AFTER-ROLLBACK == EMPTY`.
+- Always return the rolled-back entity ID for confirmation.

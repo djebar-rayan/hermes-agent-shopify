@@ -1,6 +1,6 @@
 ---
 name: shopify-cultural-campaign-drafter
-description: Genere les drafts d une campagne pour un événement culturel (capsule produits + email + 2 posts Instagram + calendrier diffusion)
+description: Generates campaign drafts for a cultural event (product capsule + email + 2 Instagram posts + distribution calendar)
 version: 1.0.0
 author: Hermes (Phase 2 scaffold)
 metadata:
@@ -12,52 +12,52 @@ metadata:
 # Cultural Campaign Drafter <STORE_NAME>
 
 ## When to Use
-- 2 a 4 semaines avant un événement culturel (cf. shopify-cultural-calendar)
-- Sur demande explicite : "draft la campagne Aid al-Adha" ou "prepare Yennayer"
-- Alerte preavis auto declenchee par cultural-calendar : ce skill prend le relais
-- Toujours en mode draft, JAMAIS publication automatique
+- 2 to 4 weeks before a cultural event (see shopify-cultural-calendar)
+- On explicit request: "draft the Aid al-Adha campaign" or "prepare Yennayer"
+- Pre-notice alert auto-triggered by cultural-calendar: this skill takes over
+- Always in draft mode, NEVER automatic publishing
 
 ## Procedure
-1. Recoit en parametre eventName (ex. "Aid al-Adha 2026", "<nouvel an culturel depuis cultural-events.json>", "1er novembre 2026")
-   + dateJ0 (ex. "2026-06-26") OU calcul depuis cultural-calendar.
+1. Receives parameter eventName (e.g. "Aid al-Adha 2026", "<cultural new year from cultural-events.json>", "November 1st 2026")
+   + dateJ0 (e.g. "2026-06-26") OR computed from cultural-calendar.
 
-2. Verifie phase courante dans MEMORY.md : Phase 2+ requis. Si Phase 1, drafts uniquement (sans creation produit).
+2. Verify current phase in MEMORY.md: Phase 2+ required. If Phase 1, drafts only (without product creation).
 
-3. Lit les sources :
-   - brand-knowledge.md (concurrents, ton de marque, niches sous-exploitees)
-   - audits/initial-catalog-audit.md (produits dispos pour capsule)
-   - reports/baseline-kpi-30j.md (volume estime)
-   - cron list shopify-samedi-ideas prompt pour le format ideas
+3. Read sources:
+   - brand-knowledge.md (competitors, brand tone, underused niches)
+   - audits/initial-catalog-audit.md (products available for capsule)
+   - reports/baseline-kpi-30j.md (estimated volume)
+   - cron list shopify-samedi-ideas prompt for the ideas format
 
-4. Selectionne 3-5 produits existants du catalogue pour la capsule (PAS de creation produit nouveau). Critere :
-   - Alignement thematique avec l evenement (ex. Aid al-Adha = fete familiale = produits cadeaux + identite)
-   - Stock disponible (totalInventory > 0)
-   - Vocabulaire de marque respecté
+4. Select 3-5 existing catalog products for the capsule (NO new product creation). Criteria:
+   - Thematic alignment with the event (e.g. Aid al-Adha = family celebration = gift products + identity)
+   - Stock available (totalInventory > 0)
+   - Brand vocabulary respected
 
-5. Cree $HERMES_WORKSPACE/campaigns/<event-slug-YYYY>/ avec ces 5 fichiers :
+5. Create $HERMES_WORKSPACE/campaigns/<event-slug-YYYY>/ with these 5 files:
 
-   a. README.md : brief campagne, calendrier diffusion (J-21 / J-14 / J-10 / J-3 / J0), code promo suggere (ex. AID2026 -15 percent), KPIs cibles
-   b. email-draft.txt : sujet + corps email (texte clair, max 30 lignes, vocabulaire de marque (STORE-BRAND.md), lien produits, code promo, signature)
-   c. insta-post-1-reel.md : draft 1er post (J-21 teaser) format reel : storytelling, caption FR + EN, 15 hashtags (5 gros + 5 moyens + 5 niches), description visuelle textuelle, heure recommandee 18-22h Paris, CTA
-   d. insta-post-2-carrousel.md : draft 2e post (J-10 produits capsule) format carrousel 3-5 slides : focus produits, prix, hashtags, visuel
-   e. produit-capsule.md : 3-5 produits selectionnes avec argumentaire pourquoi chaque produit + mise en avant proposee + suggestion bundle
+   a. README.md: campaign brief, distribution calendar (D-21 / D-14 / D-10 / D-3 / D0), suggested promo code (e.g. AID2026 -15 percent), target KPIs
+   b. email-draft.txt: subject + email body (clear text, max 30 lines, brand vocabulary (STORE-BRAND.md), product link, promo code, signature)
+   c. insta-post-1-reel.md: 1st post draft (D-21 teaser) reel format: storytelling, caption FR + EN, 15 hashtags (5 big + 5 medium + 5 niche), textual visual description, recommended time 6-10pm Paris, CTA
+   d. insta-post-2-carrousel.md: 2nd post draft (D-10 capsule products) carousel format 3-5 slides: product focus, price, hashtags, visual
+   e. produit-capsule.md: 3-5 selected products with rationale per product + proposed highlight + bundle suggestion
 
-6. Notifie Telegram + email :
-   "Drafts campagne <eventName> prets dans campaigns/<slug>/.
-   Calendrier : J-21 le YYYY-MM-DD (premier post), J-14 (email), J-10 (carrousel + code promo), J-3 (reminder).
-   /yes pour valider l ensemble, /edit <fichier> <ajustement>, /no pour reprendre."
+6. Notify Telegram + email:
+   "Campaign <eventName> drafts ready in campaigns/<slug>/.
+   Calendar: D-21 on YYYY-MM-DD (first post), D-14 (email), D-10 (carousel + promo code), D-3 (reminder).
+   /yes to validate the set, /edit <file> <adjustment>, /no to restart."
 
-7. JAMAIS de publication automatique. Ce skill produit uniquement des drafts pour validation tuteur.
+7. NEVER automatic publishing. This skill produces drafts only for operator validation.
 
 ## Pitfalls
-- INTERDICTION creation produit nouveau via productCreate : niveau 🟡 hors perimetre.
-- Code promo doit etre valide a fixer ENSUITE par le tuteur via Shopify Admin (Hermes ne cree pas le code promo automatique).
-- Calendrier J-21/14/10/3 selon MISSION-HERMES.md regle preavis 2 semaines minimum.
-- Vocabulaire de marque obligatoire (cf. STANDING.md liste).
-- Description visuelle TEXTUELLE seulement (generation image indisponible Phase 2).
+- FORBIDDEN to create new product via productCreate: 🟡 level out of scope.
+- Promo code must be valid - to be set AFTERWARDS by the operator via Shopify Admin (Hermes does not create the promo code automatically).
+- Calendar D-21/14/10/3 per MISSION-HERMES.md 2-week minimum advance notice rule.
+- Brand vocabulary mandatory (see STANDING.md list).
+- TEXTUAL visual description only (image generation unavailable in Phase 2).
 
 ## Verification
-- 5 fichiers crees dans campaigns/<event-slug-YYYY>/
-- README.md contient le calendrier explicite J-21/14/10/3/0
-- Hashtags posts respectent la repartition 5+5+5 (gros/moyens/niches)
-- Telegram + email recus avec le brief
+- 5 files created in campaigns/<event-slug-YYYY>/
+- README.md contains explicit D-21/14/10/3/0 calendar
+- Post hashtags respect 5+5+5 split (big/medium/niche)
+- Telegram + email received with the brief

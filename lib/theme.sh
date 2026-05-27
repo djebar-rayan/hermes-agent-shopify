@@ -19,7 +19,7 @@ set -uo pipefail
 : "${LIVE_THEME_ID:?LIVE_THEME_ID not set — discover via 'shopify theme list'}"
 : "${HERMES_WORKSPACE:=/root/shopify-store}"
 
-# Derived defaults (paramétrable mais bons defaults)
+# Derived defaults (configurable but good defaults)
 : "${LIVE_THEME_GID:=gid://shopify/OnlineStoreTheme/$LIVE_THEME_ID}"
 : "${THEME_BACKUP_DIR:=$HERMES_WORKSPACE/theme-backups}"
 : "${THEME_WORK_BASE:=/tmp/theme-work}"

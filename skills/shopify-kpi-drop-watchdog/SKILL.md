@@ -1,6 +1,6 @@
 ---
 name: shopify-kpi-drop-watchdog
-description: Surveille les KPI Shopify sur 24h et alerte Telegram si chute > 30% sur conversion, sessions ou commandes
+description: Monitors Shopify KPIs over 24h and Telegram-alerts if conversion, sessions, or orders drop > 30%
 category: monitoring
 version: 1.0.0
 metadata:
@@ -12,30 +12,30 @@ metadata:
 # <STORE_NAME> KPI Drop Watchdog
 
 ## When to Use
-- Cron `shopify-watchdog-conversion` (toutes les 6h)
-- À la demande pour une vérification ponctuelle santé boutique
+- Cron `shopify-watchdog-conversion` (every 6h)
+- On demand for an ad-hoc store health check
 
 ## Procedure
-1. Charge env : `set -a; . /root/.hermes/.env; set +a`
-2. Récupère les KPI 24h glissant via GraphQL `orders(query: "created_at:>...")` :
-   - nb commandes 24h actuelles
-   - nb commandes 24h précédentes (J-1 même fenêtre)
-   - CA correspondant
-3. Calcule deltas en % : `(actuel - precedent) / precedent * 100`
-4. Si delta < -30% sur AU MOINS UN KPI critique :
-   - Compose un message Telegram court (< 500 chars) :
-     "ALERTE KPI <STORE_NAME> : <KPI> a chute de <X>% sur 24h. Actuel: <val>, J-1: <val>. Action recommandee : verifier flow checkout + statut services."
-   - Envoie au chat $TELEGRAM_HOME_CHANNEL via tool messaging Hermes
-5. Si tout est OK : retourne `[SILENT]` (suppression delivery cron).
-6. Log dans `$HERMES_WORKSPACE/learnings.md` avec timestamp + verdict.
+1. Load env: `set -a; . /root/.hermes/.env; set +a`
+2. Fetch rolling 24h KPIs via GraphQL `orders(query: "created_at:>...")`:
+   - current 24h order count
+   - previous 24h order count (D-1 same window)
+   - corresponding revenue
+3. Compute deltas in %: `(current - previous) / previous * 100`
+4. If delta < -30% on AT LEAST ONE critical KPI:
+   - Compose a short Telegram message (< 500 chars):
+     "ALERT KPI <STORE_NAME>: <KPI> dropped <X>% over 24h. Current: <val>, D-1: <val>. Recommended action: check checkout flow + service status."
+   - Send to chat $TELEGRAM_HOME_CHANNEL via Hermes messaging tool
+5. If all OK: return `[SILENT]` (suppress cron delivery).
+6. Log in `$HERMES_WORKSPACE/learnings.md` with timestamp + verdict.
 
 ## Pitfalls
-- Ne pas alerter si commandes precedentes < 3 (signal faible). Utilise `[SILENT]`.
-- Ne pas alerter si écart < 30 % (bruit normal). Seuil dur.
-- Ne JAMAIS envoyer email pour alerte 24h (réservé à rapport hebdo). Telegram uniquement.
-- Si GraphQL échoue, retourne `[SILENT]` plutôt que d alerter sur fausse donnée.
+- Don't alert if previous orders < 3 (weak signal). Use `[SILENT]`.
+- Don't alert if delta < 30% (normal noise). Hard threshold.
+- NEVER send email for a 24h alert (reserved for weekly report). Telegram only.
+- If GraphQL fails, return `[SILENT]` rather than alerting on bad data.
 
 ## Verification
-- Message Telegram reçu uniquement quand chute réelle > 30%
-- 0 alerte sur trafic faible (< 3 commandes baseline)
-- Log learnings.md mentionne chaque check (alerte ou silent)
+- Telegram message received only when actual drop > 30%
+- 0 alerts on low traffic (< 3 baseline orders)
+- learnings.md log mentions each check (alert or silent)

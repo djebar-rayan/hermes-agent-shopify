@@ -1,6 +1,6 @@
 ---
 name: shopify-klaviyo-drop-watchdog
-description: Watchdog silencieux toutes les 6h — alerte Telegram si chute open rate >20% ou click rate >30% sur fenêtre 7j Klaviyo
+description: Silent watchdog every 6h — Telegram alert if open rate drops >20% or click rate >30% over a 7-day Klaviyo window
 version: 1.0.0
 metadata:
   hermes:
@@ -11,44 +11,44 @@ metadata:
 
 # <STORE_NAME> Klaviyo Drop Watchdog
 
-Skill no-agent par design : exécuté toutes les 6h par le cron `shopify-watchdog-conversion`. Reste silencieux tant que les KPI Klaviyo sont stables, déclenche une alerte Telegram + wake-agent quand une dérive significative est détectée.
+No-agent-by-design skill: executed every 6h by the `shopify-watchdog-conversion` cron. Stays silent as long as Klaviyo KPIs are stable, triggers a Telegram alert + wake-agent when significant drift is detected.
 
 ## When to Use
 
-- **Cron `shopify-watchdog-conversion` (dd4a59c29a88)** : chaque 6h, en parallèle du check conversion Shopify existant
-- **JAMAIS sur demande user direct** (pas pertinent en interactif)
+- **Cron `shopify-watchdog-conversion` (dd4a59c29a88)**: every 6h, in parallel with the existing Shopify conversion check
+- **NEVER on direct user request** (not relevant interactively)
 
 ## Configuration
 
-Variables `.env` lues :
+Variables read from `.env`:
 - `$KLAVIYO_API_KEY`
 - `$TELEGRAM_HOME_CHANNEL` ($TELEGRAM_HOME_CHANNEL)
-- `$HERMES_MODE` (test : alerte sans wake, prod : alerte + wake-agent)
+- `$HERMES_MODE` (test: alert without wake, prod: alert + wake-agent)
 
-Seuils d'alerte (configurables dans le skill) :
-- **Open rate drop > 20 points** sur 7j vs 7j précédents
+Alert thresholds (configurable in the skill):
+- **Open rate drop > 20 points** over 7d vs prior 7d
 - **Click rate drop > 30 points**
-- **Revenue attribué drop > 40%**
-- **Désabonnements** : > 5% des envois sur 7j
+- **Attributed revenue drop > 40%**
+- **Unsubscribes**: > 5% of sends over 7d
 
-**N min envois = 50** sur la fenêtre 7j avant de calculer (sinon : sample trop faible, silence forcé).
+**Min N sends = 50** over the 7d window before computing (otherwise: sample too small, forced silence).
 
 ## Procedure
 
-### 1. Charger l'environnement
+### 1. Load the environment
 ```bash
 set -a; . /root/.hermes/.env; set +a
 LIB=/root/.hermes/lib/klaviyo-fetch.sh
 TG_BOT_API="https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage"
 ```
 
-### 2. Récupérer metric IDs
+### 2. Retrieve metric IDs
 ```bash
 METRICS=$($LIB metrics)
-# Extraire les ids correspondant à : Opened Email, Clicked Email, Placed Order, Unsubscribed
+# Extract ids matching: Opened Email, Clicked Email, Placed Order, Unsubscribed
 ```
 
-### 3. Calculer agrégats 7j N et 7j N-1
+### 3. Compute 7d N and 7d N-1 aggregates
 
 ```bash
 NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -57,25 +57,25 @@ SINCE_N1=$(date -u -d '14 days ago' +%Y-%m-%dT%H:%M:%SZ)
 
 OPEN_N=$($LIB metric-aggregate $OPENED_ID day $SINCE_N $NOW | jq '.data.attributes.data[0].measurements.count // [] | add')
 OPEN_N1=$($LIB metric-aggregate $OPENED_ID day $SINCE_N1 $SINCE_N | jq '.data.attributes.data[0].measurements.count // [] | add')
-# Idem pour CLICK, REVENUE, UNSUBSCRIBE
+# Same for CLICK, REVENUE, UNSUBSCRIBE
 ```
 
-### 4. Calculer deltas
+### 4. Compute deltas
 
 ```bash
-# Si SENT_N < 50, abort (sample trop faible)
+# If SENT_N < 50, abort (sample too small)
 if [ "$SENT_N" -lt 50 ]; then
   echo '{"wakeAgent": false, "reason": "sample_too_small"}'
   exit 0
 fi
 
-# Open rate delta (points de pourcentage)
+# Open rate delta (percentage points)
 OPEN_RATE_N=$(echo "scale=4; $OPEN_N / $SENT_N * 100" | bc)
 OPEN_RATE_N1=$(echo "scale=4; $OPEN_N1 / $SENT_N1 * 100" | bc)
 OPEN_DROP=$(echo "scale=2; $OPEN_RATE_N1 - $OPEN_RATE_N" | bc)
 ```
 
-### 5. Décision
+### 5. Decision
 
 ```bash
 ALERTS=()
@@ -87,32 +87,32 @@ ALERTS=()
 
 ### 6. Notification
 
-Si `${#ALERTS[@]} = 0` → silence total :
+If `${#ALERTS[@]} = 0` → total silence:
 ```bash
 echo '{"wakeAgent": false}'
 exit 0
 ```
 
-Si alertes détectées :
+If alerts detected:
 ```bash
 MSG="⚠ KLAVIYO DROP DETECTED (<STORE_NAME>)
 $(printf '%s\n' "${ALERTS[@]}")
 
-KPI 7j N vs N-1 :
+KPI 7d N vs N-1:
 - Sent: $SENT_N vs $SENT_N1
 - Open: ${OPEN_RATE_N}% vs ${OPEN_RATE_N1}%
 - Click: ${CLICK_RATE_N}% vs ${CLICK_RATE_N1}%
 - Revenue: ${REV_N}€ vs ${REV_N1}€
 
-Investigate :
-1. Une campagne récente a-t-elle bombé ?
-2. Un flow a-t-il été paused ?
-3. Deliverability OK (bounces) ?
+Investigate:
+1. Did a recent campaign bomb?
+2. Was a flow paused?
+3. Deliverability OK (bounces)?
 
-Run /chat dans Telegram pour analyse détaillée."
+Run /chat in Telegram for detailed analysis."
 
-# Mode test : log + Telegram alert mais wake-agent false
-# Mode prod : Telegram alert + wake-agent true
+# Test mode: log + Telegram alert but wake-agent false
+# Prod mode: Telegram alert + wake-agent true
 if [ "${HERMES_MODE:-test}" = "test" ]; then
   curl -s -X POST "$TG_BOT_API" \
     -d "chat_id=$TELEGRAM_HOME_CHANNEL" \
@@ -128,35 +128,35 @@ else
 fi
 ```
 
-### 7. Log learnings (uniquement si alerte)
+### 7. Log learnings (only if alert)
 
 ```markdown
 ## $(date -u +%Y-%m-%dT%H:%M:%SZ) — Klaviyo drop watchdog
-- Alertes : <list>
-- Open rate N vs N-1 : X% vs Y%
-- Click rate N vs N-1 : X% vs Y%
-- Mode : test/prod
-- Wake agent : true/false
-- Conclusion : (à remplir après investigation)
+- Alerts: <list>
+- Open rate N vs N-1: X% vs Y%
+- Click rate N vs N-1: X% vs Y%
+- Mode: test/prod
+- Wake agent: true/false
+- Conclusion: (to fill in after investigation)
 ```
 
 ## Pitfalls
 
-- **Faux positifs** : seuils sur fenêtre 7j ET N min envois = 50. Ne JAMAIS alerter sur point unique ou < 50 envois.
-- **Mode silence** : si `${#ALERTS[@]} = 0`, retourne `{"wakeAgent": false}` SANS rien d'autre (pas de bruit Telegram).
-- **Rate-limit Klaviyo** : utiliser le cache 6h du helper (et non re-fetch à chaque run).
-- **Edge case "0 commandes"** : si `SENT_N = 0` (campagne envoyée pendant la fenêtre N-1 mais pas N), c'est NORMAL en mode batch. Ne pas alerter.
-- **Désabonnements** : utiliser metric `Unsubscribed` filtré par flow_id, pas le total profils suppression (qui inclut bounces).
-- **Mode test obligatoire** : tant que `HERMES_MODE=test`, wake-agent reste false (alerte info Telegram only).
+- **False positives**: thresholds on a 7d window AND min N sends = 50. NEVER alert on a single point or < 50 sends.
+- **Silent mode**: if `${#ALERTS[@]} = 0`, return `{"wakeAgent": false}` with NOTHING else (no Telegram noise).
+- **Klaviyo rate-limit**: use the helper's 6h cache (not re-fetch on each run).
+- **"0 orders" edge case**: if `SENT_N = 0` (campaign sent during N-1 window but not N), this is NORMAL in batch mode. Don't alert.
+- **Unsubscribes**: use the `Unsubscribed` metric filtered by flow_id, not the total suppressed profiles (which includes bounces).
+- **Test mode mandatory**: as long as `HERMES_MODE=test`, wake-agent stays false (Telegram info alert only).
 
 ## Verification
 
-- ✅ Script termine en < 30s (sinon timeout cron)
-- ✅ Si tout OK : stdout = `{"wakeAgent": false}` (1 ligne, JSON valide)
-- ✅ Si alerte : Telegram message reçu sur $TELEGRAM_HOME_CHANNEL
-- ✅ Si alerte + prod : `wakeAgent=true` avec context
-- ✅ Aucun appel API mutation Klaviyo (read + metric-aggregates POST seul, qui est read sémantique)
-- ✅ Cache helper utilisé (pas de re-fetch flows/metrics chaque run)
+- ✅ Script finishes in < 30s (otherwise cron timeout)
+- ✅ If all OK: stdout = `{"wakeAgent": false}` (1 line, valid JSON)
+- ✅ If alert: Telegram message received on $TELEGRAM_HOME_CHANNEL
+- ✅ If alert + prod: `wakeAgent=true` with context
+- ✅ No Klaviyo mutation API call (read + metric-aggregates POST only, which is semantically read)
+- ✅ Helper cache used (no re-fetch of flows/metrics each run)
 
 ## Dependencies
 
@@ -164,9 +164,9 @@ fi
 - `$TELEGRAM_BOT_TOKEN` (env)
 - `$TELEGRAM_HOME_CHANNEL` (env)
 - `$HERMES_MODE` (env)
-- Outil `jq` pour parsing JSON (installé par défaut sur le VPS)
-- Outil `bc` pour calculs flottants
+- `jq` tool for JSON parsing (installed by default on the VPS)
+- `bc` tool for floating-point computation
 
 ## Read-only contract
 
-Lecture pure côté Klaviyo. Le POST sur `/api/metric-aggregates/` est sémantiquement read (query agrégation), pas une mutation d'état. Aucune création campagne, profil, flow, segment ou liste autorisée.
+Pure read on the Klaviyo side. The POST on `/api/metric-aggregates/` is semantically a read (aggregation query), not a state mutation. No campaign, profile, flow, segment or list creation allowed.

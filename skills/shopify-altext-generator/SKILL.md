@@ -1,6 +1,6 @@
 ---
 name: shopify-altext-generator
-description: Generate 3 propositions d alt-text SEO FR+EN pour une image produit, basees sur titre + vocabulaire de marque (STORE-BRAND.md)
+description: Generate 3 SEO alt-text proposals FR+EN for a product image, based on title + brand vocabulary (STORE-BRAND.md)
 category: e-commerce-seo
 version: 1.0.0
 metadata:
@@ -11,14 +11,14 @@ metadata:
 # <STORE_NAME> Alt-Text Generator
 
 ## When to Use
-- Skill compagnon de `shopify-catalog-gap-analyzer` quand un produit a alt-text vide
-- Avant `shopify-batch-executor` pour preparer un batch alt-texts
-- A la demande pour 1 produit specifique
+- Companion skill to `shopify-catalog-gap-analyzer` when a product has an empty alt-text
+- Before `shopify-batch-executor` to prepare an alt-text batch
+- On demand for a specific product
 
 ## Procedure
-Input attendu : `{handle, title, product_id, image_id, productType?}` (extrait via GraphQL READ-ONLY).
+Expected input: `{handle, title, product_id, image_id, productType?}` (extracted via READ-ONLY GraphQL).
 
-Genere 3 propositions JSON :
+Generate 3 JSON proposals:
 ```json
 {
   "alt_options": [
@@ -31,27 +31,27 @@ Genere 3 propositions JSON :
 }
 ```
 
-Regles de generation :
-- Chaque alt-text : max 125 chars (limite SEO Google)
-- FR ET EN obligatoires
-- AU MOINS 1 mot du vocabulaire de marque (STORE-BRAND.md) par alt : voir liste dans STORE-BRAND.md
-- Si le titre contient "Made in France" : mentionne-le dans au moins 1 alt
-- Decrit ce qui est VISIBLE sur l image (couleur, symbole, format) + contexte culturel
-- Option selectionnee = celle qui combine SEO + accessibilite + contexte culturel
+Generation rules:
+- Each alt-text: max 125 chars (Google SEO limit)
+- FR AND EN mandatory
+- AT LEAST 1 word from brand vocabulary (STORE-BRAND.md) per alt: see list in STORE-BRAND.md
+- If the title contains "Made in France": mention it in at least 1 alt
+- Describe what is VISIBLE in the image (color, symbol, format) + cultural context
+- Selected option = the one that combines SEO + accessibility + cultural context
 
-Output : JSON valide ecrit dans le chemin demande par l invocateur (typiquement `/tmp/altext-<handle>.json` ou `tests/p3.X-...json` en mode test).
+Output: valid JSON written to the path requested by the caller (typically `/tmp/altext-<handle>.json` or `tests/p3.X-...json` in test mode).
 
-NE PAS appliquer la mutation. C est `shopify-batch-executor` qui le fera apres validation tuteur.
+DO NOT apply the mutation. `shopify-batch-executor` will handle that after operator validation.
 
 ## Pitfalls
-- Alt-text > 125 chars = SEO degrade, refuse.
-- Sans mot du vocabulaire de marque = perte d identité.
-- Eviter formules generiques ("belle creation", "produit unique") — sois specifique sur ce que l image montre.
-- Ne reutilise pas exactement le title du produit (Google penalise la duplication).
+- Alt-text > 125 chars = degraded SEO, refuse.
+- Without a brand vocabulary word = loss of identity.
+- Avoid generic phrases ("nice creation", "unique product") — be specific about what the image shows.
+- Do not reuse the product title verbatim (Google penalizes duplication).
 
 ## Verification
-- 3 propositions distinctes (pas de doublons FR ou EN)
-- Chaque alt <= 125 chars
-- Chaque alt contient >= 1 mot du vocabulaire de marque
-- selected_option pointe vers une des 3 options
-- rationale explique le choix en 1-2 phrases
+- 3 distinct proposals (no FR or EN duplicates)
+- Each alt <= 125 chars
+- Each alt contains >= 1 brand vocabulary word
+- selected_option points to one of the 3 options
+- rationale explains the choice in 1-2 sentences

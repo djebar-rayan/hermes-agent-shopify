@@ -1,6 +1,6 @@
 ---
 name: shopify-product-ideator
-description: Propose un nouveau produit <STORE_NAME> (concept, prix, marge, concurrence, visuel)
+description: Proposes a new <STORE_NAME> product (concept, price, margin, competition, visual)
 version: 1.0.0
 author: Hermes (initial scaffold)
 metadata:
@@ -8,24 +8,24 @@ metadata:
     tags: [product, growth, framework]
     category: ecommerce
 ---
-# Idéateur Nouveau Produit <STORE_NAME>
+# New Product Ideator <STORE_NAME>
 
 ## When to Use
-Cron `shopify-samedi-ideas` en pair avec instagram-ideator, ou sur demande.
+Cron `shopify-samedi-ideas` paired with instagram-ideator, or on demand.
 
 ## Procedure
-1. Lis `store-data/products.md` et `collections.md`
-2. Lis `brand-knowledge.md` (tendances concurrents, gap catalogue)
-3. Lis `learnings.md` (historique produits performants)
-4. Identifie 1 opportunité avec signal marché explicite
-5. Rédige fiche complète : nom (FR + transliteration si pertinent pour ta marque), catégorie, description 50 mots, pourquoi maintenant, prix cible + marge, concurrents + différenciation, moodboard / description visuelle textuelle (génération image indisponible Phase 1)
+1. Read `store-data/products.md` and `collections.md`
+2. Read `brand-knowledge.md` (competitor trends, catalog gaps)
+3. Read `learnings.md` (history of top-performing products)
+4. Identify 1 opportunity with explicit market signal
+5. Write a complete fact sheet: name (FR + transliteration if relevant for your brand), category, 50-word description, why now, target price + margin, competitors + differentiation, moodboard / textual visual description (image generation unavailable in Phase 1)
 
 ## Pitfalls
-- Ne pas dupliquer un produit existant
-- Vocabulaire culturel obligatoire
-- Marge réaliste (Shopify Basic ~3% + livraison)
+- Don't duplicate an existing product
+- Cultural vocabulary mandatory
+- Realistic margin (Shopify Basic ~3% + shipping)
 
 ## Verification
-- Fiche en 7 sections complètes
-- >= 2 references concurrentes avec lien
-- Description visuelle textuelle (slot génération image vide)
+- Fact sheet with 7 complete sections
+- >= 2 competitor references with link
+- Textual visual description (image generation slot empty)

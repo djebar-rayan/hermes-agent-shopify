@@ -1,197 +1,197 @@
-# Production Checklist — Bascule `HERMES_MODE=test` → `prod`
+# Production Checklist — Switch `HERMES_MODE=test` → `prod`
 
-> Checklist à valider AVANT de basculer ton instance Hermes en mode production. La bascule active les mutations Shopify persistantes — le retour arrière est possible mais coûte du temps.
+> Checklist to validate BEFORE switching your Hermes instance to production mode. The switch enables persistent Shopify mutations — rollback is possible but costs time.
 
 ---
 
-## 1. Vérifications avant bascule
+## 1. Pre-switch verifications
 
-### Phase test : durée minimale recommandée
+### Test phase: minimum recommended duration
 
-Avant de passer en prod, faire tourner Hermes en `HERMES_MODE=test` pendant au minimum :
-- **2 cycles complets de cron lundi-perf** (= 2 semaines)
-- **2 cycles complets de cron samedi-ideas**
-- **2 cycles complets de cron dimanche-meta**
-- **~10 runs de watchdog** (= ~2-3 jours)
+Before going to prod, run Hermes in `HERMES_MODE=test` for at minimum:
+- **2 complete cycles of the Monday-perf cron** (= 2 weeks)
+- **2 complete cycles of the Saturday-ideas cron**
+- **2 complete cycles of the Sunday-meta cron**
+- **~10 watchdog runs** (= ~2-3 days)
 
-Cela permet d'observer :
-- Les rapports hebdo sont-ils précis et utiles ?
-- Les propositions samedi-ideas sont-elles pertinentes pour ta marque ?
-- La méta-revue identifie-t-elle de vrais patterns ?
-- Le watchdog alerte-t-il sur les bons signaux ?
+This allows you to observe:
+- Are the weekly reports precise and useful?
+- Are the Saturday-ideas proposals relevant to your brand?
+- Does the meta-review identify real patterns?
+- Does the watchdog alert on the right signals?
 
-### Checklist technique
+### Technical checklist
 
-- [ ] **`.env` complet** : toutes les vars critiques remplies (SHOPIFY_STORE, OPENROUTER_API_KEY, EMAIL_*, TELEGRAM_*, LIVE_THEME_ID, etc.)
-- [ ] **Shopify CLI auth OK** : `shopify store info` fonctionne
-- [ ] **Theme Access token actif** : `theme_check_env && theme_list` fonctionne
-- [ ] **OpenViking healthy** : `curl http://localhost:1933/health` retourne 200
-- [ ] **Hermes gateway Telegram up** : bot répond à `/start`
-- [ ] **Hooks v0.14 actifs** : test session interactive, vérifier que STANDING est injecté
-- [ ] **Crons exécutés au moins 2 fois sans erreur** : `cat /root/.hermes/cron/jobs.json | jq '.jobs[] | {name, last_status}'`
-- [ ] **`learnings.md` contient des entrées** : preuve que le hook `log-learning` fonctionne
-- [ ] **App Password Gmail valide** : envoi de test email avec sentinelle `EMAIL_SMTP_OK`
+- [ ] **`.env` complete**: all critical vars filled (SHOPIFY_STORE, OPENROUTER_API_KEY, EMAIL_*, TELEGRAM_*, LIVE_THEME_ID, etc.)
+- [ ] **Shopify CLI auth OK**: `shopify store info` works
+- [ ] **Theme Access token active**: `theme_check_env && theme_list` works
+- [ ] **OpenViking healthy**: `curl http://localhost:1933/health` returns 200
+- [ ] **Hermes Telegram gateway up**: bot replies to `/start`
+- [ ] **v0.14 hooks active**: test interactive session, verify that STANDING is injected
+- [ ] **Crons executed at least 2 times without error**: `cat /root/.hermes/cron/jobs.json | jq '.jobs[] | {name, last_status}'`
+- [ ] **`learnings.md` contains entries**: proof that the `log-learning` hook works
+- [ ] **Gmail App Password valid**: test email send with `EMAIL_SMTP_OK` sentinel
 
-### Checklist contenu
+### Content checklist
 
-- [ ] **`MISSION.md` rempli** : charter spécifique à ta boutique
-- [ ] **`STORE-BRAND.md` rempli** : vocab obligatoire + niveaux 🟢/🟡/🔴 + sensibilités
-- [ ] **`brand-knowledge.md` rempli** : 5-10 concurrents identifiés avec URL + niche + différenciation
-- [ ] **`cultural-events.json` rempli** : au moins les 3-5 prochains événements importants pour ta marque
-- [ ] **`MEMORY.md` rempli** : faits boutique (catalogue size, devise, fuseau, plan Shopify)
-- [ ] **Baseline KPI 30j capturée** : `$HERMES_WORKSPACE/baseline-kpi-30j.md` existe
+- [ ] **`MISSION.md` filled**: charter specific to your store
+- [ ] **`STORE-BRAND.md` filled**: mandatory vocab + 🟢/🟡/🔴 levels + sensitivities
+- [ ] **`brand-knowledge.md` filled**: 5-10 competitors identified with URL + niche + differentiation
+- [ ] **`cultural-events.json` filled**: at least the next 3-5 events important to your brand
+- [ ] **`MEMORY.md` filled**: store facts (catalog size, currency, timezone, Shopify plan)
+- [ ] **Baseline KPI 30d captured**: `$HERMES_WORKSPACE/baseline-kpi-30j.md` exists
 
-### Checklist sécurité
+### Security checklist
 
-- [ ] **`.env` chmod 600** : pas accessible aux autres users
+- [ ] **`.env` chmod 600**: not accessible to other users
 - [ ] **`~/.hermes/` chmod 700**
-- [ ] **Aucun secret en clair** dans les rapports déjà générés (re-lire 1-2 rapports test)
-- [ ] **`TELEGRAM_ALLOWED_USERS` = ton user_id uniquement** : pas d'autre destinataire autorisé
-- [ ] **Validation Telegram /yes testée** : faire un dry-run mutation, recevoir le message, valider /yes, vérifier que la mutation a bien été appliquée (en mode test)
+- [ ] **No secret in clear text** in already-generated reports (re-read 1-2 test reports)
+- [ ] **`TELEGRAM_ALLOWED_USERS` = your user_id only**: no other authorized recipient
+- [ ] **Telegram /yes validation tested**: do a dry-run mutation, receive the message, validate /yes, check that the mutation was actually applied (in test mode)
 
 ---
 
-## 2. Bascule effective
+## 2. Effective switch
 
-Quand toute la checklist est validée :
+When the entire checklist is validated:
 
 ```bash
-# 1. Backup .env actuel
+# 1. Backup current .env
 cp /root/.hermes/.env /root/.hermes/.env.bak.$(date +%Y%m%d)
 
-# 2. Modifier le mode
+# 2. Modify mode
 sed -i 's/^HERMES_MODE=test$/HERMES_MODE=prod/' /root/.hermes/.env
 
-# 3. Vérifier
+# 3. Verify
 grep ^HERMES_MODE /root/.hermes/.env
-# Doit afficher : HERMES_MODE=prod
+# Must display: HERMES_MODE=prod
 
-# 4. Loguer la bascule dans learnings.md
+# 4. Log the switch in learnings.md
 cat >> $HERMES_WORKSPACE/learnings.md << EOF
 
-- [$(date -u +%Y-%m-%dT%H:%M:%SZ)] PHASE TRANSITION : HERMES_MODE=test → HERMES_MODE=prod
-  Avant: phase test exclusive (apply+rollback même run depuis l'install)
-  Après: mode production activé, mutations persistantes après /yes Telegram
-  Conclusion: décision marchand après <N> semaines de test validé
-  Futur: surveiller le premier vrai run cron en mode prod
+- [$(date -u +%Y-%m-%dT%H:%M:%SZ)] PHASE TRANSITION: HERMES_MODE=test → HERMES_MODE=prod
+  Before: test exclusive phase (apply+rollback same run since install)
+  After: production mode activated, persistent mutations after Telegram /yes
+  Conclusion: merchant decision after <N> weeks of validated test
+  Future: monitor the first real prod cron run
 EOF
 
-# 5. Mettre à jour MEMORY.md
-sed -i "s/Phase courante.*/Phase courante : PRODUCTION (depuis $(date -u +%Y-%m-%d))/" $HERMES_WORKSPACE/MEMORY.md
+# 5. Update MEMORY.md
+sed -i "s/Current phase.*/Current phase: PRODUCTION (since $(date -u +%Y-%m-%d))/" $HERMES_WORKSPACE/MEMORY.md
 ```
 
 ---
 
-## 3. Surveillance post-bascule
+## 3. Post-switch monitoring
 
-### Premier jour (J)
+### First day (D)
 
-- [ ] **Vérifier que le prochain cron tourne sans erreur** : observer `last_status: ok` après le premier run
-- [ ] **Lire le rapport généré** : aucune mutation Shopify inattendue ? Tous les chiffres ont une source citée ?
-- [ ] **Vérifier les notifications Telegram** : reçues, formattées correctement
-- [ ] **Vérifier l'email** : sentinelle `EMAIL_SMTP_OK` présente
+- [ ] **Check that the next cron runs without error**: observe `last_status: ok` after the first run
+- [ ] **Read the generated report**: any unexpected Shopify mutation? All numbers have a cited source?
+- [ ] **Check Telegram notifications**: received, formatted correctly
+- [ ] **Check the email**: `EMAIL_SMTP_OK` sentinel present
 
-### Première semaine
+### First week
 
-- [ ] **2-3 demandes de validation `/yes` Telegram reçues** : workflow validation fonctionnel
-- [ ] **Au moins 1 mutation persistante appliquée** après /yes : vérifier dans Shopify admin que le changement est bien en place
-- [ ] **Rollback testé au moins 1 fois** : utiliser `shopify-batch-rollback` sur un batch récent pour confirmer que le snapshot before.json + script rollback fonctionnent
-- [ ] **Méta-revue dominicale** : confirmer qu'elle identifie correctement les patterns de la semaine
+- [ ] **2-3 Telegram `/yes` validation requests received**: validation workflow functional
+- [ ] **At least 1 persistent mutation applied** after /yes: check in Shopify admin that the change is in place
+- [ ] **Rollback tested at least 1 time**: use `shopify-batch-rollback` on a recent batch to confirm that the before.json snapshot + rollback script work
+- [ ] **Sunday meta-review**: confirm that it correctly identifies the week's patterns
 
-### Premier mois
+### First month
 
-- [ ] **Aucune mutation Shopify non-validée** : auditer la timeline des mutations dans learnings.md
-- [ ] **KPI baseline vs M+1** : comparer les KPI 30j avant vs 30j après bascule
-- [ ] **Coût OpenRouter en ligne avec attendu** : `hermes insights --days 30`, vérifier que le coût reste sous le quota
-- [ ] **Aucun secret leaké** dans les rapports / logs (audit grep)
+- [ ] **No unvalidated Shopify mutation**: audit the mutation timeline in learnings.md
+- [ ] **Baseline KPI vs M+1**: compare 30d KPIs before vs 30d after switch
+- [ ] **OpenRouter cost in line with expectation**: `hermes insights --days 30`, check that cost stays under quota
+- [ ] **No leaked secret** in reports / logs (grep audit)
 
 ---
 
-## 4. Procédure de retour arrière (rollback prod → test)
+## 4. Rollback procedure (prod → test)
 
-Si tu détectes un problème majeur :
+If you detect a major problem:
 
 ```bash
-# 1. Retour mode test immédiat
+# 1. Immediate return to test mode
 sed -i 's/^HERMES_MODE=prod$/HERMES_MODE=test/' /root/.hermes/.env
 
-# 2. (Optionnel) Désactiver tous les crons pendant l'investigation
-# Éditer /root/.hermes/cron/jobs.json et mettre "enabled": false sur chaque job
+# 2. (Optional) Disable all crons during investigation
+# Edit /root/.hermes/cron/jobs.json and set "enabled": false on each job
 
-# 3. Rollback des dernières mutations si problème grave
-# Pour chaque batch récent :
+# 3. Rollback recent mutations if serious issue
+# For each recent batch:
 node /root/.hermes/skills/shopify-batch-rollback/run.js <batch_id>
-# OU directement :
+# OR directly:
 bash $HERMES_WORKSPACE/batches/YYYY-Www-batchN-rollback.sh
 
-# 4. Loguer
+# 4. Log
 cat >> $HERMES_WORKSPACE/learnings.md << EOF
 
-- [$(date -u +%Y-%m-%dT%H:%M:%SZ)] PHASE TRANSITION URGENTE : HERMES_MODE=prod → HERMES_MODE=test
-  Avant: production active
-  Après: retour test exclusive
-  Conclusion: <cause exacte du rollback>
-  Futur: investigation + correctif avant nouvelle bascule
+- [$(date -u +%Y-%m-%dT%H:%M:%SZ)] URGENT PHASE TRANSITION: HERMES_MODE=prod → HERMES_MODE=test
+  Before: production active
+  After: return to test exclusive
+  Conclusion: <exact cause of rollback>
+  Future: investigation + fix before new switch
 EOF
 ```
 
 ---
 
-## 5. Indicateurs de succès / d'échec
+## 5. Success / failure indicators
 
-### Succès (bascule réussie après 1 mois)
-- ✅ 4 cycles cron lundi-perf passés sans erreur
-- ✅ Au moins 5 mutations persistantes appliquées et validées
-- ✅ KPI 30j vs baseline : pas de régression
-- ✅ Coût OpenRouter dans le budget
-- ✅ Aucune alerte watchdog non triviale
-- ✅ Tuteur (marchand) satisfait des livrables
+### Success (switch successful after 1 month)
+- ✅ 4 Monday-perf cron cycles passed without error
+- ✅ At least 5 persistent mutations applied and validated
+- ✅ 30d KPIs vs baseline: no regression
+- ✅ OpenRouter cost within budget
+- ✅ No non-trivial watchdog alert
+- ✅ User (merchant) satisfied with deliverables
 
-### Échec (signaux qui justifient rollback)
-- ❌ Mutation persistante non-validée appliquée par erreur
-- ❌ KPI 30j en chute de >20% vs baseline sans cause externe
-- ❌ Sentinelle `EMAIL_SMTP_OK` régulièrement absente (emails perdus)
-- ❌ Validation Telegram /yes ne fonctionne plus (gateway down)
-- ❌ Coût OpenRouter dépasse 2x le budget
-- ❌ Secrets exposés dans les rapports
-
----
-
-## 6. Communication au marchand
-
-Pour le marchand qui supervise Hermes en prod, communiquer chaque semaine :
-- Résumé Telegram automatique (cron lundi-perf)
-- Email automatique (idem)
-- Méta-revue dominicale (Telegram + résumé)
-
-Et chaque mois (manuel ou cron supplémentaire à créer) :
-- Audit mensuel : KPI M-1 vs M, coût, top wins/échecs
-- Décision : continuer / ajuster / désactiver des crons / créer de nouveaux skills
+### Failure (signals that justify rollback)
+- ❌ Unvalidated persistent mutation applied by mistake
+- ❌ 30d KPIs dropping >20% vs baseline with no external cause
+- ❌ `EMAIL_SMTP_OK` sentinel regularly missing (lost emails)
+- ❌ Telegram /yes validation no longer working (gateway down)
+- ❌ OpenRouter cost exceeds 2x the budget
+- ❌ Secrets exposed in reports
 
 ---
 
-## 7. Versionning et evolution
+## 6. Communication to the merchant
 
-À chaque évolution majeure de la config en prod :
-- Backup `.env`, `config.yaml`, `cron/jobs.json`, `STANDING-CORE.md`, `STORE-BRAND.md`, `MISSION.md`
-- Loguer dans `learnings.md` avec une entrée structurée
-- (Optionnel) Pusher la nouvelle config dans un repo git privé (jamais public sauf si entièrement sanitized)
+For the merchant who supervises Hermes in prod, communicate weekly:
+- Automatic Telegram summary (Monday-perf cron)
+- Automatic email (same)
+- Sunday meta-review (Telegram + summary)
+
+And monthly (manual or additional cron to create):
+- Monthly audit: M-1 vs M KPIs, cost, top wins/failures
+- Decision: continue / adjust / disable crons / create new skills
 
 ---
 
-## 8. Decision matrix : faut-il basculer en prod ?
+## 7. Versioning and evolution
 
-Réponds aux questions suivantes après la phase test :
+At every major prod config evolution:
+- Back up `.env`, `config.yaml`, `cron/jobs.json`, `STANDING-CORE.md`, `STORE-BRAND.md`, `MISSION.md`
+- Log in `learnings.md` with a structured entry
+- (Optional) Push the new config to a private git repo (never public unless fully sanitized)
 
-| Question | Réponse souhaitée |
+---
+
+## 8. Decision matrix: should you switch to prod?
+
+Answer the following questions after the test phase:
+
+| Question | Desired answer |
 |---|---|
-| Les rapports hebdo lundi sont-ils précis et actionnables ? | Oui |
-| Les propositions samedi-ideas correspondent-elles à ton univers de marque ? | Oui |
-| Les niveaux d'autonomie 🟢/🟡/🔴 sont-ils calibrés correctement ? | Oui |
-| Hermes a-t-il déjà proposé une mutation cohérente avec ta stratégie ? | Oui (au moins 1) |
-| As-tu testé une validation /yes manuelle sur une mutation ? | Oui |
-| As-tu testé un rollback manuel d'une mutation ? | Oui |
-| Tu fais confiance à Hermes pour appliquer des mutations sans intervention immédiate ? | Oui |
+| Are the Monday weekly reports precise and actionable? | Yes |
+| Do the Saturday-ideas proposals match your brand universe? | Yes |
+| Are the 🟢/🟡/🔴 autonomy levels correctly calibrated? | Yes |
+| Has Hermes already proposed a mutation consistent with your strategy? | Yes (at least 1) |
+| Have you tested a manual /yes validation on a mutation? | Yes |
+| Have you tested a manual rollback of a mutation? | Yes |
+| Do you trust Hermes to apply mutations without immediate intervention? | Yes |
 
-Si TOUTES les réponses sont "Oui" → tu es prêt pour la bascule.
-Si UNE seule est "Non" → continuer la phase test + résoudre le point bloquant avant bascule.
+If ALL answers are "Yes" → you are ready for the switch.
+If ONE is "No" → continue test phase + resolve the blocking point before switching.

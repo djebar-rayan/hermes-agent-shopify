@@ -1,13 +1,13 @@
 {
-  "_comment_": "Template cultural-events.json — Liste des événements/saisons importants pour ta boutique. Lu par le skill shopify-cultural-calendar. Copier dans $HERMES_WORKSPACE/cultural-events.json et personnaliser.",
+  "_comment_": "Template cultural-events.json — List of events/seasons important for your store. Read by the shopify-cultural-calendar skill. Copy to $HERMES_WORKSPACE/cultural-events.json and customize.",
   "_schema_": {
-    "name": "Nom human-readable de l'événement",
-    "date": "YYYY-MM-DD (date exacte ou approchée selon calendrier hijri/lunaire)",
-    "lead_days": "Nb jours avant l'événement où Hermes doit commencer à proposer des campagnes (typiquement 14, 21, ou 30)",
-    "category": "religieux | commercial | culturel | saisonnier | marque",
+    "name": "Human-readable name of the event",
+    "date": "YYYY-MM-DD (exact or approximate date depending on hijri/lunar calendar)",
+    "lead_days": "Number of days before the event when Hermes should start proposing campaigns (typically 14, 21, or 30)",
+    "category": "religious | commercial | cultural | seasonal | brand",
     "campaign_type": "email | instagram | both | product",
-    "vocabulary_boost": "Liste de mots-clés à mettre en avant dans les campagnes liées",
-    "recurring": "true si l'événement revient chaque année (Noël, anniversaire marque), false si one-shot (lancement produit)"
+    "vocabulary_boost": "List of keywords to highlight in related campaigns",
+    "recurring": "true if the event recurs every year (Christmas, brand anniversary), false if one-shot (product launch)"
   },
   "events": [
     {
@@ -16,7 +16,7 @@
       "lead_days": 30,
       "category": "commercial",
       "campaign_type": "both",
-      "vocabulary_boost": ["promo", "réduction", "exclusif", "limité"],
+      "vocabulary_boost": ["promo", "discount", "exclusive", "limited"],
       "recurring": true
     },
     {
@@ -25,43 +25,43 @@
       "lead_days": 14,
       "category": "commercial",
       "campaign_type": "email",
-      "vocabulary_boost": ["digital", "online", "dernier jour"],
+      "vocabulary_boost": ["digital", "online", "last day"],
       "recurring": true
     },
     {
-      "name": "Fête des mères",
+      "name": "Mother's Day",
       "date": "2026-05-31",
       "lead_days": 21,
-      "category": "saisonnier",
+      "category": "seasonal",
       "campaign_type": "both",
-      "vocabulary_boost": ["maman", "cadeau", "amour", "tendresse"],
+      "vocabulary_boost": ["mom", "gift", "love", "tenderness"],
       "recurring": true
     },
     {
-      "name": "Noël",
+      "name": "Christmas",
       "date": "2026-12-25",
       "lead_days": 30,
-      "category": "saisonnier",
+      "category": "seasonal",
       "campaign_type": "both",
-      "vocabulary_boost": ["cadeau", "fêtes", "famille", "réveillon"],
+      "vocabulary_boost": ["gift", "holidays", "family", "celebration"],
       "recurring": true
     },
     {
-      "name": "Lancement collection printemps",
+      "name": "Spring collection launch",
       "date": "2026-03-21",
       "lead_days": 14,
-      "category": "marque",
+      "category": "brand",
       "campaign_type": "both",
-      "vocabulary_boost": ["printemps", "nouveauté", "collection", "fraîcheur"],
+      "vocabulary_boost": ["spring", "new arrival", "collection", "freshness"],
       "recurring": true
     },
     {
-      "name": "Anniversaire <STORE_NAME>",
+      "name": "<STORE_NAME> anniversary",
       "date": "<YYYY-MM-DD>",
       "lead_days": 21,
-      "category": "marque",
+      "category": "brand",
       "campaign_type": "both",
-      "vocabulary_boost": ["anniversaire", "merci", "communauté", "exclusif"],
+      "vocabulary_boost": ["anniversary", "thank you", "community", "exclusive"],
       "recurring": true
     }
   ]

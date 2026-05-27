@@ -1,6 +1,6 @@
 ---
 name: shopify-description-enricher
-description: Enrichit un descriptionHtml court Shopify (>=150 mots, bloc livraison en debut, vocabulaire de marque (STORE-BRAND.md))
+description: Enriches a short Shopify descriptionHtml (>=150 words, shipping block at start, brand vocabulary (STORE-BRAND.md))
 category: e-commerce-content
 version: 1.0.0
 metadata:
@@ -11,14 +11,14 @@ metadata:
 # <STORE_NAME> Description Enricher
 
 ## When to Use
-- Skill compagnon `shopify-catalog-gap-analyzer` quand un descriptionHtml a moins de 150 mots OU manque de bloc livraison en debut
-- Avant `shopify-batch-executor` pour batch descriptions
-- A la demande pour 1 produit
+- Companion skill to `shopify-catalog-gap-analyzer` when a descriptionHtml has fewer than 150 words OR lacks a shipping block at the start
+- Before `shopify-batch-executor` for description batches
+- On demand for a single product
 
 ## Procedure
-Input : `{handle, title, descriptionHtml_actuel, productType?, tags?}`
+Input: `{handle, title, descriptionHtml_actuel, productType?, tags?}`
 
-Output JSON :
+JSON output:
 ```json
 {
   "descriptionHtml_before": "...",
@@ -30,26 +30,26 @@ Output JSON :
 }
 ```
 
-Regles de generation `descriptionHtml_after` :
-- COMMENCE OBLIGATOIREMENT par le bloc livraison dans les chars 0-300 :
+Generation rules for `descriptionHtml_after`:
+- MANDATORILY STARTS with the shipping block within chars 0-300:
   `<p>📦 <strong>Livraison estimee 5-6 jours France metropolitaine</strong>, 8-10 jours international. Expedition soignee depuis la France.</p>`
-- Puis paragraphes : histoire culturelle + lien marque + description produit + materiaux/usage + appel imaginaire (offrir, porter, partager)
-- >= 150 mots au total (texte sans tags HTML)
-- >= 3 mots du vocabulaire de marque (voir STORE-BRAND.md)
-- HTML valide : balises fermees (p, strong, h2, ul/li ok), pas de div/script/style
-- TON <STORE_NAME> : sobre, fier, ancre dans l identite, sans superlatifs gratuits
+- Then paragraphs: cultural history + brand connection + product description + materials/usage + imaginative call (gift, wear, share)
+- >= 150 words total (text without HTML tags)
+- >= 3 brand vocabulary words (see STORE-BRAND.md)
+- Valid HTML: closed tags (p, strong, h2, ul/li ok), no div/script/style
+- <STORE_NAME> TONE: sober, proud, anchored in identity, no gratuitous superlatives
 
-NE PAS appliquer la mutation. C est `shopify-batch-executor` qui le fera via productUpdate.
+DO NOT apply the mutation. `shopify-batch-executor` will handle it via productUpdate.
 
 ## Pitfalls
-- Bloc livraison ailleurs qu en debut (>300 chars) = REFUSE.
-- Word count < 150 = REFUSE.
-- HTML mal forme (balise non fermee) = REFUSE, regenere.
-- Repetitions excessives du nom du produit = penalisee Google.
-- Inventer des materiaux non-confirmes (ex: "soie") sans preuve dans titre/tags = INTERDIT.
+- Shipping block anywhere other than the start (>300 chars) = REFUSED.
+- Word count < 150 = REFUSED.
+- Malformed HTML (unclosed tag) = REFUSED, regenerate.
+- Excessive product name repetition = penalized by Google.
+- Inventing non-confirmed materials (e.g. "silk") without evidence in title/tags = FORBIDDEN.
 
 ## Verification
 - word_count_after >= 150
-- block_livraison_position == 0 (ou <= 300)
+- block_livraison_position == 0 (or <= 300)
 - brand_vocab_used.length >= 3
-- HTML parsable (lxml/beautifulsoup ne leve aucune erreur)
+- HTML parseable (lxml/beautifulsoup raises no error)

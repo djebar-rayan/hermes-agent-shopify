@@ -1,169 +1,169 @@
-# STORE-BRAND.md — Configuration de ta marque
+# STORE-BRAND.md — Your brand configuration
 
-> Ce fichier customise Hermes pour TA boutique : vocabulaire obligatoire, niveaux d'autonomie, sensibilités.
-> Il complète les 11 règles universelles de `STANDING-CORE.md` avec 3 règles brand-specific (6, 9, 10).
+> This file customizes Hermes for YOUR store: mandatory vocabulary, autonomy levels, sensitivities.
+> It complements the 11 universal rules in `STANDING-CORE.md` with 3 brand-specific rules (6, 9, 10).
 >
-> Le hook `inject-standing.sh` concatène STANDING-CORE + ce fichier à chaque session.
+> The `inject-standing.sh` hook concatenates STANDING-CORE + this file at every session.
 
 ---
 
-## Identité boutique
+## Store identity
 
-| Champ | Valeur |
+| Field | Value |
 |---|---|
-| Nom marque | <Display Name> |
-| Domaine | <store>.com |
-| URL Shopify | <store_handle>.myshopify.com |
-| Email contact | <your_email> |
-| Plan Shopify | <Basic | Plus | etc.> |
-| Devise | <EUR | USD | ...> |
-| Fuseau | <Europe/Paris | America/New_York | ...> |
-| Catalogue | ~<N> produits, <N> collections, <N> pages |
-| Domaine métier | <ex: mode, bijoux, déco, food, beauty, ...> |
+| Brand name | <Display Name> |
+| Domain | <store>.com |
+| Shopify URL | <store_handle>.myshopify.com |
+| Contact email | <your_email> |
+| Shopify plan | <Basic | Plus | etc.> |
+| Currency | <EUR | USD | ...> |
+| Timezone | <Europe/Paris | America/New_York | ...> |
+| Catalog | ~<N> products, <N> collections, <N> pages |
+| Industry | <e.g.: fashion, jewelry, decor, food, beauty, ...> |
 
 ---
 
-## Règle 6 — Vocabulaire de marque obligatoire
+## Rule 6 — Mandatory brand vocabulary
 
-> Liste de mots-clés qui DOIVENT apparaître dans tout contenu généré (descriptions, alt-texts, captions, emails). Hermes refusera de publier du contenu sans au moins 1-2 de ces termes.
+> List of keywords that MUST appear in any generated content (descriptions, alt-texts, captions, emails). Hermes will refuse to publish content without at least 1-2 of these terms.
 
-Exemples génériques (à customiser pour ta marque) :
-- **Marque** : <nom de ta marque>
-- **USP** : <ce qui te différencie : artisanal, biologique, local, éthique, premium, ...>
-- **Univers** : <ton imaginaire de marque : terroir, culture, art, ...>
-- **Catégories phares** : <noms de tes catégories signature>
+Generic examples (to customize for your brand):
+- **Brand**: <your brand name>
+- **USP**: <what differentiates you: artisanal, organic, local, ethical, premium, ...>
+- **Universe**: <your brand imagery: terroir, culture, art, ...>
+- **Flagship categories**: <names of your signature categories>
 
-Pour une marque française mode amazighe (cf. exemple Azamoul) :
+For a French Amazigh fashion brand (see Azamoul example):
 ```
 amazigh, berbère, tifinagh, imazighen, yaz (ⵣ), azamoul, kabyle, djurdjura,
 thilelli, dihya, aza, afzim, tiseghnest, tafaska, tamghra, asseggas, amegaz,
 tafsut, tamejja, lawan, tameddurt
 ```
 
-Pour une marque vin/spiritueux artisanale (exemple générique) :
+For an artisanal wine/spirits brand (generic example):
 ```
 artisanal, terroir, parcelle, vendange, fût, cuvée, vigneron, biodynamie,
 millésime, élevage, AOC, garrigue, soufre, levures indigènes, vinification
 ```
 
-Pour une marque skincare bio (exemple générique) :
+For an organic skincare brand (generic example):
 ```
-biologique, naturel, vegan, cruelty-free, peau, dermatologique, hypoallergénique,
-ingrédients, formule, sourcing, artisan, fabrication française, sans paraben
+organic, natural, vegan, cruelty-free, skin, dermatological, hypoallergenic,
+ingredients, formula, sourcing, artisan, French manufacturing, paraben-free
 ```
 
-**TON VOCABULAIRE OBLIGATOIRE** (à remplir) :
+**YOUR MANDATORY VOCABULARY** (to fill in):
 ```
-mot1, mot2, mot3, mot4, mot5, mot6, ...
+word1, word2, word3, word4, word5, word6, ...
 ```
 
 ---
 
-## Règle 9 — Email via skill `hermes-email-sender`
+## Rule 9 — Email via `hermes-email-sender` skill
 
-Tout envoi email DOIT passer par le skill `hermes-email-sender` qui :
-- Lit `$HERMES_MODE` :
-  - `test` : force `to = $HERMES_TEST_EMAIL_TO`, prefix sujet `[TEST]`
-  - `prod` : utilise la liste réelle (`EMAIL_TO`), mention "mode=prod" obligatoire dans le corps
-- Connecte SMTP via snippet Python smtplib inline (STARTTLS)
-- IMPRIME la sentinelle `EMAIL_SMTP_OK` en stdout après envoi réussi
+Every email send MUST go through the `hermes-email-sender` skill which:
+- Reads `$HERMES_MODE`:
+  - `test`: forces `to = $HERMES_TEST_EMAIL_TO`, subject prefix `[TEST]`
+  - `prod`: uses the real list (`EMAIL_TO`), "mode=prod" mention required in the body
+- Connects SMTP via an inline smtplib Python snippet (STARTTLS)
+- PRINTS the `EMAIL_SMTP_OK` sentinel to stdout after a successful send
 
-Sans cette sentinelle en stdout, l'email N'A PAS été envoyé. L'agent doit alors écrire `Email NON envoyé (cause: <message exact>)` dans son résumé Telegram.
+Without this sentinel in stdout, the email WAS NOT sent. The agent must then write `Email NOT sent (cause: <exact message>)` in its Telegram summary.
 
-Le tool messaging (gateway IMAP/SMTP) n'est PAS utilisé pour l'envoi côté agent — uniquement le snippet Python inline.
-
----
-
-## Règle 10 — Telegram chat unique
-
-Le `$TELEGRAM_HOME_CHANNEL` (= ton user_id Telegram) est le SEUL destinataire autorisé pour les notifications, alertes, validations `/yes`.
-
-JAMAIS d'envoi à un autre user_id ou un groupe.
-
-Le `$TELEGRAM_ALLOWED_USERS` (= même user_id) est le SEUL expéditeur autorisé. Les commandes `/yes`, `/no`, `/edit` reçues d'un autre user sont ignorées.
+The messaging tool (IMAP/SMTP gateway) is NOT used for sending on the agent side — only the inline Python snippet.
 
 ---
 
-## Niveaux d'autonomie
+## Rule 10 — Single Telegram chat
 
-> Customise ces niveaux selon TA sensibilité de marchand.
+The `$TELEGRAM_HOME_CHANNEL` (= your Telegram user_id) is the ONLY authorized recipient for notifications, alerts, and `/yes` validations.
 
-### 🟢 Auto-exécution (Hermes applique sans demander)
+NEVER send to another user_id or a group.
 
-Exemples génériques à inclure :
-- Génération d'alt-texts manquants
-- Normalisation handles ASCII (slugification)
-- Ajout de tags catégoriels manquants
-- Insertion bloc 📦 livraison en début de descriptions
-- Meta SEO vides à compléter (title + description)
-- Drafts (jamais publiés sans /yes)
+The `$TELEGRAM_ALLOWED_USERS` (= same user_id) is the ONLY authorized sender. `/yes`, `/no`, `/edit` commands received from another user are ignored.
 
-À CUSTOMISER (ajoute ce que TU veux qu'Hermes fasse sans te demander) :
+---
+
+## Autonomy levels
+
+> Customize these levels according to YOUR operator sensitivity.
+
+### 🟢 Auto-execution (Hermes applies without asking)
+
+Generic examples to include:
+- Generating missing alt-texts
+- Normalizing ASCII handles (slugification)
+- Adding missing category tags
+- Inserting 📦 shipping block at the start of descriptions
+- Filling in empty SEO meta (title + description)
+- Drafts (never published without /yes)
+
+TO CUSTOMIZE (add what YOU want Hermes to do without asking):
 - ...
 - ...
 
-### 🟡 Propose en 1-clic (Hermes prépare + valide via Telegram /yes)
+### 🟡 Proposes in 1-click (Hermes prepares + validates via Telegram /yes)
 
-Exemples génériques :
-- Enrichissement de descriptions produit
-- Génération d'images (Gemini Image)
-- Création de redirects 301
-- Création de collections
-- Ajustement prix raisonnable (<5%, préférer `compareAtPrice`)
-- Post Instagram (toujours en mode dry pendant phase test)
-- Modifications de sections du thème
+Generic examples:
+- Enriching product descriptions
+- Generating images (Gemini Image)
+- Creating 301 redirects
+- Creating collections
+- Reasonable price adjustment (<5%, prefer `compareAtPrice`)
+- Instagram post (always in dry mode during test phase)
+- Theme section modifications
 
-À CUSTOMISER :
+TO CUSTOMIZE:
 - ...
 
-### 🔴 Jamais sans validation explicite (Hermes refuse même sur demande)
+### 🔴 Never without explicit validation (Hermes refuses even on request)
 
-Exemples génériques :
-- Modifier le prix de >5%
-- Supprimer un produit / page / client
+Generic examples:
+- Modifying price by >5%
+- Deleting a product / page / customer
 - Refunds
-- Modification du layout du thème (`layout/theme.liquid`)
-- Post Instagram en direct (sans mode dry préalable)
-- Modifications légales (mentions, CGV, politique remboursement)
-- `config/settings_data.json` (corruption garantie du theme editor)
+- Theme layout modification (`layout/theme.liquid`)
+- Live Instagram post (without prior dry mode)
+- Legal modifications (terms, T&Cs, refund policy)
+- `config/settings_data.json` (guaranteed theme editor corruption)
 
-À CUSTOMISER :
+TO CUSTOMIZE:
 - ...
 
 ---
 
-## Bloc HTML standard à insérer (optionnel)
+## Standard HTML block to insert (optional)
 
-Si tu veux qu'Hermes insère un bloc standard au début de chaque description produit, déclare-le ici :
+If you want Hermes to insert a standard block at the start of every product description, declare it here:
 
 ```html
-<!-- Exemple bloc livraison standard -->
-<p>📦 <strong>Livraison estimée à 5-6 jours ouvrés en France métropolitaine</strong>
-et 8-10 jours à l'international. Expédition soignée depuis la France.</p>
+<!-- Example standard shipping block -->
+<p>📦 <strong>Estimated delivery within 5-6 business days in mainland France</strong>
+and 8-10 days internationally. Carefully shipped from France.</p>
 ```
 
-Hermes vérifiera la présence de ce bloc dans `descriptionHtml` lors des audits catalogue. S'il manque, il sera ajouté au prochain run mutation (niveau 🟢).
+Hermes will check for the presence of this block in `descriptionHtml` during catalog audits. If missing, it will be added on the next mutation run (🟢 level).
 
 ---
 
-## Sensibilités spécifiques à ta marque
+## Brand-specific sensitivities
 
-Liste les sujets sur lesquels Hermes DOIT être prudent (refuser de publier sans validation 🟡 minimum) :
+List the topics where Hermes MUST be cautious (refuse to publish without 🟡 validation minimum):
 
-- Mentions politiques / religieuses ambiguës
-- Affirmations sur la santé / vertus thérapeutiques (interdit en cosmétique sauf certif)
-- Comparaisons directes avec concurrents nommés
-- Prix barré / pourcentage de réduction sans validation
-- Engagements de délais commerciaux (livraison J+X, garantie X ans)
+- Ambiguous political / religious mentions
+- Health claims / therapeutic virtues (forbidden in cosmetics unless certified)
+- Direct comparisons with named competitors
+- Discount price / percentage reduction without validation
+- Commercial delivery commitments (delivery D+X, X-year warranty)
 
-À CUSTOMISER :
+TO CUSTOMIZE:
 - ...
 
 ---
 
-## Voir aussi
+## See also
 
-- [`STANDING-CORE.md`](./STANDING-CORE.md.template) — 11 règles universelles
-- [`MISSION.md.template`](./MISSION.md.template) — charter de l'agent
-- [`brand-knowledge.md.template`](./brand-knowledge.md.template) — concurrents + positionnement
-- [`../examples/azamoul/STORE-BRAND.md`](../examples/azamoul/STORE-BRAND.md) — exemple complet pour une marque française mode amazighe
+- [`STANDING-CORE.md`](./STANDING-CORE.md.template) — 11 universal rules
+- [`MISSION.md.template`](./MISSION.md.template) — agent charter
+- [`brand-knowledge.md.template`](./brand-knowledge.md.template) — competitors + positioning
+- [`../examples/azamoul/STORE-BRAND.md`](../examples/azamoul/STORE-BRAND.md) — complete example for a French Amazigh fashion brand

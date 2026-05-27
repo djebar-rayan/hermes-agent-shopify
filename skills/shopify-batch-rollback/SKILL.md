@@ -1,6 +1,6 @@
 ---
 name: shopify-batch-rollback
-description: Revert un batch productUpdate via snapshot before.json - usage de securite si batch a casse des produits
+description: Revert a productUpdate batch via before.json snapshot - safety usage if a batch broke products
 version: 1.0.0
 author: Hermes (Phase 2 scaffold)
 metadata:
@@ -12,41 +12,41 @@ metadata:
 # Batch Rollback <STORE_NAME>
 
 ## When to Use
-- Apres execution batch-executor si on detecte une regression
-- Sur demande explicite : "rollback batch N" ou "revert le batch d hier"
-- Apres mesure d impact J+7 si impact significativement negatif
-- Test d idempotence (lancer le rollback puis le rollback du rollback = no-op)
+- After batch-executor execution if a regression is detected
+- On explicit request: "rollback batch N" or "revert yesterday's batch"
+- After D+7 impact measurement if impact is significantly negative
+- Idempotence test (running rollback then rollback of rollback = no-op)
 
 ## Procedure
-1. Identifie le batch a rollback : recoit en parametre batchId (ex. "2026-W20-batch1") ou demande au user si ambigu.
+1. Identify the batch to rollback: receives batchId parameter (e.g. "2026-W20-batch1") or asks the user if ambiguous.
 
-2. Verifie l existence du snapshot before.json : $HERMES_WORKSPACE/batches/<batchId>-before.json. Si absent : STOP, impossible de rollback sans snapshot.
+2. Verify before.json snapshot exists: $HERMES_WORKSPACE/batches/<batchId>-before.json. If missing: STOP, cannot rollback without snapshot.
 
-3. Charge le snapshot JSON (array de produits avec leurs valeurs originales tags + descriptionHtml + updatedAt).
+3. Load the JSON snapshot (array of products with their original tags + descriptionHtml + updatedAt values).
 
-4. Pour chaque produit dans le snapshot :
-   a. Capture l etat ACTUEL via GraphQL product(id) (pour comparer et verifier qu il y a bien eu mutation depuis le snapshot)
-   b. Si actuel == snapshot : skip (deja a l etat d origine, idempotent)
-   c. Sinon : execute productUpdate avec les valeurs du snapshot (tags + descriptionHtml)
-   d. Espacement 2s entre mutations
+4. For each product in the snapshot:
+   a. Capture CURRENT state via GraphQL product(id) (to compare and verify there was indeed a mutation since the snapshot)
+   b. If current == snapshot: skip (already at original state, idempotent)
+   c. Otherwise: execute productUpdate with snapshot values (tags + descriptionHtml)
+   d. 2s spacing between mutations
 
-5. Genere $HERMES_WORKSPACE/batches/<batchId>-rollback-YYYY-MM-DDTHH:MM.md avec :
-   - Liste produits rollback (succes / skip / echec)
-   - Diff actuel vs snapshot pour audit
+5. Generate $HERMES_WORKSPACE/batches/<batchId>-rollback-YYYY-MM-DDTHH:MM.md with:
+   - List of rollback products (success / skip / failure)
+   - Current vs snapshot diff for audit
 
-6. Notifie Telegram + email :
-   "Rollback batch <batchId> termine. X/10 produits restaures, Y skip (deja a l origine), Z echecs."
+6. Notify Telegram + email:
+   "Rollback batch <batchId> completed. X/10 products restored, Y skipped (already at origin), Z failures."
 
-7. Log dans learnings.md : ajout entree "Rollback batch <batchId>" avec resultats.
+7. Log in learnings.md: add entry "Rollback batch <batchId>" with results.
 
 ## Pitfalls
-- Idempotent obligatoire : un produit deja a l etat d origine est SKIP, pas re-mute (evite des updates inutiles).
-- Si le produit a ete modifie manuellement par l utilisateur entre temps : log un warning mais procede au rollback (priorite a la securite du snapshot).
-- En cas d echec productUpdate : continue les autres, log l erreur exacte. Ne JAMAIS abandonner en milieu de rollback.
-- Aucune validation tuteur requise pour rollback (action de securite, doit etre rapide).
+- Idempotent mandatory: a product already at origin state is SKIPPED, not re-mutated (avoids unnecessary updates).
+- If the product was modified manually by the user in the meantime: log a warning but proceed with rollback (snapshot safety takes priority).
+- On productUpdate failure: continue with others, log the exact error. NEVER abandon mid-rollback.
+- No operator validation required for rollback (safety action, must be fast).
 
 ## Verification
-- Fichier <batchId>-rollback-YYYY-MM-DDTHH:MM.md cree
-- Telegram + email envoyes avec stats
-- learnings.md a une entree rollback
-- shopify store execute confirme l etat post-rollback == snapshot pour les produits non-skip
+- <batchId>-rollback-YYYY-MM-DDTHH:MM.md file created
+- Telegram + email sent with stats
+- learnings.md has a rollback entry
+- shopify store execute confirms post-rollback state == snapshot for non-skip products

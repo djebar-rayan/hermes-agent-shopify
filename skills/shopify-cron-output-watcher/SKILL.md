@@ -1,6 +1,6 @@
 ---
 name: shopify-cron-output-watcher
-description: Pattern pour monitorer et valider l'exécution autonome des crons déclenchés.
+description: Pattern to monitor and validate autonomous execution of triggered crons.
 version: 0.1.0
 author: Hermes auto-meta grand-run-2026-W20
 category: devops
@@ -11,20 +11,20 @@ tags:
 ---
 
 ### When to Use
-Utiliser ce pattern lorsque vous déclenchez un des 4 crons principaux d'<STORE_NAME> (lundi-perf, samedi-ideas, dimanche-meta, watchdog-conversion) pour valider leur exécution réussie.
+Use this pattern when triggering one of the 4 main <STORE_NAME> crons (lundi-perf, samedi-ideas, dimanche-meta, watchdog-conversion) to validate their successful execution.
 
 ### Procedure
-1. Déclencher le script ou la commande du cron.
-2. Poll (surveiller) le répertoire de sortie défini (ex: /root/shopify-cron-logs/).
-3. Parser le fichier de résultat généré (ex: ## Response header).
-4. Confirmer que la sortie est formatée correctement et que les actions (email/log) ont bien été déclenchées.
+1. Trigger the cron script or command.
+2. Poll the defined output directory (e.g. /root/shopify-cron-logs/).
+3. Parse the generated result file (e.g. ## Response header).
+4. Confirm the output is correctly formatted and that actions (email/log) were indeed triggered.
 
 ### Pitfalls
-- Ne pas attendre la génération du fichier de log (prévoir un léger délai de polling).
-- Ne pas purger les anciens logs avant le trigger, ce qui induit en erreur sur le timestamp.
-- Ignorer les erreurs silencieuses dans stderr si le code de sortie est 0.
+- Don't fail to wait for log file generation (allow a slight polling delay).
+- Don't purge old logs before triggering, which would mislead the timestamp.
+- Don't ignore silent errors in stderr when exit code is 0.
 
 ### Verification
-- Fichier de sortie présent et horodaté.
-- Contenu du fichier sans erreur de type "Traceback" ou "AuthenticationError".
-- Les actions décrites dans le rapport (ex: email sent) correspondent à l'attente du test.
+- Output file present and timestamped.
+- File content free of "Traceback" or "AuthenticationError" type errors.
+- Actions described in the report (e.g. email sent) match the test expectation.

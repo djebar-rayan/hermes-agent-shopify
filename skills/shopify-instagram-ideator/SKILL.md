@@ -1,6 +1,6 @@
 ---
 name: shopify-instagram-ideator
-description: Génère une idée de post Instagram complète (format, caption FR/EN, hashtags, visuel)
+description: Generates a complete Instagram post idea (format, FR/EN caption, hashtags, visual)
 version: 1.0.0
 author: Hermes (initial scaffold)
 metadata:
@@ -8,25 +8,25 @@ metadata:
     tags: [instagram, content, growth, framework]
     category: marketing
 ---
-# Idéateur Posts Instagram <STORE_NAME>
+# Instagram Post Ideator <STORE_NAME>
 
 ## When to Use
-Chaque samedi à 10h (cron `shopify-samedi-ideas`), ou sur demande "idée Insta".
+Every Saturday at 10am (cron `shopify-samedi-ideas`), or on request "Insta idea".
 
 ## Procedure
-1. Lis `brand-knowledge.md` (style visuel, hashtags performants, posts récents)
-2. Lis `learnings.md` pour posts précédents et leur engagement
-3. Décide format : carrousel | reel | single | story
-4. Décide thème : storytelling / éducation culturelle / mise en scène / témoignage
-5. Rédige caption complète (hook, corps, CTA) en FR (+ EN si pertinent)
-6. 15 hashtags optimisés (mix gros/niches)
-7. Décris le visuel OU description visuelle textuelle (génération image indisponible Phase 1)
-8. Date/heure de pub recommandée
+1. Read `brand-knowledge.md` (visual style, top-performing hashtags, recent posts)
+2. Read `learnings.md` for previous posts and their engagement
+3. Decide format: carousel | reel | single | story
+4. Decide theme: storytelling / cultural education / scene setting / testimonial
+5. Write a complete caption (hook, body, CTA) in FR (+ EN if relevant)
+6. 15 optimized hashtags (big/niche mix)
+7. Describe the visual OR textual visual description (image generation unavailable in Phase 1)
+8. Recommended publish date/time
 
 ## Pitfalls
-- Vocabulaire de marque obligatoire (voir STORE-BRAND.md)
-- Pas de stéréotypes
-- Pas de génération directe via API IG — TOUJOURS proposer (validation au tuteur)
+- Brand vocabulary mandatory (see STORE-BRAND.md)
+- No stereotypes
+- No direct generation via IG API — ALWAYS propose (operator validation)
 
 ## Verification
-Output structuré : Format / Thème / Caption / Hashtags / Visuel / Date / CTA
+Structured output: Format / Theme / Caption / Hashtags / Visual / Date / CTA

@@ -1,34 +1,34 @@
 # Hermes — Reusable AI Growth Agent Framework for Shopify
 
-> **Hermes** est un framework d'agent IA autonome conçu pour piloter la croissance commerciale d'une boutique Shopify de bout en bout — SEO, contenu, images, UX, emailing, posts Instagram, et même le code du thème Liquid.
+> **Hermes** is an autonomous AI agent framework designed to drive end-to-end commercial growth for a Shopify store — SEO, content, images, UX, emailing, Instagram posts, and even Liquid theme code.
 >
-> Ce dépôt contient **25 skills réutilisables**, **4 crons hebdomadaires**, **16 intégrations API** prêtes à l'emploi, et un **cas d'étude live** ([`examples/azamoul/`](./examples/azamoul/)) montrant Hermes en production sur une vraie boutique.
+> This repo contains **25 reusable skills**, **4 weekly crons**, **16 ready-to-use API integrations**, and a **live case study** ([`examples/azamoul/`](./examples/azamoul/)) showing Hermes in production on a real store.
 
-`v0.14.0` · **25 skills** · 4 crons · 16 intégrations · MIT License
+`v0.14.0` · **25 skills** · 4 crons · 16 integrations · MIT License
 
 ---
 
 ## ⚡ TL;DR
 
-Hermes regarde la boutique tous les jours, identifie ce qui peut être amélioré, prépare les changements, demande validation du marchand via Telegram + email, applique après accord. Il apprend de chaque action et améliore ses propres prochaines décisions — y compris en **créant de nouveaux skills automatiquement** quand un pattern devient récurrent.
+Hermes monitors the store every day, identifies what can be improved, prepares the changes, requests merchant validation via Telegram + email, and applies them after approval. It learns from every action and improves its own future decisions — including by **automatically creating new skills** when a pattern becomes recurrent.
 
-**Cycle hebdo automatisé** :
-- 🗓️ **Lundi 9h** — Rapport perf hebdo (KPI Shopify + Klaviyo, diagnostic, prédictions)
-- 🎨 **Samedi 10h** — Email créatif (1 idée produit + 1 idée Insta + 1 draft campagne email)
-- 🔄 **Dimanche 20h** — Méta-revue auto-amélioration (peut créer de nouveaux skills)
-- 👁️ **Toutes les 6h** — Watchdog conversion (silencieux par défaut, alerte si chute)
+**Automated weekly cycle**:
+- 🗓️ **Monday 9am** — Weekly performance report (Shopify + Klaviyo KPIs, diagnostics, predictions)
+- 🎨 **Saturday 10am** — Creative email (1 product idea + 1 Instagram idea + 1 email campaign draft)
+- 🔄 **Sunday 8pm** — Self-improvement meta-review (can create new skills)
+- 👁️ **Every 6 hours** — Conversion watchdog (silent by default, alerts on drops)
 
 ---
 
-## 🚀 Démarrer
+## 🚀 Get Started
 
-Tu as une boutique Shopify et tu veux installer Hermes dessus ? Suis le guide :
+You have a Shopify store and want to install Hermes on it? Follow the guide:
 
-👉 **[`GETTING-STARTED.md`](./GETTING-STARTED.md)** — Setup pas-à-pas pour une nouvelle boutique
+👉 **[`GETTING-STARTED.md`](./GETTING-STARTED.md)** — Step-by-step setup for a new store
 
-Tu veux voir Hermes en production sur une vraie boutique ?
+Want to see Hermes in production on a real store?
 
-👉 **[`examples/azamoul/`](./examples/azamoul/)** — Cas d'étude complet (marque française, ~96 produits, 4 crons actifs depuis mai 2026)
+👉 **[`examples/azamoul/`](./examples/azamoul/)** — Complete case study (French brand, ~96 products, 4 active crons since May 2026)
 
 ---
 
@@ -37,115 +37,115 @@ Tu veux voir Hermes en production sur une vraie boutique ?
 ```
         ┌─────────────────────────────────────────────────┐
         │           docs/ARCHITECTURE.md                  │
-        │   (charter framework — lu à chaque cycle)       │
+        │   (framework charter — read each cycle)         │
         └─────────────────────────────────────────────────┘
                             │
                             ▼
             ┌─────────────────────────────┐
-            │  STANDING-CORE (11 règles)  │ ◄── injecté chaque session
-            │  STORE-BRAND.md (3 règles)  │     via hook on_session_start
-            │  MEMORY.md (faits)          │
+            │  STANDING-CORE (11 rules)   │ ◄── injected each session
+            │  STORE-BRAND.md (3 rules)   │     via on_session_start hook
+            │  MEMORY.md (facts)          │
             └─────────────────────────────┘
                             │
                             ▼
         ┌─────────────────────────────────────────┐
-        │           25 SKILLS atomiques            │
+        │           25 atomic SKILLS               │
         │  21 shopify-*  +  4 hermes-* (utilities) │
         └─────────────────────────────────────────┘
                             │
               ┌─────────────┼─────────────┐
               ▼             ▼             ▼
        ┌──────────┐   ┌──────────┐  ┌──────────────┐
-       │  4 CRONS │   │ Triggers │  │ Hook events  │
-       │  hebdo   │   │ manuels  │  │ (auto-log)   │
+       │  4 CRONS │   │  Manual  │  │ Hook events  │
+       │  weekly  │   │ triggers │  │  (auto-log)  │
        └──────────┘   └──────────┘  └──────────────┘
                             │
                             ▼
         ┌─────────────────────────────────────────┐
-        │      OUTPUTS (rapport, mail, Telegram,  │
-        │      mutation Shopify, theme files,     │
-        │      draft campagne)                    │
+        │      OUTPUTS (report, email, Telegram,  │
+        │      Shopify mutation, theme files,     │
+        │      campaign draft)                    │
         └─────────────────────────────────────────┘
                             │
                             ▼
         ┌─────────────────────────────────────────┐
-        │   learnings.md (append-only) → mémoire  │
-        │   OpenViking (RAG cross-session)        │
+        │   learnings.md (append-only) → memory   │
+        │   OpenViking (cross-session RAG)        │
         └─────────────────────────────────────────┘
 ```
 
 ---
 
-## 🛠️ Stack technique
+## 🛠️ Tech Stack
 
-| Composant | Version |
+| Component | Version |
 |---|---|
 | Hermes Agent | `v0.14.0` |
 | Python | 3.11+ |
 | Node.js | 20+ |
 | Shopify CLI | 3.94+ |
-| Memory provider | OpenViking 0.3.16 (port 1933, embedding local) |
-| LLM principal | `google/gemini-3.1-flash-lite-preview` via OpenRouter |
-| Context length | 262 144 tokens |
-| Hôte | Tout VPS Ubuntu 24.04+ |
+| Memory provider | OpenViking 0.3.16 (port 1933, local embedding) |
+| Primary LLM | `google/gemini-3.1-flash-lite-preview` via OpenRouter |
+| Context length | 262,144 tokens |
+| Host | Any Ubuntu 24.04+ VPS |
 
 ---
 
-## 🧠 25 Skills opérationnels
+## 🧠 25 Operational Skills
 
-| Catégorie | Skills |
+| Category | Skills |
 |---|---|
-| **Monitoring & rapport** | `shopify-weekly-perf-report`, `shopify-baseline-kpi-fetch`, `shopify-low-conversion-diagnostic`, `shopify-kpi-drop-watchdog` |
+| **Monitoring & reporting** | `shopify-weekly-perf-report`, `shopify-baseline-kpi-fetch`, `shopify-low-conversion-diagnostic`, `shopify-kpi-drop-watchdog` |
 | **Klaviyo** | `shopify-klaviyo-weekly-report`, `shopify-klaviyo-campaign-ideator`, `shopify-klaviyo-drop-watchdog` |
 | **E-commerce mutation** | `shopify-batch-executor`, `shopify-batch-rollback`, `shopify-catalog-gap-analyzer`, `shopify-theme-editor`, `hermes-schema-guard` |
 | **Content / SEO** | `shopify-description-enricher`, `shopify-metatitle-generator`, `shopify-altext-generator`, `shopify-seo-mutation-batcher` |
 | **Ideation** | `shopify-instagram-ideator`, `shopify-product-ideator`, `shopify-cultural-calendar` |
-| **Campagne** | `shopify-cultural-campaign-drafter`, `shopify-instagram-publisher` |
+| **Campaign** | `shopify-cultural-campaign-drafter`, `shopify-instagram-publisher` |
 | **Messaging** | `hermes-email-sender` |
 | **DevOps** | `shopify-cron-output-watcher`, `hermes-snapshot-diff-validator`, `hermes-storefront-http-verifier` |
 
-Catalogue complet et fiches détaillées dans [`docs/SKILLS-REFERENCE.md`](./docs/SKILLS-REFERENCE.md).
+Full catalog and detailed sheets in [`docs/SKILLS-REFERENCE.md`](./docs/SKILLS-REFERENCE.md).
 
 ---
 
-## ⚙️ Helpers réutilisables `lib/`
+## ⚙️ Reusable Helpers `lib/`
 
 ### `lib/klaviyo-fetch.sh`
-Façade unifiée API Klaviyo (revision `2024-10-15`). Cache 6h, retry exponentiel sur 429, 7 endpoints (`flows`, `campaigns`, `metrics`, `segments`, `lists`, `profiles-count`, `metric-aggregate`).
+Unified Klaviyo API facade (revision `2024-10-15`). 6h cache, exponential retry on 429, 7 endpoints (`flows`, `campaigns`, `metrics`, `segments`, `lists`, `profiles-count`, `metric-aggregate`).
 
 ### `lib/theme.sh`
-Library bash pour ops thème Shopify headless. 14 fonctions : `theme_get/backup/lint/diff/push/push_many/verify/duplicate/preview_url/delete/publish/list/safety_level/check_env`. Contourne l'absence du scope OAuth `write_themes` via **Theme Access token** (`shptka_`).
+Bash library for headless Shopify theme operations. 14 functions: `theme_get/backup/lint/diff/push/push_many/verify/duplicate/preview_url/delete/publish/list/safety_level/check_env`. Works around the missing `write_themes` OAuth scope via **Theme Access token** (`shptka_`).
 
 ---
 
 ## 📚 Documentation
 
-| Doc | Contenu |
+| Doc | Content |
 |---|---|
-| [`docs/OVERVIEW.md`](./docs/OVERVIEW.md) | Vue d'ensemble narrative du framework |
-| [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | Charter framework + niveaux d'autonomie + auto-amélioration |
-| [`docs/AUTOMATION.md`](./docs/AUTOMATION.md) | 4 crons + hooks v0.14 + 14 règles STANDING + memory system |
-| [`docs/SKILLS-REFERENCE.md`](./docs/SKILLS-REFERENCE.md) | Catalogue détaillé des 25 skills |
-| [`docs/WORKSPACE-STRUCTURE.md`](./docs/WORKSPACE-STRUCTURE.md) | Structure du workspace + toolkit Node.js + workflow standard |
-| [`docs/INTEGRATIONS.md`](./docs/INTEGRATIONS.md) | 16 APIs externes intégrées |
-| [`docs/VPS-SETUP.md`](./docs/VPS-SETUP.md) | Spécifications techniques VPS + setup |
-| [`docs/CONFIG-STRUCTURE.md`](./docs/CONFIG-STRUCTURE.md) | Architecture de configuration optimale |
-| [`docs/PRODUCTION-CHECKLIST.md`](./docs/PRODUCTION-CHECKLIST.md) | Checklist de bascule test → prod |
+| [`docs/OVERVIEW.md`](./docs/OVERVIEW.md) | Narrative overview of the framework |
+| [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) | Framework charter + autonomy levels + self-improvement |
+| [`docs/AUTOMATION.md`](./docs/AUTOMATION.md) | 4 crons + v0.14 hooks + 14 STANDING rules + memory system |
+| [`docs/SKILLS-REFERENCE.md`](./docs/SKILLS-REFERENCE.md) | Detailed catalog of the 25 skills |
+| [`docs/WORKSPACE-STRUCTURE.md`](./docs/WORKSPACE-STRUCTURE.md) | Workspace structure + Node.js toolkit + standard workflow |
+| [`docs/INTEGRATIONS.md`](./docs/INTEGRATIONS.md) | 16 integrated external APIs |
+| [`docs/VPS-SETUP.md`](./docs/VPS-SETUP.md) | VPS technical specifications + setup |
+| [`docs/CONFIG-STRUCTURE.md`](./docs/CONFIG-STRUCTURE.md) | Optimal configuration architecture |
+| [`docs/PRODUCTION-CHECKLIST.md`](./docs/PRODUCTION-CHECKLIST.md) | Test → prod switchover checklist |
 
 ---
 
-## 🗂️ Structure du repo
+## 🗂️ Repo Structure
 
 ```
 .
-├── README.md                 ← Tu es ici
-├── GETTING-STARTED.md        ← Setup pour une nouvelle boutique
-├── CONTRIBUTING.md           ← Comment contribuer
+├── README.md                 ← You are here
+├── GETTING-STARTED.md        ← Setup for a new store
+├── CONTRIBUTING.md           ← How to contribute
 ├── LICENSE                   ← MIT
-├── docs/                     ← Documentation framework générique
-├── skills/                   ← 25 SKILL.md atomiques
-├── lib/                      ← Helpers bash réutilisables (theme.sh, klaviyo-fetch.sh)
-├── config/                   ← Templates de configuration
+├── docs/                     ← Generic framework documentation
+├── skills/                   ← 25 atomic SKILL.md
+├── lib/                      ← Reusable bash helpers (theme.sh, klaviyo-fetch.sh)
+├── config/                   ← Configuration templates
 │   ├── .env.template
 │   ├── cron-jobs.json.template
 │   ├── STORE-BRAND.md.template
@@ -153,34 +153,34 @@ Library bash pour ops thème Shopify headless. 14 fonctions : `theme_get/backup/
 │   ├── MEMORY.md.template
 │   ├── STANDING-CORE.md.template
 │   └── cultural-events.json.template
-├── examples/azamoul/         ← Cas d'étude live (marque française)
-└── archive/                  ← Historique du projet pilote
+├── examples/azamoul/         ← Live case study (French brand)
+└── archive/                  ← History of the pilot project
 ```
 
 ---
 
-## 🎯 Cas d'étude live — Azamoul
+## 🎯 Live Case Study — Azamoul
 
-Hermes tourne en production depuis mai 2026 sur [azamoul.com](https://azamoul.com), une marque française qui valorise la culture amazighe (berbère) via la mode et les accessoires.
+Hermes has been running in production since May 2026 on [azamoul.com](https://azamoul.com), a French brand that celebrates Amazigh (Berber) culture through fashion and accessories.
 
-Quelques métriques opérationnelles :
-- ~96 produits actifs, 19 collections, 11 pages
-- 4 crons actifs (88 runs cumulés sans erreur au 2026-05-27)
-- 25 skills opérationnels (dont 1 créé automatiquement par l'agent en méta-revue dominicale)
-- 1.08M tokens consommés sur 7 jours, ~6h de temps actif
-- Bulk update de 62 produits textiles en un run (theme editor v1.1)
+A few operational metrics:
+- ~96 active products, 19 collections, 11 pages
+- 4 active crons (88 cumulative runs with no errors as of 2026-05-27)
+- 25 operational skills (including 1 automatically created by the agent during a Sunday meta-review)
+- 1.08M tokens consumed over 7 days, ~6h of active time
+- Bulk update of 62 textile products in a single run (theme editor v1.1)
 
-Tout le détail dans [`examples/azamoul/`](./examples/azamoul/).
+Full details in [`examples/azamoul/`](./examples/azamoul/).
 
 ---
 
-## 🤝 Contribuer
+## 🤝 Contributing
 
-Tu veux ajouter un skill, une intégration, un helper ? Voir [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+Want to add a skill, integration, or helper? See [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
-Convention de nommage :
-- `shopify-*` pour les skills domaine Shopify (catalogue, theme, KPI, Klaviyo, Instagram, etc.)
-- `hermes-*` pour les utilities framework (email, schema-guard, validators)
+Naming convention:
+- `shopify-*` for Shopify domain skills (catalog, theme, KPI, Klaviyo, Instagram, etc.)
+- `hermes-*` for framework utilities (email, schema-guard, validators)
 
 ---
 
@@ -190,6 +190,6 @@ Convention de nommage :
 
 ---
 
-## 🙏 Crédits
+## 🙏 Credits
 
-Hermes Agent est développé sur l'Agent SDK Anthropic + Hermes runtime (v0.14.0). Ce framework est né du besoin opérationnel de la boutique Azamoul, puis a été généralisé pour servir n'importe quel marchand Shopify.
+Hermes Agent is built on the Anthropic Agent SDK + Hermes runtime (v0.14.0). This framework was born from the operational needs of the Azamoul store, then generalized to serve any Shopify merchant.

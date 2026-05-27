@@ -1,64 +1,64 @@
 # Workspace Structure — `$HERMES_WORKSPACE/`
 
-> Le workspace est l'espace de travail propre à TA boutique. Tous les artefacts produits par Hermes (rapports, batches, campagnes, theme backups) y sont stockés. Le framework dans `/root/.hermes/` reste neutre et générique.
+> The workspace is the working space specific to YOUR store. All artifacts produced by Hermes (reports, batches, campaigns, theme backups) are stored there. The framework in `/root/.hermes/` stays neutral and generic.
 >
-> Voir [`../examples/azamoul/`](../examples/azamoul/) pour des exemples concrets de rapports, méta-revues, et brand-knowledge.
+> See [`../examples/azamoul/`](../examples/azamoul/) for concrete examples of reports, meta-reviews, and brand-knowledge.
 
 ---
 
-## 1. Arborescence type
+## 1. Typical tree
 
 ```
 $HERMES_WORKSPACE/              (ex: /root/mystore-shopify/)
-├── MISSION.md                  ← Charte permanente de l'agent pour TA boutique
-├── STORE-BRAND.md              ← Vocabulaire + niveaux autonomie + sensibilités
-├── brand-knowledge.md          ← Concurrents + USP + positionnement
-├── cultural-events.json        ← Événements/saisons importants
-├── MEMORY.md                   ← Faits permanents boutique
-├── learnings.md                ← Journal append-only (auto-logué par hook)
-├── baseline-kpi-30j.md         ← Snapshot KPI initial (généré à l'install)
-├── gsc-30j.md                  ← Google Search Console 30j (si GSC configuré)
+├── MISSION.md                  ← Permanent charter of the agent for YOUR store
+├── STORE-BRAND.md              ← Vocabulary + autonomy levels + sensitivities
+├── brand-knowledge.md          ← Competitors + USP + positioning
+├── cultural-events.json        ← Important events/seasons
+├── MEMORY.md                   ← Permanent store facts
+├── learnings.md                ← Append-only journal (auto-logged by hook)
+├── baseline-kpi-30j.md         ← Initial KPI snapshot (generated at install)
+├── gsc-30j.md                  ← Google Search Console 30d (if GSC configured)
 │
-├── reports/                    ← Rapports hebdo (lundi-perf + samedi-ideas)
-├── meta-reviews/               ← Méta-revues dominicales
-├── audits/                     ← Audits qualité catalogue ponctuels
-├── batches/                    ← Batches productUpdate (preview + rollback)
-├── campaigns/                  ← Drafts Klaviyo par événement
+├── reports/                    ← Weekly reports (Monday-perf + Saturday-ideas)
+├── meta-reviews/               ← Sunday meta-reviews
+├── audits/                     ← Ad-hoc catalog quality audits
+├── batches/                    ← productUpdate batches (preview + rollback)
+├── campaigns/                  ← Klaviyo drafts per event
 │   ├── <event-1>/
 │   ├── <event-2>/
 │   └── ...
-├── theme-backups/              ← Sauvegardes templates Liquid avant mutation
-└── shopify-automation-toolkit/ ← Toolkit Node.js réutilisable (cœur du système)
+├── theme-backups/              ← Liquid template backups before mutation
+└── shopify-automation-toolkit/ ← Reusable Node.js toolkit (system core)
 ```
 
-Variable d'environnement : `HERMES_WORKSPACE=/root/<store_handle>-shopify` (configurable dans `.env`).
+Environment variable: `HERMES_WORKSPACE=/root/<store_handle>-shopify` (configurable in `.env`).
 
 ---
 
 ## 2. Toolkit `shopify-automation-toolkit/`
 
-Module Node.js réutilisable v1.0.0 (Node ≥18), zéro dépendance npm, pilotage par task files Markdown + Gemini.
+Reusable Node.js module v1.0.0 (Node ≥18), zero npm dependency, driven by Markdown task files + Gemini.
 
-### 2.1 `lib/` — Modules cœur
+### 2.1 `lib/` — Core modules
 
-| Fichier | Rôle |
+| File | Role |
 |---|---|
-| `shopify-graphql.js` | Client GraphQL Admin via `shopify store execute` — règles critiques : `--query-file` (jamais inline), `stdio: 'inherit'`, pas d'enveloppe `.data` |
-| `config.js` | Chargement `.env`, constantes, chemins |
-| `image-upload.js` | Upload Shopify Files (`stagedUploadsCreate` → `resource: PRODUCT_IMAGE`) |
-| `gemini-image.js` | Génération images via Gemini Image (flash-image-preview) |
-| `filter-dsl.js` | Mini-langage de filtrage produits |
-| `store-data.js` | Lecture des dumps `store-data/` |
-| `gemini-vision.js` | Audit visuel produit via Gemini Vision |
-| `task-file.js` | Parseur task files Markdown |
-| `gemini-text.js` | Génération texte Gemini (descriptions, SEO) |
-| `cli.js` | Utilitaires CLI (sleep, args) |
-| `image-validate.js` | Validation images (dimensions, format, taille) |
-| `image-download.js` | Download d'images depuis URLs |
+| `shopify-graphql.js` | GraphQL Admin client via `shopify store execute` — critical rules: `--query-file` (never inline), `stdio: 'inherit'`, no `.data` wrapper |
+| `config.js` | `.env` loading, constants, paths |
+| `image-upload.js` | Shopify Files upload (`stagedUploadsCreate` → `resource: PRODUCT_IMAGE`) |
+| `gemini-image.js` | Image generation via Gemini Image (flash-image-preview) |
+| `filter-dsl.js` | Mini product filtering language |
+| `store-data.js` | Reading `store-data/` dumps |
+| `gemini-vision.js` | Visual product audit via Gemini Vision |
+| `task-file.js` | Markdown task file parser |
+| `gemini-text.js` | Gemini text generation (descriptions, SEO) |
+| `cli.js` | CLI utilities (sleep, args) |
+| `image-validate.js` | Image validation (dimensions, format, size) |
+| `image-download.js` | Image download from URLs |
 | `text.js` | `stripHtml`, `wordCount`, `escapeMd`, `trunc` |
-| `builders/` | Sous-modules : `content-prompts.js`, `handle.js`, `seo-meta.js`, `shipping.js`, `translit-presets/` |
+| `builders/` | Sub-modules: `content-prompts.js`, `handle.js`, `seo-meta.js`, `shipping.js`, `translit-presets/` |
 
-### 2.2 Modules d'action
+### 2.2 Action modules
 
 ```
 audit/        audit.js, full-audit.js, examples/(content-thin, images-low, seo-missing)
@@ -68,190 +68,190 @@ seo/          seo-update.js, examples/(meta-titles, meta-descriptions, alt-texts
 images/       image-alt.js, image-audit.js, image-generate.js, image-upload.js, visual-audit.js
               examples/(audit-images, audit-visual, generate-multi-variant, update-alt-texts)
 integrations/ klaviyo/(klaviyo-export.js), shopify-email/(adapt-templates.js)
-queries/      *.graphql files (queries stockées)
-tasks/        _template.md, README.md (task files Markdown)
+queries/      *.graphql files (stored queries)
+tasks/        _template.md, README.md (Markdown task files)
 docs/         COMMAND_REFERENCE, GEMINI_SETUP, QUICK_START, SHOPIFY_AUTH, SKILLS, TASK_FORMAT, TROUBLESHOOTING
-store-data/   Dumps Markdown : products.md, collections.md, customers.md, orders.md,
+store-data/   Markdown dumps: products.md, collections.md, customers.md, orders.md,
               pages.md, metafields.md, navigation.md, redirects.md, store-meta.md
 ```
 
-### 2.3 `fetch-store-data.js` — Extracteur initial
+### 2.3 `fetch-store-data.js` — Initial extractor
 
-Read-only, alimente `store-data/` avec un fichier Markdown par catégorie. Source of truth locale, rejouable à volonté. Durée typique : 60-180s selon la taille du catalogue.
+Read-only, feeds `store-data/` with one Markdown file per category. Local source of truth, replayable at will. Typical duration: 60-180s depending on catalog size.
 
-### 2.4 Scripts npm
+### 2.4 npm scripts
 
 ```bash
 npm run fetch              # node fetch-store-data.js
-npm run audit              # audit ciblé via task file
-npm run audit:full         # audit complet catalogue
-npm run image:audit        # audit images (dimensions, alt-text)
-npm run image:visual-audit # audit visuel Gemini Vision
-npm run klaviyo:export     # export Klaviyo legacy
-npm run klaviyo:adapt      # adaptation templates Shopify Email → Klaviyo
-npm run syntax-check       # vérifie tous les .js parsent
+npm run audit              # targeted audit via task file
+npm run audit:full         # full catalog audit
+npm run image:audit        # image audit (dimensions, alt-text)
+npm run image:visual-audit # visual audit Gemini Vision
+npm run klaviyo:export     # legacy Klaviyo export
+npm run klaviyo:adapt      # Shopify Email → Klaviyo template adaptation
+npm run syntax-check       # checks all .js parse
 npm run test:shopify       # test-shopify-connection.js
 ```
 
 ---
 
-## 3. Workflow standard
+## 3. Standard workflow
 
 ```
-1. fetch-store-data.js          → dump Markdown du catalogue (read-only)
-2. audit/full-audit.js          → identifie produits faibles (description, SEO, images)
-3. tasks/*.md (task file)       → décrit la mutation à appliquer
-4. content|seo|images/*.js      → exécute via shopify-graphql.js
-5. re-fetch                     → snapshot N+1
-6. hermes-snapshot-diff-validator → diff avant/après archivé dans batches/
-7. learnings.md                 → log auto par hook post_tool_call
+1. fetch-store-data.js          → Markdown dump of catalog (read-only)
+2. audit/full-audit.js          → identifies weak products (description, SEO, images)
+3. tasks/*.md (task file)       → describes the mutation to apply
+4. content|seo|images/*.js      → executes via shopify-graphql.js
+5. re-fetch                     → N+1 snapshot
+6. hermes-snapshot-diff-validator → before/after diff archived in batches/
+7. learnings.md                 → auto log by post_tool_call hook
 ```
 
-**Règle dure en phase test** : toute mutation est **éphémère** (apply + rollback même run) jusqu'à `HERMES_MODE=prod`.
+**Hard rule in test phase**: any mutation is **ephemeral** (apply + rollback same run) until `HERMES_MODE=prod`.
 
 ---
 
 ## 4. Reports/
 
-Les rapports hebdo générés par les crons sont stockés ici.
+Weekly reports generated by crons are stored here.
 
-Convention de nommage :
-- `YYYY-Www-perf.md` — rapport perf hebdo (lundi)
-- `YYYY-Www-ideas.md` — email créatif samedi
-- (Voir `meta-reviews/` pour la méta-revue dominicale)
+Naming convention:
+- `YYYY-Www-perf.md` — weekly perf report (Monday)
+- `YYYY-Www-ideas.md` — Saturday creative email
+- (See `meta-reviews/` for the Sunday meta-review)
 
-Voir [`../examples/azamoul/reports-samples/`](../examples/azamoul/reports-samples/) pour des exemples concrets.
+See [`../examples/azamoul/reports-samples/`](../examples/azamoul/reports-samples/) for concrete examples.
 
 ---
 
 ## 5. Meta-reviews/
 
-Méta-revues dominicales auto-générées. Convention : `YYYY-Www-meta.md`.
+Auto-generated Sunday meta-reviews. Convention: `YYYY-Www-meta.md`.
 
-Sections types d'une méta-revue :
-1. Revue des actions exécutées cette semaine (impact KPI mesuré ou flagué pour W+1)
-2. Patterns identifiés (success / fail / à skillifier)
-3. Nouveaux skills proposés ou créés automatiquement
-4. Veille calendrier culturel (J-21, J-14, J-10, J-3)
-5. Prévisions S+1
+Typical sections of a meta-review:
+1. Review of actions executed this week (KPI impact measured or flagged for W+1)
+2. Patterns identified (success / fail / to be skillified)
+3. New skills proposed or automatically created
+4. Cultural calendar watch (D-21, D-14, D-10, D-3)
+5. W+1 forecasts
 
 ---
 
 ## 6. Batches/
 
-Tous les artefacts liés aux mutations Shopify de `shopify-batch-executor` :
+All artifacts related to `shopify-batch-executor` Shopify mutations:
 
 ```
 batches/
-├── YYYY-Www-batchN-before.json    # Snapshot avant mutation
-├── YYYY-Www-batchN-preview.md     # Preview lisible des changements
-├── YYYY-Www-batchN-rollback.sh    # Script rollback shell auto-généré
-├── YYYY-Www-batchN-after.json     # Snapshot après /yes appliqué
-└── YYYY-Www-batchN-diff.md        # Diff lisible avant/après
+├── YYYY-Www-batchN-before.json    # Snapshot before mutation
+├── YYYY-Www-batchN-preview.md     # Readable preview of changes
+├── YYYY-Www-batchN-rollback.sh    # Auto-generated shell rollback script
+├── YYYY-Www-batchN-after.json     # Snapshot after /yes applied
+└── YYYY-Www-batchN-diff.md        # Readable before/after diff
 ```
 
-**Rule** : max 10 produits par batch (anti rate-limit Shopify).
+**Rule**: max 10 products per batch (anti Shopify rate-limit).
 
 ---
 
 ## 7. Audits/
 
-Audits qualité catalogue ponctuels :
-- `initial-catalog-audit.md` — généré à l'install Phase 0
-- `phase2-gap-analysis-YYYY-MM-DD.md` — gap-analyzer pré-batch
+Ad-hoc catalog quality audits:
+- `initial-catalog-audit.md` — generated at install Phase 0
+- `phase2-gap-analysis-YYYY-MM-DD.md` — pre-batch gap-analyzer
 
 ---
 
 ## 8. Campaigns/
 
-Drafts de campagnes email Klaviyo, organisés par événement :
+Klaviyo email campaign drafts, organized by event:
 
 ```
 campaigns/
-├── YYYY-Www-klaviyo-draft.md    # Draft hebdo (samedi-ideas)
-├── <event-1>-<year>/             # Campagne dédiée à un événement
+├── YYYY-Www-klaviyo-draft.md    # Weekly draft (Saturday-ideas)
+├── <event-1>-<year>/             # Campaign dedicated to an event
 │   ├── brief-visuel.md
 │   ├── caption-instagram.md
 │   ├── email-campagne.md
 │   ├── handles-produits.json
 │   └── planning.md
-└── <event-2>-<year>/             # idem
+└── <event-2>-<year>/             # ditto
 ```
 
-Le marchand customise les événements dans `cultural-events.json`.
+The merchant customizes events in `cultural-events.json`.
 
 ---
 
 ## 9. Theme-backups/
 
-Sauvegardes des fichiers du thème AVANT toute modification par `shopify-theme-editor`.
+Backups of theme files BEFORE any modification by `shopify-theme-editor`.
 
-Pattern de nommage : `<filename>.theme<theme_id>.<UTC-timestamp>Z.bak`
+Naming pattern: `<filename>.theme<theme_id>.<UTC-timestamp>Z.bak`
 
-Ex : `templates__product.test-returns.json.theme<LIVE_THEME_ID>.2026-05-24T214907Z.bak`
+Ex: `templates__product.test-returns.json.theme<LIVE_THEME_ID>.2026-05-24T214907Z.bak`
 
-Le pattern inclut l'ID du thème source pour permettre rollback ciblé même si le thème live a changé entretemps.
-
----
-
-## 10. `MISSION.md` — Charter spécifique à la boutique
-
-Template fourni dans `config/MISSION.md.template`. Sections recommandées :
-- **Mission** : la croissance autonome de la boutique X
-- **Phase courante** : `HERMES_MODE=test` ou `prod`
-- **Sources surveillées** : Shopify, GSC, Klaviyo, Instagram, etc.
-- **Rythme** : 4 crons + intervention manuelle
-- **Niveaux d'autonomie** : pointe vers STORE-BRAND.md pour le détail
-- **Mécaniques d'auto-amélioration** (5 mécaniques framework)
-- **Verification** : checklist standard
-
-La version Azamoul est dans [`../examples/azamoul/MISSION.md`](../examples/azamoul/MISSION.md).
+The pattern includes the source theme ID to allow targeted rollback even if the live theme has changed in the meantime.
 
 ---
 
-## 11. `STORE-BRAND.md` — Vocabulaire et sensibilités
+## 10. `MISSION.md` — Charter specific to the store
 
-Template fourni dans `config/STORE-BRAND.md.template`. Sections :
+Template provided in `config/MISSION.md.template`. Recommended sections:
+- **Mission**: autonomous growth of the X store
+- **Current phase**: `HERMES_MODE=test` or `prod`
+- **Monitored sources**: Shopify, GSC, Klaviyo, Instagram, etc.
+- **Rhythm**: 4 crons + manual intervention
+- **Autonomy levels**: points to STORE-BRAND.md for details
+- **Self-improvement mechanisms** (5 framework mechanisms)
+- **Verification**: standard checklist
 
-- **Identité boutique** : nom, URL, plan Shopify, devise, fuseau
-- **Vocabulaire obligatoire** : 10-20 mots-clés qui DOIVENT apparaître dans tout contenu généré
-- **Bloc HTML livraison standard** : template du bloc à insérer en début de description produit
-- **Niveaux d'autonomie 🟢/🟡/🔴** : ce que Hermes peut faire seul, proposer, ou refuser
-- **Sensibilités** : ce sur quoi il faut être prudent (légal, prix, social)
-
-Voir [`../examples/azamoul/STORE-BRAND.md`](../examples/azamoul/STORE-BRAND.md) pour un exemple complet.
-
----
-
-## 12. `brand-knowledge.md` — Concurrents et positionnement
-
-Sections recommandées :
-- **Concurrents directs** (5-10 marques avec URL, niche, USP, opportunité différenciation)
-- **Concurrents indirects** (3-5)
-- **Positionnement** : où ta marque se situe vs eux
-- **USP unique** : ce qui te différencie
+The Azamoul version is in [`../examples/azamoul/MISSION.md`](../examples/azamoul/MISSION.md).
 
 ---
 
-## 13. `cultural-events.json` — Événements à surveiller
+## 11. `STORE-BRAND.md` — Vocabulary and sensitivities
 
-Format JSON pour que `shopify-cultural-calendar` puisse le lire programmatiquement :
+Template provided in `config/STORE-BRAND.md.template`. Sections:
+
+- **Store identity**: name, URL, Shopify plan, currency, timezone
+- **Mandatory vocabulary**: 10-20 keywords that MUST appear in any generated content
+- **Standard HTML shipping block**: template of the block to insert at start of product description
+- **Autonomy levels 🟢/🟡/🔴**: what Hermes can do alone, propose, or refuse
+- **Sensitivities**: what to be careful about (legal, price, social)
+
+See [`../examples/azamoul/STORE-BRAND.md`](../examples/azamoul/STORE-BRAND.md) for a complete example.
+
+---
+
+## 12. `brand-knowledge.md` — Competitors and positioning
+
+Recommended sections:
+- **Direct competitors** (5-10 brands with URL, niche, USP, differentiation opportunity)
+- **Indirect competitors** (3-5)
+- **Positioning**: where your brand sits vs them
+- **Unique USP**: what differentiates you
+
+---
+
+## 13. `cultural-events.json` — Events to monitor
+
+JSON format so `shopify-cultural-calendar` can read it programmatically:
 
 ```json
 {
   "events": [
     {
-      "name": "Nom de l'événement",
+      "name": "Event name",
       "date": "YYYY-MM-DD",
       "lead_days": 21,
-      "category": "religieux | commercial | culturel | saisonnier",
+      "category": "religious | commercial | cultural | seasonal",
       "campaign_type": "email | instagram | both",
-      "vocabulary_boost": ["mot1", "mot2"]
+      "vocabulary_boost": ["word1", "word2"]
     }
   ]
 }
 ```
 
-`lead_days` = combien de jours avant l'événement Hermes doit commencer à proposer des campagnes.
+`lead_days` = how many days before the event Hermes should start proposing campaigns.
 
-Voir [`../examples/azamoul/cultural-events.json`](../examples/azamoul/cultural-events.json) pour un exemple complet (Yennayer, Aïd, Tafsut, etc.).
+See [`../examples/azamoul/cultural-events.json`](../examples/azamoul/cultural-events.json) for a complete example (Yennayer, Aïd, Tafsut, etc.).

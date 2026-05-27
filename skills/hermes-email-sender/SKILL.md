@@ -1,6 +1,6 @@
 ---
 name: hermes-email-sender
-description: Envoi email SMTP Gmail (mode test = $HERMES_TEST_EMAIL_TO, mode prod = production list). Factorisation du snippet inline.
+description: Gmail SMTP email send (test mode = $HERMES_TEST_EMAIL_TO, prod mode = production list). Refactor of the inline snippet.
 category: messaging
 version: 1.0.0
 metadata:
@@ -12,34 +12,34 @@ metadata:
 # <STORE_NAME> Email Sender
 
 ## When to Use
-- Toute fois qu un skill / cron / prompt requiert un envoi email <STORE_NAME>
-- Remplace tous les snippets smtplib inline dispersés dans les prompts
+- Whenever a skill / cron / prompt requires sending a <STORE_NAME> email
+- Replaces all inline smtplib snippets scattered across the prompts
 
 ## Test mode flag
 
-Lis OBLIGATOIREMENT `$HERMES_MODE` depuis `/root/.hermes/.env` avant tout envoi :
-- Si `HERMES_MODE=test` ou absent : destinataire force = `$HERMES_TEST_EMAIL_TO` (typiquement $EMAIL_TO), sujet prefixe `[TEST]` ou `[TEST PHASE X]`. Ignore le parametre `to_prod` meme s il est fourni.
-- Si `HERMES_MODE=prod` : utilise `to_prod` parameter. Necessite mention explicite "mode=prod" dans l input.
+MANDATORY: read `$HERMES_MODE` from `/root/.hermes/.env` before any send:
+- If `HERMES_MODE=test` or absent: recipient is forced to `$HERMES_TEST_EMAIL_TO` (typically $EMAIL_TO), subject prefixed `[TEST]` or `[TEST PHASE X]`. Ignores the `to_prod` parameter even if supplied.
+- If `HERMES_MODE=prod`: uses `to_prod` parameter. Requires explicit "mode=prod" mention in the input.
 
 ## Procedure
-Input :
+Input:
 ```python
 {
   "to_mode": "test" | "prod",   # test = $EMAIL_TO only ; prod = list
   "to_prod": ["..."]?,           # ignored if mode=test
   "subject": "...",
-  "body_text": "...",            # plain text obligatoire
-  "body_html": "..."?,           # optionnel
-  "attachments": ["path", ...]?  # optionnel
+  "body_text": "...",            # plain text mandatory
+  "body_html": "..."?,           # optional
+  "attachments": ["path", ...]?  # optional
 }
 ```
 
-Etapes :
-1. Charge env : `set -a; . /root/.hermes/.env; set +a`
-2. Construit le message :
-   - Si mode test : `to = $EMAIL_TO` (un seul destinataire) ET sujet PREFIXE `[TEST PHASE 3]` ou `[TEST]` selon contexte
-   - Si mode prod : `to = liste` (uniquement quand MISSION-HERMES autorise prod)
-3. Envoie via smtplib STARTTLS :
+Steps:
+1. Load env: `set -a; . /root/.hermes/.env; set +a`
+2. Build the message:
+   - If test mode: `to = $EMAIL_TO` (single recipient) AND subject PREFIXED `[TEST PHASE 3]` or `[TEST]` per context
+   - If prod mode: `to = list` (only when MISSION-HERMES authorizes prod)
+3. Send via smtplib STARTTLS:
    ```python
    import os, smtplib
    from email.message import EmailMessage
@@ -59,16 +59,16 @@ Etapes :
        s.send_message(msg)
    print("EMAIL_SMTP_OK")
    ```
-4. Termine OBLIGATOIREMENT par `print("EMAIL_SMTP_OK")` sur la sortie standard (rule anti-hallucination — sans cette ligne, aucun email n est confirme).
+4. MANDATORILY end with `print("EMAIL_SMTP_OK")` on stdout (anti-hallucination rule — without this line, no email is confirmed).
 
 ## Pitfalls
-- Mode test = jamais a une liste reelle, jamais en Cc/Bcc.
-- En prod : ne PAS hardcoder de liste, prend `to_prod` parameter UNIQUEMENT.
-- Sans `EMAIL_SMTP_OK` en stdout = email NON envoye (regle stricte).
-- Si SMTP echoue (rate-limit Gmail, mauvais mot de passe) : capture l exception, ne pretendre PAS qu il a ete envoye.
-- En cas d echec, retourne `EMAIL_FAIL: <cause exacte>` au lieu de `EMAIL_SMTP_OK`.
+- Test mode = never to a real list, never in Cc/Bcc.
+- In prod: do NOT hardcode a list, take `to_prod` parameter ONLY.
+- Without `EMAIL_SMTP_OK` on stdout = email NOT sent (strict rule).
+- If SMTP fails (Gmail rate-limit, wrong password): capture the exception, do NOT claim it was sent.
+- On failure, return `EMAIL_FAIL: <exact cause>` instead of `EMAIL_SMTP_OK`.
 
 ## Verification
-- stdout contient EXACTEMENT `EMAIL_SMTP_OK` apres succes
-- Si echec, stdout contient `EMAIL_FAIL:` suivi du message d erreur reel
-- Mode test : un seul destinataire = $EMAIL_TO, sujet contient `[TEST`
+- stdout contains EXACTLY `EMAIL_SMTP_OK` after success
+- If failure, stdout contains `EMAIL_FAIL:` followed by the actual error message
+- Test mode: single recipient = $EMAIL_TO, subject contains `[TEST`

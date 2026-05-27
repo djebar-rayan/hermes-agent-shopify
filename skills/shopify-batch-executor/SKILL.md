@@ -1,6 +1,6 @@
 ---
 name: shopify-batch-executor
-description: Execute un batch de max 10 productUpdate Shopify avec snapshot avant/apres, validation tuteur Telegram+email, et rollback dispo
+description: Execute a batch of max 10 Shopify productUpdate calls with before/after snapshot, operator validation via Telegram+email, and rollback available
 version: 1.0.0
 author: Hermes (Phase 2 scaffold)
 metadata:
@@ -12,73 +12,73 @@ metadata:
 # Batch Executor <STORE_NAME>
 
 ## When to Use
-- Apres gap analysis pour appliquer les actions vertes 🟢 ciblees
-- Sur demande explicite : "execute batch 1" ou "applique les corrections sur ces produits"
-- Cron Phase 2 dedie si configure
-- JAMAIS sans validation tuteur prealable Telegram /yes
+- After gap analysis to apply targeted green 🟢 actions
+- On explicit request: "execute batch 1" or "apply fixes on these products"
+- Dedicated Phase 2 cron if configured
+- NEVER without prior operator Telegram /yes validation
 
 ## Test mode flag
 
-Lis OBLIGATOIREMENT `$HERMES_MODE` depuis `/root/.hermes/.env` avant toute action :
-- Si `HERMES_MODE=test` : applique la mutation PUIS execute le rollback dans la MEME execution (apply+rollback meme run). Snapshot avant/intermediaire/apres mailes au tuteur via hermes-email-sender.
-- Si `HERMES_MODE=prod` : applique persistant + script rollback dispo. Necessite /yes Telegram prealable.
-- Si la variable est absente ou autre valeur : COMPORTEMENT TEST par defaut (securite).
+MANDATORY: read `$HERMES_MODE` from `/root/.hermes/.env` before any action:
+- If `HERMES_MODE=test`: apply the mutation THEN execute the rollback in the SAME run (apply+rollback same run). Before/intermediate/after snapshots emailed to operator via hermes-email-sender.
+- If `HERMES_MODE=prod`: persistent apply + rollback script available. Requires prior Telegram /yes.
+- If the variable is missing or has another value: default TEST behavior (safety).
 
-## Dependency obligatoire
-**Charge AUSSI le skill `hermes-schema-guard` avant toute mutation**, et copie EXACTEMENT les fragments GraphQL validés qui y sont listés (productUpdate, productVariantsBulkUpdate, etc.). N invente JAMAIS un champ qui n y figure pas. Si tu as besoin d une mutation non listée dans schema-guard, exécute d abord une introspection `__type` pour valider le schéma, puis AJOUTE le fragment au skill schema-guard après succès.
+## Mandatory dependency
+**Also load the `hermes-schema-guard` skill before any mutation**, and copy EXACTLY the validated GraphQL fragments listed there (productUpdate, productVariantsBulkUpdate, etc.). NEVER invent a field that isn't listed there. If you need a mutation not listed in schema-guard, first run a `__type` introspection to validate the schema, then ADD the fragment to the schema-guard skill after success.
 
 ## Procedure
-1. Verifie MEMORY.md : Phase courante = Phase 2 ou superieure. Si Phase 1 lecture seule : STOP, ce skill est interdit.
+1. Check MEMORY.md: current Phase = Phase 2 or above. If Phase 1 read-only: STOP, this skill is forbidden.
 
-2. Identifie le batch a executer :
-   - Soit l utilisateur a indique un batch precis ("batch 1")
-   - Soit derive automatique : 10 premiers produits prioritaires de phase2-gap-analysis-YYYY-MM-DD.md
+2. Identify the batch to execute:
+   - Either the user specified a batch ("batch 1")
+   - Or auto-derive: top 10 priority products from phase2-gap-analysis-YYYY-MM-DD.md
 
-3. Pour chaque produit du batch (max 10) :
-   a. Capture snapshot via GraphQL : product(id) { id, handle, title, tags, descriptionHtml, updatedAt }
-   b. Sauvegarde dans $HERMES_WORKSPACE/batches/YYYY-Www-batchN-before.json (array JSON)
-   c. Determine les changements precis :
-      - tags : ajout des tags manquants identifies par gap-analyzer
-      - descriptionHtml : si bloc livraison absent en debut, ajouter "<p><strong>📦 Livraison :</strong> Expedition sous 2-3 jours ouvres depuis la France. Livraison standard offerte des 50€ d'achat. Délais 3-5 jours en France métropolitaine.</p>" au tout debut
+3. For each product in the batch (max 10):
+   a. Capture snapshot via GraphQL: product(id) { id, handle, title, tags, descriptionHtml, updatedAt }
+   b. Save to $HERMES_WORKSPACE/batches/YYYY-Www-batchN-before.json (JSON array)
+   c. Determine precise changes:
+      - tags: add missing tags identified by gap-analyzer
+      - descriptionHtml: if shipping block absent at start, prepend "<p><strong>📦 Livraison :</strong> Expedition sous 2-3 jours ouvres depuis la France. Livraison standard offerte des 50€ d'achat. Délais 3-5 jours en France métropolitaine.</p>" at the very beginning
 
-4. Genere preview diff JSON dans $HERMES_WORKSPACE/batches/YYYY-Www-batchN-preview.json
-   Format : array de {handle, before: {tags, descriptionExcerpt}, after: {tags, descriptionExcerpt}}
+4. Generate JSON preview diff in $HERMES_WORKSPACE/batches/YYYY-Www-batchN-preview.json
+   Format: array of {handle, before: {tags, descriptionExcerpt}, after: {tags, descriptionExcerpt}}
 
-5. Genere script rollback $HERMES_WORKSPACE/batches/phase2-rollback-batchN.sh
-   - Script bash qui lit before.json, refait productUpdate avec les valeurs originales pour chaque produit
+5. Generate rollback script $HERMES_WORKSPACE/batches/phase2-rollback-batchN.sh
+   - Bash script that reads before.json, re-runs productUpdate with original values for each product
    - chmod +x
 
-6. Envoi VALIDATION TUTEUR (obligatoire avant mutation) :
-   a. Telegram chat $TELEGRAM_HOME_CHANNEL : message clair avec preview courte (10 produits, action par produit, lien fichiers VPS)
-   b. Email à $EMAIL_TO via Python smtplib inline (cf. ENVOI EMAIL procedure dans prompts cron) avec preview detaillee
-   c. Message inclut explicitement : "Reponds /yes pour appliquer, /no pour annuler, /edit <handle> <details> pour ajuster"
+6. Send OPERATOR VALIDATION (mandatory before mutation):
+   a. Telegram chat $TELEGRAM_HOME_CHANNEL: clear message with short preview (10 products, action per product, link to VPS files)
+   b. Email to $EMAIL_TO via inline Python smtplib (see EMAIL SENDING procedure in cron prompts) with detailed preview
+   c. Message explicitly includes: "Reply /yes to apply, /no to cancel, /edit <handle> <details> to adjust"
 
-7. ATTENTE de la reponse user (skill se met en pause, le user repond via Telegram). Si pas de reponse dans 10 min, abandon et message d alerte.
+7. WAIT for user response (skill pauses, user responds via Telegram). If no response within 10 min, abandon and send alert message.
 
-8. Si reponse = /yes :
-   a. Execute les 10 productUpdate via shopify store execute en sequence (espacement 2s pour eviter rate-limit)
-   b. Capture snapshot apres dans batches/YYYY-Www-batchN-after.json
-   c. Genere diff reel dans batches/YYYY-Www-batchN-diff.md (markdown lisible)
-   d. Hook tool_call_completed loggue automatiquement chaque productUpdate dans learnings.md
-   e. Confirmation Telegram + email : "Batch N applique. X/10 succes. Rollback dispo : phase2-rollback-batchN.sh"
+8. If response = /yes:
+   a. Execute the 10 productUpdate calls via shopify store execute in sequence (2s spacing to avoid rate-limit)
+   b. Capture after-snapshot in batches/YYYY-Www-batchN-after.json
+   c. Generate real diff in batches/YYYY-Www-batchN-diff.md (readable markdown)
+   d. tool_call_completed hook automatically logs each productUpdate in learnings.md
+   e. Telegram + email confirmation: "Batch N applied. X/10 success. Rollback available: phase2-rollback-batchN.sh"
 
-9. Si reponse = /no : cancel propre, conservation des fichiers preview et rollback pour retry futur. Message Telegram + email.
+9. If response = /no: clean cancel, keep preview and rollback files for future retry. Telegram + email message.
 
-10. Si reponse = /edit : applique l ajustement, regenere preview, redemande validation.
+10. If response = /edit: apply the adjustment, regenerate preview, ask for validation again.
 
 ## Pitfalls
-- JAMAIS executer sans /yes explicite du tuteur. La pause est obligatoire.
-- Espacement 2s entre productUpdate pour eviter Shopify rate-limit (1.4 req/s par defaut).
-- Si une mutation echoue : STOP le batch, log l erreur exacte, rollback les precedentes via le script, alerte Telegram.
-- Le bloc livraison doit etre INJECTE au TOUT DEBUT de descriptionHtml. JAMAIS remplacer le HTML existant.
-- INTERDICTION batch > 10 produits. Si plus de 10 a faire : decoupe en plusieurs batches.
-- Vocabulaire de marque obligatoire dans toute description modifiee (cf. STANDING.md).
+- NEVER execute without explicit operator /yes. The pause is mandatory.
+- 2s spacing between productUpdate calls to avoid Shopify rate-limit (1.4 req/s default).
+- If a mutation fails: STOP the batch, log the exact error, rollback previous ones via the script, alert via Telegram.
+- The shipping block must be INJECTED at the VERY START of descriptionHtml. NEVER replace existing HTML.
+- batch > 10 products is FORBIDDEN. If more than 10 to do: split into multiple batches.
+- Brand vocabulary mandatory in any modified description (see STANDING.md).
 
 ## Verification
-- Fichier before.json existe avant mutation
-- Fichier rollback.sh genere et chmod +x
-- Preview Telegram + email recus par tuteur
-- Si /yes : 10/10 productUpdate succes, after.json + diff.md generes
-- Hook log-learning a ajoute 10 entrees dans learnings.md
-- Les requêtes de mutation (`productUpdate`, `collectionCreate`, etc.) peuvent échouer à cause du schéma strict de l'Admin API (ex: champ `createdAt` inclus par erreur).
-  **GUARD :** Lors des tests exploratoires ou mutations, utiliser un mécanisme de type *guard try/catch* (ex: tester avec/sans `createdAt` en cas d'erreur de schéma).
+- before.json file exists before mutation
+- rollback.sh file generated and chmod +x
+- Telegram + email preview received by operator
+- If /yes: 10/10 productUpdate success, after.json + diff.md generated
+- log-learning hook has added 10 entries in learnings.md
+- Mutation queries (`productUpdate`, `collectionCreate`, etc.) can fail due to the Admin API's strict schema (e.g. `createdAt` field incorrectly included).
+  **GUARD:** During exploratory tests or mutations, use a *guard try/catch* mechanism (e.g. test with/without `createdAt` on schema errors).

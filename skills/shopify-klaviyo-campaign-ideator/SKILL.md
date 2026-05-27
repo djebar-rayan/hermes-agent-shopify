@@ -1,6 +1,6 @@
 ---
 name: shopify-klaviyo-campaign-ideator
-description: Propose un draft de campagne email Klaviyo aligné avec le calendrier culturel (cultural-events.json) et les segments existants
+description: Proposes a Klaviyo email campaign draft aligned with the cultural calendar (cultural-events.json) and existing segments
 version: 1.0.0
 metadata:
   hermes:
@@ -11,164 +11,164 @@ metadata:
 
 # <STORE_NAME> Klaviyo Campaign Ideator
 
-Skill créatif read-only : propose UNE campagne email Klaviyo pour la semaine, prête à être copiée-collée dans l'UI Klaviyo. **Aucune mutation API.**
+Read-only creative skill: proposes ONE Klaviyo email campaign for the week, ready to copy-paste into the Klaviyo UI. **No API mutation.**
 
 ## When to Use
 
-- **Cron `shopify-samedi-ideas` (7936943cee39)** : chaque samedi 10h, en complément de `shopify-product-ideator` et `shopify-instagram-ideator`
-- Sur demande user : "idée campagne email", "draft Klaviyo", "campagne pour Yennayer/Aïd/etc."
+- **Cron `shopify-samedi-ideas` (7936943cee39)**: every Saturday at 10am, alongside `shopify-product-ideator` and `shopify-instagram-ideator`
+- On user request: "email campaign idea", "Klaviyo draft", "campaign for Yennayer/Aid/etc."
 
 ## Configuration
 
-Lit :
-- `$KLAVIYO_API_KEY` depuis `.env`
-- `$HERMES_WORKSPACE/brand-knowledge.md` (style éditorial)
-- `/root/.hermes/cache/klaviyo/` (segments + performances passées)
-- Skill `shopify-cultural-calendar` (événements à venir J-N)
+Reads:
+- `$KLAVIYO_API_KEY` from `.env`
+- `$HERMES_WORKSPACE/brand-knowledge.md` (editorial style)
+- `/root/.hermes/cache/klaviyo/` (segments + past performance)
+- Skill `shopify-cultural-calendar` (upcoming events D-N)
 
-## Dependency obligatoire
+## Mandatory dependency
 
-Charge AUSSI le skill `shopify-cultural-calendar` pour identifier l'événement culturel à anticiper.
+Also load the `shopify-cultural-calendar` skill to identify the cultural event to anticipate.
 
 ## Procedure
 
-### 1. Charger l'environnement
+### 1. Load the environment
 ```bash
 set -a; . /root/.hermes/.env; set +a
 LIB=/root/.hermes/lib/klaviyo-fetch.sh
 ```
 
-### 2. Fetcher contexte Klaviyo
+### 2. Fetch Klaviyo context
 ```bash
-SEGMENTS=$($LIB segments)        # 1 segment : <premium segment>
-LISTS=$($LIB lists)              # 2 listes : welcome_ansuf, SMSBump
-CAMPAIGNS_HISTORY=$($LIB campaigns)  # 30 campagnes passées (pour cohérence ton/timing)
+SEGMENTS=$($LIB segments)        # 1 segment: <premium segment>
+LISTS=$($LIB lists)              # 2 lists: welcome_ansuf, SMSBump
+CAMPAIGNS_HISTORY=$($LIB campaigns)  # 30 past campaigns (for tone/timing consistency)
 ```
 
-### 3. Lire calendrier culturel
-Appeler `shopify-cultural-calendar` → identifier l'événement à anticiper (J-21 à J-7 idéal).
+### 3. Read cultural calendar
+Call `shopify-cultural-calendar` → identify the event to anticipate (D-21 to D-7 ideal).
 
-Événements clés à considérer (priorité par proximité) :
-- <événement depuis cultural-events.json> (~26 juin 2026, J-X)
-- <nouvel an culturel depuis cultural-events.json> (12 janvier 2027)
-- <événement printemps depuis cultural-events.json>
-- <événement depuis cultural-events.json> (été)
-- <événement nouvel-an depuis cultural-events.json>
-- Saison de rentrée / Black Friday / Noël (commerce généraliste)
+Key events to consider (priority by proximity):
+- <event from cultural-events.json> (~June 26 2026, D-X)
+- <cultural new year from cultural-events.json> (January 12 2027)
+- <spring event from cultural-events.json>
+- <event from cultural-events.json> (summer)
+- <new year event from cultural-events.json>
+- Back-to-school / Black Friday / Christmas (mainstream commerce)
 
-### 4. Analyser performance des campagnes similaires passées
+### 4. Analyze past similar campaign performance
 
-Regarder dans `CAMPAIGNS_HISTORY` les campagnes du même type (lifecycle, événement culturel, promo) :
-- Quel sujet a eu le meilleur open rate ?
-- Quel CTA a converti ?
-- Quelle heure d'envoi a marché ?
+Look in `CAMPAIGNS_HISTORY` for campaigns of the same type (lifecycle, cultural event, promo):
+- Which subject had the best open rate?
+- Which CTA converted?
+- Which send time worked?
 
-### 5. Construire le draft
+### 5. Build the draft
 
-Format à produire :
+Format to produce:
 
 ```markdown
-## 📧 Proposition Campagne Klaviyo — Semaine 2026-Www
+## 📧 Klaviyo Campaign Proposal — Week 2026-Www
 
-### Contexte stratégique
-- **Événement** : <nom événement culturel> (J-X)
-- **Pourquoi maintenant** : <justification 1 ligne>
-- **Segment cible recommandé** : <premium segment> (X profils) OU welcome_ansuf (X profils) OU "Engaged 30j" (à créer dans Klaviyo)
-- **Volume estimé envoi** : X profils
+### Strategic context
+- **Event**: <cultural event name> (D-X)
+- **Why now**: <1-line justification>
+- **Recommended target segment**: <premium segment> (X profiles) OR welcome_ansuf (X profiles) OR "Engaged 30d" (to create in Klaviyo)
+- **Estimated send volume**: X profiles
 
-### Sujet (3 variantes pour A/B test)
-1. **Variante A** (émotionnel) : "..." (X chars, prévisualisation : "...")
-2. **Variante B** (urgence) : "..."
-3. **Variante C** (curiosité) : "..."
+### Subject line (3 variants for A/B test)
+1. **Variant A** (emotional): "..." (X chars, preview: "...")
+2. **Variant B** (urgency): "..."
+3. **Variant C** (curiosity): "..."
 
-### Aperçu (preview text — 50-90 chars)
-"<texte invisible mais visible en preview>"
+### Preview text (50-90 chars)
+"<invisible text but visible in preview>"
 
-### Corps email — structure
+### Email body — structure
 
-**Hook (1 ligne)**
+**Hook (1 line)**
 "..."
 
-**Intro (2-3 lignes)**
-- Référence culturelle (vocab obligatoire (depuis STORE-BRAND.md))
-- Contexte événement
-- Ce que la communauté <STORE_NAME> célèbre
+**Intro (2-3 lines)**
+- Cultural reference (mandatory vocab (from STORE-BRAND.md))
+- Event context
+- What the <STORE_NAME> community celebrates
 
-**Produit mis en avant**
-- 1 à 3 produits du catalogue Shopify alignés avec l'événement
-- Lien : https://${SHOP_DOMAIN}/products/<handle>
-- Bloc livraison 📦 si pertinent
+**Featured product**
+- 1 to 3 Shopify catalog products aligned with the event
+- Link: https://${SHOP_DOMAIN}/products/<handle>
+- Shipping block 📦 if relevant
 
-**Code promo (optionnel)**
-- Code suggéré : `<EVENEMENT><ANNEE>` (ex: AID2026, YENNAYER2977)
-- Remise suggérée : 10-15% (à valider tuteur)
-- Validité : <date début> → <date fin> (typiquement 5-7j)
+**Promo code (optional)**
+- Suggested code: `<EVENT><YEAR>` (e.g. AID2026, YENNAYER2977)
+- Suggested discount: 10-15% (operator to validate)
+- Validity: <start date> → <end date> (typically 5-7d)
 
-**CTA principal**
-- Texte bouton : "Découvrir la collection" / "Profiter du code" / "Voir les nouveautés"
-- URL cible : `https://${SHOP_DOMAIN}/<collection-handle>`
+**Primary CTA**
+- Button text: "Discover the collection" / "Use the code" / "See new arrivals"
+- Target URL: `https://${SHOP_DOMAIN}/<collection-handle>`
 
 **Signature**
-- Style éditorial <STORE_NAME> (voir brand-knowledge.md)
-- Mention Made in France si pertinent
+- <STORE_NAME> editorial style (see brand-knowledge.md)
+- Made in France mention if relevant
 
-### Send time recommandé
-- **Date d'envoi** : <date proche événement, J-X>
-- **Heure** : <basé sur historique campagnes : ex 18h Paris si meilleur open rate passé>
-- **Justification** : <campagne référence : "Hiver & fêtes 2024 ouverture 24% à 19h jeudi">
+### Recommended send time
+- **Send date**: <date near event, D-X>
+- **Time**: <based on campaign history: e.g. 6pm Paris if best past open rate>
+- **Justification**: <reference campaign: "Winter & holidays 2024 24% open at 7pm Thursday">
 
-### Hashtags / Mots-clés SEO
-- Pour réutilisation sur Instagram/blog : #<your-niche> #<your-brand> #<événement>
+### Hashtags / SEO keywords
+- For reuse on Instagram/blog: #<your-niche> #<your-brand> #<event>
 
-### Checklist avant copie dans Klaviyo
-- [ ] Sujet sous 50 chars (mobile-friendly)
+### Checklist before copying into Klaviyo
+- [ ] Subject under 50 chars (mobile-friendly)
 - [ ] Preview text 50-90 chars
-- [ ] Vocab obligatoire présent (min 2 mots du dictionnaire)
-- [ ] CTA unique et clair
-- [ ] Lien produit testé (200 OK)
-- [ ] Code promo créé dans Shopify (action manuelle requise)
-- [ ] Segment vérifié dans Klaviyo > Audience > Segments
+- [ ] Mandatory vocab present (min 2 words from dictionary)
+- [ ] Single, clear CTA
+- [ ] Product link tested (200 OK)
+- [ ] Promo code created in Shopify (manual action required)
+- [ ] Segment verified in Klaviyo > Audience > Segments
 
-### ⚠️ Mode test / prod
-Lit `$HERMES_MODE` :
-- `test` (défaut) : draft markdown seulement, aucune création campagne dans Klaviyo, destinataire test = $EMAIL_TO
-- `prod` : draft validé prêt pour saisie manuelle dans Klaviyo (Hermes ne POST jamais)
+### ⚠️ Test / prod mode
+Reads `$HERMES_MODE`:
+- `test` (default): markdown draft only, no campaign creation in Klaviyo, test recipient = $EMAIL_TO
+- `prod`: validated draft ready for manual entry in Klaviyo (Hermes never POSTs)
 ```
 
-### 6. Sauvegarder
+### 6. Save
 
-- **Section ideas** : append à `$HERMES_WORKSPACE/reports/$(date +%Y-W%V)-ideas.md` après les sections produit/Insta
-- **Cache séparé** : `$HERMES_WORKSPACE/campaigns/$(date +%Y-W%V)-klaviyo-draft.md` (pour archivage)
+- **Ideas section**: append to `$HERMES_WORKSPACE/reports/$(date +%Y-W%V)-ideas.md` after the product/Insta sections
+- **Separate cache**: `$HERMES_WORKSPACE/campaigns/$(date +%Y-W%V)-klaviyo-draft.md` (for archival)
 
 ### 7. Log learnings
 
 ```markdown
 ## $(date -u +%Y-%m-%dT%H:%M:%SZ) — Klaviyo campaign drafted
-- Événement cible : <event>
-- Segment recommandé : <segment>
-- Code promo suggéré : <code>
-- Statut : DRAFT (mode test, aucun envoi)
+- Target event: <event>
+- Recommended segment: <segment>
+- Suggested promo code: <code>
+- Status: DRAFT (test mode, no send)
 ```
 
 ## Pitfalls
 
-- **JAMAIS d'appel POST Klaviyo** (read-only strict). Si user demande "envoie", répondre : "Je propose le draft. Tu valides dans Klaviyo UI puis cliques Send."
-- **Vocab obligatoire** : Minimum 2 mots du dictionnaire de marque (voir MEMORY.md → "Vocabulaire de marque obligatoire")
-- **Pas de stéréotypes** : voir STANDING.md règle #6
-- **Code promo** : suggérer SEULEMENT, ne JAMAIS créer dans Shopify (mutation interdite niveau 🔴)
-- **Liens produit** : vérifier que le handle existe dans store-data/products.md AVANT de l'inclure
-- **Sample size** : si campaigns_history < 5 campagnes similaires, indiquer "(baseline limitée)" dans la justification timing
-- **Devise EUR** uniquement (boutique France)
+- **NEVER POST to Klaviyo** (strict read-only). If user asks "send", reply: "I propose the draft. You validate in Klaviyo UI then click Send."
+- **Mandatory vocab**: Minimum 2 words from brand dictionary (see MEMORY.md → "Mandatory brand vocabulary")
+- **No stereotypes**: see STANDING.md rule #6
+- **Promo code**: only SUGGEST, NEVER create in Shopify (🔴 level mutation forbidden)
+- **Product links**: verify the handle exists in store-data/products.md BEFORE including it
+- **Sample size**: if campaigns_history < 5 similar campaigns, indicate "(limited baseline)" in timing justification
+- **EUR currency** only (France store)
 
 ## Verification
 
-- ✅ Draft markdown contient les 7 sections (Contexte / Sujet / Aperçu / Corps / Promo / Send time / Checklist)
-- ✅ Min 2 mots du vocabulaire de marque (STORE-BRAND.md) dans le corps
-- ✅ Aucun appel API mutation (vérifiable via log curl POST)
-- ✅ Fichier `campaigns/YYYY-Www-klaviyo-draft.md` créé
-- ✅ Section ajoutée à `reports/YYYY-Www-ideas.md`
-- ✅ Entrée learnings.md créée
-- ✅ Le draft mentionne explicitement le mode (test/prod)
+- ✅ Markdown draft contains the 7 sections (Context / Subject / Preview / Body / Promo / Send time / Checklist)
+- ✅ Min 2 brand vocabulary words (STORE-BRAND.md) in the body
+- ✅ No mutation API call (verifiable via curl POST log)
+- ✅ File `campaigns/YYYY-Www-klaviyo-draft.md` created
+- ✅ Section added to `reports/YYYY-Www-ideas.md`
+- ✅ learnings.md entry created
+- ✅ Draft explicitly mentions the mode (test/prod)
 
 ## Dependencies
 

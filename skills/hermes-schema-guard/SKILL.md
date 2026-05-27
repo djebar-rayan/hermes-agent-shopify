@@ -1,6 +1,6 @@
 ---
 name: hermes-schema-guard
-description: Fragments GraphQL Shopify Admin validés — référence à charger AVANT toute mutation pour éviter les hallucinations de champs
+description: Validated Shopify Admin GraphQL fragments — reference to load BEFORE any mutation to prevent field hallucinations
 category: e-commerce
 version: 1.0.0
 metadata:
@@ -13,25 +13,25 @@ metadata:
 # <STORE_NAME> Shopify Schema Guard
 
 ## When to Use
-AVANT toute mutation Shopify (productCreate, productUpdate, productDelete, collectionCreate, collectionDelete, productVariantsBulkUpdate, urlRedirectCreate, urlRedirectDelete, etc.). Charge ce skill, copie le fragment EXACT, n'invente RIEN.
+BEFORE any Shopify mutation (productCreate, productUpdate, productDelete, collectionCreate, collectionDelete, productVariantsBulkUpdate, urlRedirectCreate, urlRedirectDelete, etc.). Load this skill, copy the EXACT fragment, invent NOTHING.
 
-Trigger automatique : si ta prochaine action implique `shopify store execute --allow-mutations`, ce skill est obligatoire.
+Automatic trigger: if your next action involves `shopify store execute --allow-mutations`, this skill is mandatory.
 
 ## Procedure
-1. Identifie la mutation cible.
-2. Trouve son fragment ci-dessous.
-3. Copie EXACTEMENT la structure (champs et types).
-4. Si la mutation n'est pas listée :
-   - exécute d'abord l'introspection : `{ __type(name: "<TypeName>") { fields { name type { name } } } }`
-   - puis tente la mutation
-   - si elle réussit, AJOUTE-LA à ce skill avec timestamp de validation
-5. Toujours utiliser `--allow-mutations` sur `shopify store execute`.
+1. Identify the target mutation.
+2. Find its fragment below.
+3. Copy EXACTLY the structure (fields and types).
+4. If the mutation is not listed:
+   - first run introspection: `{ __type(name: "<TypeName>") { fields { name type { name } } } }`
+   - then attempt the mutation
+   - if it succeeds, ADD IT to this skill with a validation timestamp
+5. Always use `--allow-mutations` on `shopify store execute`.
 
 ---
 
-## Fragments validés
+## Validated fragments
 
-### productCreate (validé 2026-05-13 P3.9)
+### productCreate (validated 2026-05-13 P3.9)
 ```graphql
 mutation {
   productCreate(product: {
@@ -47,9 +47,9 @@ mutation {
   }
 }
 ```
-Notes : `createdAt`/`updatedAt` ne sont PAS exposés ici. Utilise `product(id:).createdAt` séparément si besoin.
+Notes: `createdAt`/`updatedAt` are NOT exposed here. Use `product(id:).createdAt` separately if needed.
 
-### productDelete (validé 2026-05-13 P3.9)
+### productDelete (validated 2026-05-13 P3.9)
 ```graphql
 mutation { productDelete(input: { id: "gid://shopify/Product/..." }) {
   deletedProductId
@@ -57,7 +57,7 @@ mutation { productDelete(input: { id: "gid://shopify/Product/..." }) {
 } }
 ```
 
-### productUpdate (validé 2026-05-13 P2 préparation Batch 1)
+### productUpdate (validated 2026-05-13 P2 preparation Batch 1)
 ```graphql
 mutation { productUpdate(input: {
   id: "gid://shopify/Product/...",
@@ -69,16 +69,16 @@ mutation { productUpdate(input: {
 } }
 ```
 
-### collectionCreate (validé 2026-05-13 P3.4)
+### collectionCreate (validated 2026-05-13 P3.4)
 ```graphql
 mutation { collectionCreate(input: { title: "...", descriptionHtml: "..." }) {
   collection { id title handle }
   userErrors { field message }
 } }
 ```
-Notes : PAS de `createdAt` sur type Collection (erreur observée P3.4 1er run). Ne tente pas non plus `publishedAt` (différent endpoint).
+Notes: NO `createdAt` on Collection type (error observed P3.4 1st run). Also don't try `publishedAt` (different endpoint).
 
-### collectionDelete (validé 2026-05-13 P3.4)
+### collectionDelete (validated 2026-05-13 P3.4)
 ```graphql
 mutation { collectionDelete(input: { id: "gid://shopify/Collection/..." }) {
   deletedCollectionId
@@ -86,7 +86,7 @@ mutation { collectionDelete(input: { id: "gid://shopify/Collection/..." }) {
 } }
 ```
 
-### productVariantsBulkUpdate (validé 2026-05-13 P3.6)
+### productVariantsBulkUpdate (validated 2026-05-13 P3.6)
 ```graphql
 mutation {
   productVariantsBulkUpdate(
@@ -102,13 +102,13 @@ mutation {
   }
 }
 ```
-Notes :
-- Modifier `compareAtPrice` = action 🟡 sûre (prix barré marketing).
-- Modifier `price` directement = action 🔴 (jamais sans /yes tuteur + audit prix).
-- Rollback : passer `compareAtPrice: null` pour effacer.
+Notes:
+- Modifying `compareAtPrice` = 🟡 safe action (marketing strike-through price).
+- Modifying `price` directly = 🔴 action (never without operator /yes + price audit).
+- Rollback: pass `compareAtPrice: null` to clear.
 
 
-### fileUpdate (validé 2026-05-13 P4.2 introspection)
+### fileUpdate (validated 2026-05-13 P4.2 introspection)
 ```graphql
 mutation { fileUpdate(files: [
   { id: "gid://shopify/MediaImage/...", alt: "..." }
@@ -117,22 +117,22 @@ mutation { fileUpdate(files: [
   userErrors { field message code }
 } }
 ```
-Notes :
-- Pour modifier alt-text d une MediaImage : utiliser fileUpdate (PAS productUpdate avec media field).
-- FileUpdateInput accepte : id, alt, originalSource, previewImageSource, filename, referencesToAdd, referencesToRemove.
-- Rollback : passer alt: null OU alt: "" (Shopify accepte les deux pour vider).
-- Pour récupérer les image_id réels : query product(handle).media(first:10) { edges { node { ... on MediaImage { id alt } } } }.
+Notes:
+- To modify a MediaImage alt-text: use fileUpdate (NOT productUpdate with media field).
+- FileUpdateInput accepts: id, alt, originalSource, previewImageSource, filename, referencesToAdd, referencesToRemove.
+- Rollback: pass alt: null OR alt: "" (Shopify accepts both for clearing).
+- To retrieve actual image_id: query product(handle).media(first:10) { edges { node { ... on MediaImage { id alt } } } }.
 
-### urlRedirectCreate (bloqué 2026-05-13 P3.5)
+### urlRedirectCreate (blocked 2026-05-13 P3.5)
 ```graphql
 mutation { urlRedirectCreate(urlRedirect: { path: "/...", target: "/..." }) {
   urlRedirect { id path target }
   userErrors { field message }
 } }
 ```
-Scope requis : `write_online_store_navigation` — à activer côté admin Shopify (Apps > Custom > Configure scopes > re-install). Tant que le scope manque : skill non utilisable.
+Required scope: `write_online_store_navigation` — to activate on Shopify admin side (Apps > Custom > Configure scopes > re-install). As long as the scope is missing: skill unusable.
 
-### urlRedirectDelete (schéma documenté, à valider après activation scope)
+### urlRedirectDelete (documented schema, to validate after scope activation)
 ```graphql
 mutation { urlRedirectDelete(id: "gid://shopify/UrlRedirect/...") {
   deletedUrlRedirectId
@@ -142,9 +142,9 @@ mutation { urlRedirectDelete(id: "gid://shopify/UrlRedirect/...") {
 
 ---
 
-## Queries de lecture utiles (read-only, pas de scope spécifique)
+## Useful read queries (read-only, no specific scope)
 
-### Lister produits avec alt-text vide
+### List products with empty alt-text
 ```graphql
 { products(first: 50, query: "status:active") { edges { node {
   id handle title
@@ -152,7 +152,7 @@ mutation { urlRedirectDelete(id: "gid://shopify/UrlRedirect/...") {
 } } } }
 ```
 
-### Lister variantes avec leur compareAtPrice
+### List variants with their compareAtPrice
 ```graphql
 { products(first: 50, query: "status:active") { edges { node {
   id handle title
@@ -160,7 +160,7 @@ mutation { urlRedirectDelete(id: "gid://shopify/UrlRedirect/...") {
 } } } }
 ```
 
-### Introspection d'un type (toujours sûre)
+### Type introspection (always safe)
 ```graphql
 { __type(name: "Collection") { fields { name type { name kind } } } }
 ```
@@ -168,22 +168,22 @@ mutation { urlRedirectDelete(id: "gid://shopify/UrlRedirect/...") {
 ---
 
 ## Pitfalls
-- **Hallucination de champs** : N'AJOUTE JAMAIS un champ que tu n'as pas vu dans ce skill ou validé via introspection. Le pattern `createdAt` existe sur Order/Product mais PAS sur Collection.
-- **Scope manquant** : avant de tenter `urlRedirectCreate`, vérifie via une mutation simple si le scope est OK. Si `ACCESS_DENIED` → arrête, signale tuteur, ne devine pas un autre endpoint.
-- **userErrors non vide** : ne réessaie PAS en modifiant aveuglément le payload. Log l'erreur, alerte tuteur, attend instruction.
-- **--allow-mutations** : oublié = erreur silencieuse `Mutations not allowed`. Toujours ajouter ce flag pour productUpdate/Create/Delete/collectionCreate/Delete/variantsBulkUpdate.
-- **Idempotence** : Shopify rejette les Update sans changement réel (parfois userErrors vide mais aucune modif). Re-query après mutation pour confirmer.
-- **Rate limit** : Shopify limite à ~2 mutations/s. Pour batch > 10 produits, espacer de 500ms.
+- **Field hallucination**: NEVER ADD a field you haven't seen in this skill or validated via introspection. The `createdAt` pattern exists on Order/Product but NOT on Collection.
+- **Missing scope**: before attempting `urlRedirectCreate`, check via a simple mutation if the scope is OK. If `ACCESS_DENIED` → stop, alert operator, do not guess another endpoint.
+- **userErrors non-empty**: do NOT retry by blindly modifying the payload. Log the error, alert operator, wait for instruction.
+- **--allow-mutations**: forgotten = silent `Mutations not allowed` error. Always add this flag for productUpdate/Create/Delete/collectionCreate/Delete/variantsBulkUpdate.
+- **Idempotence**: Shopify rejects Updates without actual change (sometimes empty userErrors but no modification). Re-query after mutation to confirm.
+- **Rate limit**: Shopify limits to ~2 mutations/s. For batch > 10 products, space by 500ms.
 
 ## Verification
-Chaque fragment ci-dessus a son timestamp "validé" indiquant qu'il a été exécuté avec succès dans un test Hermes documenté. Quand tu ajoutes un nouveau fragment :
-1. Exécute manuellement via `shopify store execute --allow-mutations` en sandbox/draft
-2. Capture la réponse complète (incluant userErrors vide)
-3. Ajoute le fragment ici avec date + référence test (ex: "validé 2026-05-14 P3.X")
-4. Commit en mémoire OpenViking pour persistance cross-session
+Each fragment above has its "validated" timestamp indicating it was successfully executed in a documented Hermes test. When you add a new fragment:
+1. Manually execute via `shopify store execute --allow-mutations` in sandbox/draft
+2. Capture the full response (including empty userErrors)
+3. Add the fragment here with date + test reference (e.g. "validated 2026-05-14 P3.X")
+4. Commit to OpenViking memory for cross-session persistence
 
-## Mutations interdites (jamais à exécuter sans validation explicite tuteur)
-- `shopOptionsUpdate`, `shopUpdate`, `shopBillingUpdate` — changements globaux 🔴
-- `bulkOperationRunQuery` avec mutations massives 🔴
-- Toute mutation sur `customer`, `order`, `refund` 🔴
+## Forbidden mutations (never to execute without explicit operator validation)
+- `shopOptionsUpdate`, `shopUpdate`, `shopBillingUpdate` — global changes 🔴
+- `bulkOperationRunQuery` with massive mutations 🔴
+- Any mutation on `customer`, `order`, `refund` 🔴
 - `themeUpdate`, `themePublish` 🔴

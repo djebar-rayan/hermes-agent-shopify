@@ -1,6 +1,6 @@
 ---
 name: shopify-catalog-gap-analyzer
-description: Audit lecture seule du catalogue <STORE_NAME> - identifie produits sans tags suffisants et sans bloc livraison en debut de description, priorise par impact business
+description: Read-only audit of the <STORE_NAME> catalog - identifies products without sufficient tags and without a shipping block at the start of the description, prioritized by business impact
 version: 1.0.0
 author: Hermes (Phase 2 scaffold)
 metadata:
@@ -12,44 +12,44 @@ metadata:
 # Catalog Gap Analyzer <STORE_NAME>
 
 ## When to Use
-- Au demarrage de Phase 2 (action mutative basique 🟢)
-- Avant chaque batch d execution pour cibler les produits prioritaires
-- Sur demande explicite : "fais une gap analysis catalogue"
-- Cron hebdomadaire en complement du rapport perf
+- At Phase 2 startup (basic mutative action 🟢)
+- Before each execution batch to target priority products
+- On explicit request: "do a catalog gap analysis"
+- Weekly cron complementing the performance report
 
 ## Procedure
-1. Lis MEMORY.md ligne "Phase courante" pour confirmer Phase 2+ (sinon ce skill est informationnel uniquement).
+1. Read MEMORY.md "Current Phase" line to confirm Phase 2+ (otherwise this skill is informational only).
 
-2. Charge les sources existantes :
-   - $HERMES_WORKSPACE/audits/initial-catalog-audit.md (baseline initiale)
-   - $HERMES_WORKSPACE/brand-knowledge.md (contexte marque)
+2. Load existing sources:
+   - $HERMES_WORKSPACE/audits/initial-catalog-audit.md (initial baseline)
+   - $HERMES_WORKSPACE/brand-knowledge.md (brand context)
 
-3. Via toolkit Shopify (shopify store execute --query-file, JAMAIS --query inline), recupere :
-   - products(first: 250) avec id, handle, title, status, tags, descriptionHtml(first 600 chars), images.edges.node.id, productType
-   - Pour chaque produit, calcule :
+3. Via Shopify toolkit (shopify store execute --query-file, NEVER inline --query), fetch:
+   - products(first: 250) with id, handle, title, status, tags, descriptionHtml(first 600 chars), images.edges.node.id, productType
+   - For each product, compute:
      - tagsCount = len(tags)
-     - hasShippingBlockFirst = bool(regex /📦|livraison|expedition/i match dans first 300 chars descriptionHtml)
+     - hasShippingBlockFirst = bool(regex /📦|livraison|expedition/i match in first 300 chars of descriptionHtml)
      - imagesCount = len(images.edges)
 
-4. Categorise les produits par catégorie metier (textile, accessoire, bijou, deco, livre, coque) via productType + heuristique sur title si besoin.
+4. Categorize products by business category (textile, accessory, jewelry, decor, book, phone case) via productType + heuristic on title if needed.
 
-5. Pour chaque categorie, definis le set de tags cibles obligatoires (ex. textile = (vocab depuis STORE-BRAND.md), coque = (vocab catégorie)). Calcule les tags manquants par produit.
+5. For each category, define the set of mandatory target tags (e.g. textile = (vocab from STORE-BRAND.md), phone case = (category vocab)). Compute missing tags per product.
 
-6. Genere $HERMES_WORKSPACE/audits/phase2-gap-analysis-YYYY-MM-DD.md avec :
-   - Stats globales : X/96 produits sans bloc livraison en debut, Y/96 avec moins de 5 tags
-   - Liste detaillee par produit (handle, action proposee, severite)
-   - Batches suggeres : decoupage en groupes de 10 produits avec impact estime
+6. Generate $HERMES_WORKSPACE/audits/phase2-gap-analysis-YYYY-MM-DD.md with:
+   - Global stats: X/96 products without shipping block at start, Y/96 with fewer than 5 tags
+   - Detailed list per product (handle, proposed action, severity)
+   - Suggested batches: splits into groups of 10 products with estimated impact
 
-7. Resume Telegram court (max 12 lignes) : nombre de gaps detectes, top 5 actions vertes par impact, propose batch 1.
+7. Short Telegram summary (max 12 lines): number of detected gaps, top 5 green actions by impact, propose batch 1.
 
 ## Pitfalls
-- INTERDICTION inventer des chiffres : si pas de data sessions/conversion, marque "(N/A)"
-- Pas de mutation Shopify dans ce skill : 100 percent lecture seule
-- Le regex bloc livraison peut faux-positif sur descriptions qui mentionnent "livraison" en milieu de texte sans bloc dedie. Verifie le contexte (debut 300 chars).
-- Si plus de 250 produits, paginer via cursors GraphQL (pour le moment <STORE_NAME> = 96 produits, OK)
+- FORBIDDEN to invent numbers: if no sessions/conversion data, mark "(N/A)"
+- No Shopify mutation in this skill: 100 percent read-only
+- The shipping-block regex may false-positive on descriptions that mention "livraison" mid-text without a dedicated block. Check the context (first 300 chars).
+- If more than 250 products, paginate via GraphQL cursors (currently <STORE_NAME> = 96 products, OK)
 
 ## Verification
-- Fichier audits/phase2-gap-analysis-YYYY-MM-DD.md cree, taille >= 2 KB
-- Stats globales coherentes avec les 96 produits du catalogue
-- Top 10 priorise par signal client reel (sessions/conversion Shopify natives)
-- Telegram resume envoye, max 12 lignes
+- audits/phase2-gap-analysis-YYYY-MM-DD.md file created, size >= 2 KB
+- Global stats consistent with the 96 catalog products
+- Top 10 prioritized by real customer signal (native Shopify sessions/conversion)
+- Telegram summary sent, max 12 lines

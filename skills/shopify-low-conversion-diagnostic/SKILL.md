@@ -1,6 +1,6 @@
 ---
 name: shopify-low-conversion-diagnostic
-description: Diagnostique pourquoi un produit Shopify ne convertit pas (checklist 12 points)
+description: Diagnoses why a Shopify product is not converting (12-point checklist)
 version: 1.0.0
 author: Hermes (initial scaffold)
 metadata:
@@ -8,33 +8,33 @@ metadata:
     tags: [diagnostic, conversion, shopify, framework]
     category: ecommerce
 ---
-# Diagnostic Faible Conversion Produit
+# Product Low Conversion Diagnostic
 
 ## When to Use
-Produit > 50 vues/7j mais 0 add-to-cart, ou flag dans rapport hebdo.
+Product > 50 views/7d but 0 add-to-cart, or flagged in weekly report.
 
 ## Procedure
-Pour le produit ciblé, vérifie les 12 points :
-1. Image principale : qualité >= 800×800, >= 3 images, alt text rempli
-2. Description : >= 150 mots, HTML structuré (h2+ul), vocabulaire culturel
-3. SEO : meta title (30-70 chars), meta description (50-160 chars)
-4. Prix : aligné avec catégorie
-5. Variantes : toutes ont leur image dédiée
-6. Livraison : bloc 📦 en DÉBUT de description
-7. Reviews : >= 3 si app installée
-8. Stock : affiché disponible
-9. Tags : >= 5 pertinents
-10. Position dans collections
-11. Mobile preview lisible
-12. Internal linking dans description
+For the targeted product, verify the 12 points:
+1. Primary image: quality >= 800×800, >= 3 images, alt text filled
+2. Description: >= 150 words, structured HTML (h2+ul), cultural vocabulary
+3. SEO: meta title (30-70 chars), meta description (50-160 chars)
+4. Price: aligned with category
+5. Variants: all have their dedicated image
+6. Shipping: 📦 block at the START of description
+7. Reviews: >= 3 if app installed
+8. Stock: shown as available
+9. Tags: >= 5 relevant
+10. Position in collections
+11. Readable mobile preview
+12. Internal linking in description
 
 ## Output
-Tableau : {check, statut ✓/⚠/✗, recommandation, niveau 🟢/🟡/🔴}
+Table: {check, status ✓/⚠/✗, recommendation, level 🟢/🟡/🔴}
 
 ## Pitfalls
-- Ne pas modifier sans validation (sauf actions 🟢)
+- Don't modify without validation (except 🟢 actions)
 
 ## Verification
-- 12 points vérifiés
-- >= 1 action 🟢 exécutée si présente
-- >= 1 proposition 🟡 documentée
+- 12 points checked
+- >= 1 🟢 action executed if present
+- >= 1 🟡 proposal documented

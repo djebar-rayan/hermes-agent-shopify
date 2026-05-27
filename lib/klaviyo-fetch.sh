@@ -1,23 +1,23 @@
 #!/bin/bash
-# klaviyo-fetch.sh — Helper unifié pour fetcher données Klaviyo
+# klaviyo-fetch.sh — Unified helper for fetching Klaviyo data
 #
-# Cache TTL 6h pour éviter rate-limit (10/s burst, 150/min Klaviyo).
-# Sorties dans /root/.hermes/cache/klaviyo/<endpoint>-YYYY-MM-DD-HH.json
+# Cache TTL 6h to avoid rate-limit (10/s burst, 150/min Klaviyo).
+# Outputs to /root/.hermes/cache/klaviyo/<endpoint>-YYYY-MM-DD-HH.json
 #
-# Usage :
-#   klaviyo-fetch.sh flows                       # liste 8 flows
-#   klaviyo-fetch.sh campaigns                   # 30 campagnes
+# Usage:
+#   klaviyo-fetch.sh flows                       # list 8 flows
+#   klaviyo-fetch.sh campaigns                   # 30 campaigns
 #   klaviyo-fetch.sh metrics                     # 78 metrics
 #   klaviyo-fetch.sh segments                    # 1 segment
-#   klaviyo-fetch.sh lists                       # 2 listes
+#   klaviyo-fetch.sh lists                       # 2 lists
 #   klaviyo-fetch.sh metric-aggregate <id> <interval> <since_iso> <until_iso>
 #   klaviyo-fetch.sh flow-message-stats <flow-id> <since_iso> <until_iso>
 #
-# Exit codes :
-#   0  : succès, JSON sur stdout
-#   1  : KLAVIYO_API_KEY manquante
-#   2  : erreur API (rate-limit, 401, 500...)
-#   3  : usage invalide
+# Exit codes:
+#   0  : success, JSON on stdout
+#   1  : KLAVIYO_API_KEY missing
+#   2  : API error (rate-limit, 401, 500...)
+#   3  : invalid usage
 set -u
 
 CACHE_DIR="/root/.hermes/cache/klaviyo"
@@ -55,7 +55,7 @@ if [ -f "$CACHE_FILE" ]; then
   exit 0
 fi
 
-# Helper curl avec retry exponentiel
+# curl helper with exponential retry
 klaviyo_get() {
   local url="$1"
   local attempt=1
@@ -123,7 +123,7 @@ case "$ENDPOINT" in
     OUT=$(klaviyo_get "https://a.klaviyo.com/api/lists/?fields%5Blist%5D=name,created,updated")
     ;;
   profiles-count)
-    # Endpoint léger pour avoir le total (utilise pagination meta)
+    # Lightweight endpoint to get the total (uses pagination meta)
     OUT=$(klaviyo_get "https://a.klaviyo.com/api/profiles/?page%5Bsize%5D=1")
     ;;
   metric-aggregate)

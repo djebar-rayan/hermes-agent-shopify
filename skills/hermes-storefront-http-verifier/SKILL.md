@@ -1,6 +1,6 @@
 ---
 name: hermes-storefront-http-verifier
-description: Verifie le rendu HTTP public du storefront Shopify apres mutation
+description: Verifies the public HTTP rendering of the Shopify storefront after a mutation
 category: monitoring
 version: 0.1.0-PROPOSED
 metadata:
@@ -8,7 +8,7 @@ metadata:
     tags: [monitoring, http, storefront, verification]
   proposed:
     date: 2026-05-14
-    based_on_pattern: "Verification HTTP storefront apres mutation"
+    based_on_pattern: "Storefront HTTP verification after mutation"
     occurrences_found: 4
     sources: [
       "$HERMES_WORKSPACE/tests/p3.4-http-verification.md",
@@ -22,19 +22,19 @@ metadata:
 # hermes-storefront-http-verifier
 
 ## When to Use
-Utilisez ce skill immédiatement après avoir effectué des mutations critiques (comme le changement de statut d'un produit, la modification des prix ou des descriptions) pour vous assurer que les changements sont bien reflétés sur le site public (storefront), en contournant les éventuels caches locaux.
+Use this skill immediately after performing critical mutations (such as changing a product status, modifying prices or descriptions) to make sure the changes are properly reflected on the public site (storefront), bypassing any local caches.
 
 ## Procedure
-1. Identifier l'URL publique du produit ou de la page (ex: `https://${SHOP_DOMAIN}/products/handle`).
-2. Effectuer une requête HTTP GET (via `curl` ou une librairie Python).
-3. Analyser le code source HTML retourné pour y chercher les balises cibles (par exemple, `<title>`, `<meta name="description">`, ou des éléments de prix).
-4. Comparer les valeurs trouvées avec celles attendues suite à la mutation.
+1. Identify the public URL of the product or page (e.g. `https://${SHOP_DOMAIN}/products/handle`).
+2. Issue an HTTP GET request (via `curl` or a Python library).
+3. Parse the returned HTML source to look for the target tags (e.g. `<title>`, `<meta name="description">`, or price elements).
+4. Compare the found values with those expected after the mutation.
 
 ## Pitfalls
-- **Cache CDN / Shopify :** Il arrive que Shopify mette quelques minutes à purger son cache. Si la vérification échoue immédiatement, il faut parfois attendre 1 à 2 minutes et réessayer.
-- **Blocage par bot :** Faire attention aux User-Agents. Il est préférable d'utiliser un User-Agent standard de navigateur web pour la requête `curl`.
-- **Thème dynamique :** Certains thèmes chargent les données via JavaScript côté client. Dans ce cas, un simple `curl` peut ne pas suffire.
+- **CDN / Shopify cache:** Shopify sometimes takes a few minutes to purge its cache. If verification fails immediately, you may need to wait 1 to 2 minutes and retry.
+- **Bot blocking:** Watch User-Agents. Use a standard browser User-Agent for the `curl` request.
+- **Dynamic theme:** Some themes load data via client-side JavaScript. In that case, a simple `curl` may not be sufficient.
 
 ## Verification
-- Le code de retour HTTP doit être 200 (ou 404 si le but était de vérifier la mise en brouillon).
-- Le contenu attendu doit être strictement présent dans le corps de la réponse.
+- HTTP return code must be 200 (or 404 if the goal was to verify draft status).
+- Expected content must be strictly present in the response body.

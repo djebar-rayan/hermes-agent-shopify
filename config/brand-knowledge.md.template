@@ -1,104 +1,104 @@
-# brand-knowledge.md — Concurrents et positionnement
+# brand-knowledge.md — Competitors and positioning
 
-> Copie ce fichier dans `$HERMES_WORKSPACE/brand-knowledge.md` et remplis avec 5-10 concurrents de ta marque.
-> Hermes lit ce fichier pour ses propositions samedi-ideas (différenciation produit, opportunités niche).
-
----
-
-## 1. Positionnement de la marque
-
-**Mission** : <ta mission en 1 phrase>
-
-**USP unique** : <ce qui te différencie de la concurrence>
-
-**Public cible** : <description audience principale>
-
-**Promesse de marque** : <ce que le client attend en achetant chez toi>
+> Copy this file to `$HERMES_WORKSPACE/brand-knowledge.md` and fill it in with 5-10 competitors of your brand.
+> Hermes reads this file for its Saturday-ideas proposals (product differentiation, niche opportunities).
 
 ---
 
-## 2. Concurrents directs (5-10)
+## 1. Brand positioning
 
-> Marques qui vendent des produits similaires aux tiens, avec un positionnement et un public proches.
+**Mission**: <your mission in 1 sentence>
 
-| # | Marque | URL | Niche | USP concurrente | Opportunité différenciation |
+**Unique USP**: <what differentiates you from the competition>
+
+**Target audience**: <main audience description>
+
+**Brand promise**: <what the customer expects when buying from you>
+
+---
+
+## 2. Direct competitors (5-10)
+
+> Brands that sell products similar to yours, with positioning and audience close to yours.
+
+| # | Brand | URL | Niche | Competitor USP | Differentiation opportunity |
 |---|---|---|---|---|---|
-| 1 | <Nom> | https://... | <ex: streetwear engagé> | <ex: collections capsule limitées> | <ex: motifs uniques + collection permanente> |
-| 2 | <Nom> | https://... | <ex: couture héritage> | <ex: haute couture sur-mesure> | <ex: prêt-à-porter accessible> |
-| 3 | <Nom> | https://... | <ex: bijoux artisanaux> | <ex: pièces uniques peintes main> | <ex: bijoux modernisés industrialisables> |
-| 4 | <Nom> | https://... | <niche> | <USP eux> | <ta différenciation> |
-| 5 | <Nom> | https://... | <niche> | <USP eux> | <ta différenciation> |
+| 1 | <Name> | https://... | <e.g.: engaged streetwear> | <e.g.: limited capsule collections> | <e.g.: unique patterns + permanent collection> |
+| 2 | <Name> | https://... | <e.g.: heritage couture> | <e.g.: bespoke haute couture> | <e.g.: accessible ready-to-wear> |
+| 3 | <Name> | https://... | <e.g.: artisanal jewelry> | <e.g.: unique hand-painted pieces> | <e.g.: modernized industrializable jewelry> |
+| 4 | <Name> | https://... | <niche> | <their USP> | <your differentiation> |
+| 5 | <Name> | https://... | <niche> | <their USP> | <your differentiation> |
 
 ---
 
-## 3. Concurrents indirects (3-5)
+## 3. Indirect competitors (3-5)
 
-> Marques qui ciblent ton public mais avec des produits différents (substitution possible).
+> Brands that target your audience but with different products (possible substitution).
 
-| # | Marque | URL | Pourquoi indirect |
+| # | Brand | URL | Why indirect |
 |---|---|---|---|
-| 1 | <Nom> | https://... | <ex: même public mais catégorie déco au lieu de mode> |
-| 2 | <Nom> | https://... | <raison> |
-| 3 | <Nom> | https://... | <raison> |
+| 1 | <Name> | https://... | <e.g.: same audience but decor category instead of fashion> |
+| 2 | <Name> | https://... | <reason> |
+| 3 | <Name> | https://... | <reason> |
 
 ---
 
-## 4. Niches sous-exploitées
+## 4. Underexploited niches
 
-> Opportunités identifiées dans le marché que Hermes peut explorer avec `shopify-product-ideator`.
+> Market opportunities identified that Hermes can explore with `shopify-product-ideator`.
 
-- **Niche A** : <description + signal marché + concurrents qui ne couvrent pas>
-- **Niche B** : <...>
-- **Niche C** : <...>
+- **Niche A**: <description + market signal + competitors not covering it>
+- **Niche B**: <...>
+- **Niche C**: <...>
 
 ---
 
-## 5. Hashtags Instagram performants pour ta marque
+## 5. High-performing Instagram hashtags for your brand
 
-Pour `shopify-instagram-ideator`. Hermes les utilisera comme base et les complétera.
+For `shopify-instagram-ideator`. Hermes will use them as a base and add more.
 
-### Hashtags gros (>100k)
+### Large hashtags (>100k)
 - `#<tag1>` (~Xk posts)
 - `#<tag2>` (~Xk posts)
 - `#<tag3>`
 - `#<tag4>`
 - `#<tag5>`
 
-### Hashtags moyens (10k-100k)
+### Medium hashtags (10k-100k)
 - `#<tag1>`
 - `#<tag2>`
 - ...
 
-### Hashtags niches (<10k, à fort engagement)
+### Niche hashtags (<10k, high engagement)
 - `#<tag1>`
 - `#<tag2>`
 - ...
 
 ---
 
-## 6. Saisons commerciales
+## 6. Commercial seasons
 
-> Cf. `cultural-events.json` pour le format structuré machine-readable. Ici résumé human-readable.
+> See `cultural-events.json` for the structured machine-readable format. Human-readable summary here.
 
-- **<Saison 1>** : <description, impact attendu sur CA>
-- **<Saison 2>** : <...>
-- **<Saison 3>** : <...>
+- **<Season 1>**: <description, expected revenue impact>
+- **<Season 2>**: <...>
+- **<Season 3>**: <...>
 
 ---
 
-## 7. Apprentissages cumulés
+## 7. Cumulative learnings
 
-> Section append-only où le cron `weekly-meta-review` ajoute (max 5 lignes/semaine) des apprentissages.
+> Append-only section where the `weekly-meta-review` cron adds learnings (max 5 lines/week).
 
-- [YYYY-MM-DD] <apprentissage>
-- [YYYY-MM-DD] <apprentissage>
+- [YYYY-MM-DD] <learning>
+- [YYYY-MM-DD] <learning>
 - ...
 
 ---
 
-## Voir aussi
+## See also
 
-- [`MISSION.md`](./MISSION.md) — charter complet
-- [`STORE-BRAND.md`](./STORE-BRAND.md) — vocabulaire + niveaux autonomie
-- [`cultural-events.json`](./cultural-events.json) — calendrier événementiel structuré
-- [`../examples/azamoul/brand-knowledge.md`](../examples/azamoul/brand-knowledge.md) — exemple complet (marque française mode amazighe)
+- [`MISSION.md`](./MISSION.md) — full charter
+- [`STORE-BRAND.md`](./STORE-BRAND.md) — vocabulary + autonomy levels
+- [`cultural-events.json`](./cultural-events.json) — structured events calendar
+- [`../examples/azamoul/brand-knowledge.md`](../examples/azamoul/brand-knowledge.md) — complete example (French Amazigh fashion brand)

@@ -1,6 +1,6 @@
 ---
 name: shopify-metatitle-generator
-description: Genere meta title + meta description SEO pour un produit Shopify (60/160 chars cible)
+description: Generates SEO meta title + meta description for a Shopify product (60/160 chars target)
 category: e-commerce-seo
 version: 1.0.0
 metadata:
@@ -11,46 +11,46 @@ metadata:
 # <STORE_NAME> Meta Title/Description Generator
 
 ## When to Use
-- Skill compagnon `shopify-catalog-gap-analyzer` quand `seo.title` ou `seo.description` est vide ou < 30 chars
-- Avant `shopify-batch-executor` pour batch meta-titles
-- A la demande pour 1 produit
+- Companion skill to `shopify-catalog-gap-analyzer` when `seo.title` or `seo.description` is empty or < 30 chars
+- Before `shopify-batch-executor` for meta-title batches
+- On demand for a single product
 
 ## Procedure
-Input : `{handle, title, productType, descriptionHtml_excerpt, current_seo: {title, description}}`
+Input: `{handle, title, productType, descriptionHtml_excerpt, current_seo: {title, description}}`
 
-Genere :
+Generates:
 ```json
 {
-  "meta_title": "...",        // <= 60 chars cible (max 70)
-  "meta_description": "...",  // <= 160 chars cible (max 170)
+  "meta_title": "...",        // <= 60 chars target (max 70)
+  "meta_description": "...",  // <= 160 chars target (max 170)
   "rationale": "..."
 }
 ```
 
-Regles meta_title :
-- 50-60 chars optimal (Google tronque au-dela ~580px)
-- Inclut le nom produit + mot cle principal + marque "<STORE_NAME>" si possible
-- Au moins 1 mot du vocabulaire de marque (STORE-BRAND.md)
-- Format type : "<Nom produit> - <Symbole/Caractere> | <STORE_NAME>"
+meta_title rules:
+- 50-60 chars optimal (Google truncates beyond ~580px)
+- Includes product name + main keyword + brand "<STORE_NAME>" if possible
+- At least 1 brand vocabulary word (STORE-BRAND.md)
+- Standard format: "<Product name> - <Symbol/Character> | <STORE_NAME>"
 
-Regles meta_description :
+meta_description rules:
 - 140-160 chars optimal
-- Inclut une CTA implicite (decouvrez, offrez, portez)
-- Mentionne "Made in France" si applicable
-- Au moins 1 mot du vocabulaire de marque (STORE-BRAND.md)
-- Ne reprend PAS mot pour mot le meta_title (Google penalise)
+- Includes an implicit CTA (discover, offer, wear)
+- Mentions "Made in France" if applicable
+- At least 1 brand vocabulary word (STORE-BRAND.md)
+- Does NOT repeat meta_title verbatim (Google penalizes)
 
-NE PAS appliquer la mutation. C est `shopify-batch-executor` (via productUpdate avec seo: {title, description}) qui le fera.
+DO NOT apply the mutation. `shopify-batch-executor` (via productUpdate with seo: {title, description}) will handle it.
 
 ## Pitfalls
-- Titre > 70 chars = tronque dans SERP, refuse.
-- Description > 170 chars = tronquee, refuse.
-- Sans mot du vocabulaire de marque = identité perdue.
-- Eviter mots-vides ("le meilleur", "incroyable") — Google les ignore.
+- Title > 70 chars = truncated in SERP, refused.
+- Description > 170 chars = truncated, refused.
+- Without a brand vocabulary word = lost identity.
+- Avoid stop words ("the best", "amazing") — Google ignores them.
 
 ## Verification
 - meta_title <= 70 chars
 - meta_description <= 170 chars
-- Tous deux contiennent >= 1 mot du vocabulaire de marque
-- Pas de duplication entre title et description
-- rationale precise le mot cle principal cible
+- Both contain >= 1 brand vocabulary word
+- No duplication between title and description
+- rationale specifies the main target keyword

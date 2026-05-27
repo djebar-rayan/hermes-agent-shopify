@@ -1,32 +1,32 @@
 # Contributing to Hermes Shopify Framework
 
-Merci de l'intérêt ! Ce projet est né d'un besoin opérationnel concret et a été généralisé pour servir d'autres marchands. Les contributions sont les bienvenues.
+Thanks for your interest! This project was born from a concrete operational need and has been generalized to serve other merchants. Contributions are welcome.
 
 ---
 
-## 🧱 Convention de nommage des skills
+## 🧱 Skill Naming Convention
 
-Hermes distingue 2 préfixes :
+Hermes uses 2 prefixes:
 
-| Préfixe | Usage | Exemples |
+| Prefix | Usage | Examples |
 |---|---|---|
-| `shopify-*` | Skill domaine Shopify (catalogue, theme, KPI, Klaviyo, Instagram, SEO, content...) | `shopify-theme-editor`, `shopify-batch-executor`, `shopify-klaviyo-weekly-report` |
-| `hermes-*` | Utility framework pure (pas spécifique à Shopify) | `hermes-email-sender`, `hermes-schema-guard`, `hermes-snapshot-diff-validator` |
+| `shopify-*` | Shopify domain skill (catalog, theme, KPI, Klaviyo, Instagram, SEO, content...) | `shopify-theme-editor`, `shopify-batch-executor`, `shopify-klaviyo-weekly-report` |
+| `hermes-*` | Pure framework utility (not specific to Shopify) | `hermes-email-sender`, `hermes-schema-guard`, `hermes-snapshot-diff-validator` |
 
-**Règle simple** : si ton skill manipule des entités Shopify (product, collection, theme, customer, order) ou des APIs e-commerce (Klaviyo, Instagram, GSC) → `shopify-*`. Sinon → `hermes-*`.
+**Simple rule**: if your skill manipulates Shopify entities (product, collection, theme, customer, order) or e-commerce APIs (Klaviyo, Instagram, GSC) → `shopify-*`. Otherwise → `hermes-*`.
 
 ---
 
-## 📝 Structure d'un SKILL.md
+## 📝 SKILL.md Structure
 
-Tout skill suit ce format :
+Every skill follows this format:
 
 ```markdown
 ---
-name: shopify-mon-skill
-description: Description condensée 1 ligne — quoi fait ce skill et quand l'invoquer
+name: shopify-my-skill
+description: Condensed 1-line description — what this skill does and when to invoke it
 version: 1.0.0
-author: Ton nom
+author: Your name
 metadata:
   hermes:
     tags: [shopify, monitoring, mutation]
@@ -34,153 +34,153 @@ metadata:
     requires_toolsets: [terminal, file, messaging]
 ---
 
-# Mon Skill
+# My Skill
 
-Description courte (1-2 paragraphes) de ce que fait le skill.
+Short description (1-2 paragraphs) of what the skill does.
 
 ## When to Use
 
-- Trigger 1 (ex: cron lundi-perf)
-- Trigger 2 (ex: demande user explicite "fais X")
-- NE PAS utiliser pour : Y, Z
+- Trigger 1 (e.g. Monday perf cron)
+- Trigger 2 (e.g. explicit user request "do X")
+- DO NOT use for: Y, Z
 
 ## Configuration
 
-Vars requises depuis `.env` :
-- `VAR_1` (ex: `SHOPIFY_STORE`)
+Required vars from `.env`:
+- `VAR_1` (e.g. `SHOPIFY_STORE`)
 - `VAR_2`
 
-Helpers dépendances :
-- `lib/theme.sh` (si applicable)
+Helper dependencies:
+- `lib/theme.sh` (if applicable)
 
-Skill compagnons :
-- `hermes-schema-guard` (à charger AVANT toute mutation)
+Companion skills:
+- `hermes-schema-guard` (to load BEFORE any mutation)
 
 ## Procedure
 
-1. Étape 1 (avec commande bash si applicable)
-2. Étape 2
+1. Step 1 (with bash command if applicable)
+2. Step 2
 3. ...
 
 ## Pitfalls
 
-- Piège 1 connu
-- Piège 2
+- Known pitfall 1
+- Pitfall 2
 
 ## Verification
 
-Checklist post-exécution :
-- [ ] Critère 1 vérifié
-- [ ] Critère 2 vérifié
-- [ ] Entrée loggée dans `learnings.md`
+Post-execution checklist:
+- [ ] Criterion 1 verified
+- [ ] Criterion 2 verified
+- [ ] Entry logged in `learnings.md`
 ```
 
 ---
 
-## 🔌 Ajouter une nouvelle intégration API
+## 🔌 Adding a New API Integration
 
-1. Créer un helper dans `lib/<service>-fetch.sh` (suivre le pattern de `lib/klaviyo-fetch.sh`)
-   - Cache disque avec TTL (anti rate-limit)
-   - Retry exponentiel sur 429
-   - Exit codes documentés (0=succès, 1=missing key, 2=API error, 3=usage)
-   - Sous-commandes claires
-2. Ajouter la variable d'env dans `config/.env.template` avec un commentaire
-3. Documenter dans `docs/INTEGRATIONS.md` (ajouter une ligne au tableau)
-4. Créer le skill correspondant dans `skills/shopify-<service>-*/SKILL.md`
-5. Ajouter un test dans le smoke test si applicable
-
----
-
-## 🛠️ Ajouter un helper réutilisable
-
-Les helpers vivent dans `lib/`. Conventions :
-
-- **Bash** par défaut (sourçable + executable)
-- En-tête : commentaire avec `# Requires in env: VAR_1, VAR_2`
-- Fonction `<helper>_check_env` qui valide la présence des vars critiques
-- Fonctions préfixées par le nom du helper (`theme_get`, `theme_push`, `klaviyo_fetch`, ...)
-- Toutes les fonctions exportées via `export -f` à la fin du fichier
-- Gestion d'erreur explicite avec préfixe `[<HELPER>_FAIL: ...]` sur stderr
+1. Create a helper in `lib/<service>-fetch.sh` (follow the pattern of `lib/klaviyo-fetch.sh`)
+   - Disk cache with TTL (anti rate-limit)
+   - Exponential retry on 429
+   - Documented exit codes (0=success, 1=missing key, 2=API error, 3=usage)
+   - Clear subcommands
+2. Add the env variable in `config/.env.template` with a comment
+3. Document in `docs/INTEGRATIONS.md` (add a row to the table)
+4. Create the corresponding skill in `skills/shopify-<service>-*/SKILL.md`
+5. Add a test to the smoke test if applicable
 
 ---
 
-## 🚀 Soumettre une PR
+## 🛠️ Adding a Reusable Helper
+
+Helpers live in `lib/`. Conventions:
+
+- **Bash** by default (sourceable + executable)
+- Header: comment with `# Requires in env: VAR_1, VAR_2`
+- `<helper>_check_env` function that validates the presence of critical vars
+- Functions prefixed with the helper name (`theme_get`, `theme_push`, `klaviyo_fetch`, ...)
+- All functions exported via `export -f` at the end of the file
+- Explicit error handling with prefix `[<HELPER>_FAIL: ...]` on stderr
+
+---
+
+## 🚀 Submitting a PR
 
 ### Workflow
 
-1. **Fork** le repo
-2. **Branche** depuis `main` : `git checkout -b add-shopify-X`
-3. Implémenter + tester localement
-4. **Lint** : pas de secret hardcodé, pas de référence à une boutique spécifique
-5. **Commit** : message clair (cf. format ci-dessous)
-6. **Push** + ouvrir une PR vers `main`
+1. **Fork** the repo
+2. **Branch** from `main`: `git checkout -b add-shopify-X`
+3. Implement + test locally
+4. **Lint**: no hardcoded secret, no reference to a specific store
+5. **Commit**: clear message (see format below)
+6. **Push** + open a PR against `main`
 
-### Format de commit
+### Commit Format
 
 ```
-<type>: <description courte 50 chars>
+<type>: <short description 50 chars>
 
-<description détaillée si nécessaire>
+<detailed description if necessary>
 
-<footer ex: closes #42>
+<footer e.g. closes #42>
 ```
 
-Types : `feat` (nouveau skill/feature), `fix` (correction), `docs` (doc), `refactor`, `test`, `chore`.
+Types: `feat` (new skill/feature), `fix` (correction), `docs` (doc), `refactor`, `test`, `chore`.
 
-Exemples :
+Examples:
 - `feat(skill): add shopify-product-bulk-importer`
 - `fix(theme.sh): handle empty theme list gracefully`
 - `docs(getting-started): clarify Theme Access setup`
 
-### Critères d'acceptation
+### Acceptance Criteria
 
-- [ ] Le skill / helper / doc a un nom suivant la convention
-- [ ] Pas de secret en clair (les vars d'env sont référencées, pas leurs valeurs)
-- [ ] Pas de référence à une boutique spécifique dans le code générique (sauf dans `examples/`)
-- [ ] Tests / smoke tests passent
-- [ ] Documentation mise à jour (`docs/SKILLS-REFERENCE.md` si nouveau skill, `docs/INTEGRATIONS.md` si nouvelle API)
-- [ ] Aucune régression sur les skills existants
+- [ ] The skill / helper / doc has a name following the convention
+- [ ] No secret in plaintext (env vars are referenced, not their values)
+- [ ] No reference to a specific store in generic code (except in `examples/`)
+- [ ] Tests / smoke tests pass
+- [ ] Documentation updated (`docs/SKILLS-REFERENCE.md` if new skill, `docs/INTEGRATIONS.md` if new API)
+- [ ] No regression on existing skills
 
 ---
 
-## 📐 Code style
+## 📐 Code Style
 
 ### Bash
 
-- 2 espaces pour l'indentation
-- `set -euo pipefail` en début de script (sauf si raison documentée)
-- Variables en `UPPER_CASE` pour les constants, `lower_case` pour les locales
-- Toujours quoter les variables : `"$var"` pas `$var`
-- Helper functions retournent via `echo` (capturable) ou via fichier (`$1` = output path)
-- `local` pour toutes les variables internes à une fonction
+- 2 spaces for indentation
+- `set -euo pipefail` at the start of the script (unless a documented reason)
+- `UPPER_CASE` variables for constants, `lower_case` for locals
+- Always quote variables: `"$var"` not `$var`
+- Helper functions return via `echo` (capturable) or via file (`$1` = output path)
+- `local` for all function-internal variables
 
 ### Markdown
 
-- En-têtes : `#` pour le titre, `##` pour les sections principales, `###` pour les sous-sections (max 4 niveaux)
-- Tableaux : aligner les `|` pour la lisibilité
-- Code blocks : avec language tag (` ```bash `, ` ```json `, ...)
-- Liens internes : utiliser des paths relatifs (`./docs/X.md` plutôt que des URL absolus)
+- Headings: `#` for the title, `##` for main sections, `###` for subsections (max 4 levels)
+- Tables: align the `|` for readability
+- Code blocks: with language tag (` ```bash `, ` ```json `, ...)
+- Internal links: use relative paths (`./docs/X.md` rather than absolute URLs)
 
 ---
 
 ## 🤝 Code of Conduct
 
-- Respect mutuel
-- Pas de spam / promotion
-- Les issues sont pour des bugs / features / questions techniques
-- Pas de question de support gratuit (consulting privé en MP si besoin)
-- Reviews constructives, pas de "ça marche pas" sans détails
+- Mutual respect
+- No spam / promotion
+- Issues are for bugs / features / technical questions
+- No free support requests (private consulting via DM if needed)
+- Constructive reviews, no "it doesn't work" without details
 
 ---
 
-## 🙏 Crédits
+## 🙏 Credits
 
-Ce framework a été créé par **Rayan Djebar** lors d'un stage chez Azamoul (marque française culture amazighe), puis généralisé pour servir d'autres marchands. Les contributeurs sont listés dans la section "Contributors" de la page repo GitHub.
+This framework was created by **Rayan Djebar** during an internship at Azamoul (French Amazigh culture brand), then generalized to serve other merchants. Contributors are listed in the "Contributors" section of the GitHub repo page.
 
 ---
 
 ## ❓ Questions
 
-- Issue GitHub pour bug / feature / proposition de skill
-- Pour les contributions importantes (nouveau skill complet, nouvelle intégration majeure), ouvre d'abord une issue de discussion avant de coder
-- Pas de canal de chat dédié (Discord/Slack) pour l'instant
+- GitHub issue for bug / feature / skill proposal
+- For larger contributions (full new skill, major new integration), open a discussion issue first before coding
+- No dedicated chat channel (Discord/Slack) for now

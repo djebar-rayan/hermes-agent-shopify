@@ -1,34 +1,34 @@
-# VPS Setup — Spécifications & installation
+# VPS Setup — Specifications & installation
 
-> Spécifications techniques de l'hôte VPS recommandé pour faire tourner Hermes 24/7.
+> Technical specifications of the recommended VPS host to run Hermes 24/7.
 >
-> Pour le setup applicatif (skills, crons, workspace) : voir [`../GETTING-STARTED.md`](../GETTING-STARTED.md).
+> For application setup (skills, crons, workspace): see [`../GETTING-STARTED.md`](../GETTING-STARTED.md).
 
 ---
 
-## 1. Spécifications minimales
+## 1. Minimum specifications
 
-| Composant | Min | Recommandé | Pourquoi |
+| Component | Min | Recommended | Why |
 |---|---|---|---|
-| OS | Ubuntu 22.04 | Ubuntu 24.04 LTS | Compat Hermes + paquets récents |
-| RAM | 2 GB | 4 GB | OpenViking + Hermes + sessions LLM concurrentes |
-| CPU | 1 vCPU | 2 vCPU | Crons en parallèle + traitement images |
-| Stockage | 20 GB | 40 GB | Workspace + cache + theme-backups + logs |
-| Bande passante | 1 TB/mois | Illimitée | Calls API + scrape veille |
-| Coût typique | 5€/mois | 10€/mois | OVH, Hetzner, DigitalOcean |
+| OS | Ubuntu 22.04 | Ubuntu 24.04 LTS | Hermes compat + recent packages |
+| RAM | 2 GB | 4 GB | OpenViking + Hermes + concurrent LLM sessions |
+| CPU | 1 vCPU | 2 vCPU | Parallel crons + image processing |
+| Storage | 20 GB | 40 GB | Workspace + cache + theme-backups + logs |
+| Bandwidth | 1 TB/month | Unlimited | API calls + monitoring scrape |
+| Typical cost | €5/month | €10/month | OVH, Hetzner, DigitalOcean |
 
 ---
 
-## 2. Stack logicielle
+## 2. Software stack
 
-| Composant | Version | Comment installer |
+| Component | Version | How to install |
 |---|---|---|
 | Ubuntu LTS | 24.04 | `apt update && apt upgrade` |
 | Python | 3.11 (venv) + 3.12 (system) | `apt install python3.11 python3.11-venv` |
 | Node.js | 20+ | `curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt install -y nodejs` |
 | Shopify CLI | 3.94+ | `npm install -g @shopify/cli @shopify/theme` |
-| OpenViking | 0.3.16 | Cf. instructions [OpenViking](https://openviking.dev) |
-| Hermes Agent | v0.14.0 | `pip install hermes-cli` (dans venv `/usr/local/lib/hermes-agent`) |
+| OpenViking | 0.3.16 | See [OpenViking](https://openviking.dev) instructions |
+| Hermes Agent | v0.14.0 | `pip install hermes-cli` (in venv `/usr/local/lib/hermes-agent`) |
 | jq | latest | `apt install -y jq` |
 | git | latest | `apt install -y git` |
 
@@ -36,14 +36,14 @@
 
 ## 3. Hermes Agent — configuration
 
-### Structure de répertoires
+### Directory structure
 
 ```
-/root/.hermes/                          [framework — partagé entre toutes les instances]
-├── config.yaml                         (config Hermes : hooks, model, etc.)
+/root/.hermes/                          [framework — shared between all instances]
+├── config.yaml                         (Hermes config: hooks, model, etc.)
 ├── .env                                (secrets — chmod 600)
 ├── standing/
-│   └── STANDING-CORE.md                (11 règles universelles)
+│   └── STANDING-CORE.md                (11 universal rules)
 ├── hooks/
 │   ├── inject-standing.sh
 │   └── log-learning.sh
@@ -57,11 +57,11 @@
 │   ├── MEMORY.md
 │   └── USER.md
 └── cache/
-    └── klaviyo/                        (cache 6h)
+    └── klaviyo/                        (6h cache)
 ```
 
 ```
-$HERMES_WORKSPACE/                       [user-facing — instance boutique]
+$HERMES_WORKSPACE/                       [user-facing — store instance]
 ├── MISSION.md
 ├── STORE-BRAND.md
 ├── brand-knowledge.md
@@ -77,11 +77,11 @@ $HERMES_WORKSPACE/                       [user-facing — instance boutique]
 └── shopify-automation-toolkit/
 ```
 
-### Variables d'env clés (cf. `config/.env.template`)
+### Key env variables (cf. `config/.env.template`)
 
 ```bash
-# === Boutique ===
-SHOPIFY_STORE=<store_handle>            # sans .myshopify.com
+# === Store ===
+SHOPIFY_STORE=<store_handle>            # without .myshopify.com
 SHOP_BRAND_NAME=<Display Name>
 SHOP_DOMAIN=<store>.com
 HERMES_WORKSPACE=/root/<store>-shopify
@@ -89,7 +89,7 @@ HERMES_MODE=test                        # test | prod
 LIVE_THEME_ID=<theme_id>
 
 # === Shopify Auth ===
-SHOPIFY_CLI_THEME_TOKEN=shptka_***      # via app Theme Access
+SHOPIFY_CLI_THEME_TOKEN=shptka_***      # via Theme Access app
 
 # === LLM ===
 OPENROUTER_API_KEY=sk-or-v1-***
@@ -110,7 +110,7 @@ TELEGRAM_BOT_TOKEN=***
 TELEGRAM_ALLOWED_USERS=<user_id>
 TELEGRAM_HOME_CHANNEL=<user_id>
 
-# === Optionnels ===
+# === Optional ===
 KLAVIYO_API_KEY=pk_***
 FIRECRAWL_API_KEY=fc-***
 GSC_SERVICE_ACCOUNT_FILE=/root/.hermes/gsc-service-account.json
@@ -119,14 +119,14 @@ GSC_SITE_URL=sc-domain:<store>.com
 
 ---
 
-## 4. Setup étape par étape (récap)
+## 4. Step-by-step setup (recap)
 
-Pour le setup détaillé, voir [`../GETTING-STARTED.md`](../GETTING-STARTED.md).
+For detailed setup, see [`../GETTING-STARTED.md`](../GETTING-STARTED.md).
 
-Résumé express :
+Express summary:
 
-1. **Provision VPS** Ubuntu 24.04 (chez OVH, Hetzner, etc.)
-2. **SSH config** côté client :
+1. **Provision VPS** Ubuntu 24.04 (at OVH, Hetzner, etc.)
+2. **SSH config** on client side:
    ```
    Host mystore-vps
      HostName <VPS_IP>
@@ -134,22 +134,22 @@ Résumé express :
      IdentityFile ~/.ssh/id_ed25519
    ```
 3. **Install stack** (Python, Node, Shopify CLI, jq, git)
-4. **Install Hermes Agent** dans venv `/usr/local/lib/hermes-agent`
-5. **Install OpenViking** sur port 1933 (systemd service)
-6. **Clone framework** : `git clone https://github.com/djebar-rayan/hermes-agent-shopify.git ~/hermes-framework`
-7. **Créer `$HERMES_WORKSPACE`** et copier les templates depuis `config/`
-8. **Remplir `.env`** + `STORE-BRAND.md` + `MISSION.md` + `cultural-events.json`
-9. **Auth Shopify CLI** + créer Theme Access token
-10. **Configurer crons** dans `/root/.hermes/cron/jobs.json`
-11. **Activer hooks v0.14**
-12. **Smoke test** : `source lib/theme.sh ; theme_list`
-13. **Lancer gateway Telegram** : `hermes gateway run --replace`
+4. **Install Hermes Agent** in venv `/usr/local/lib/hermes-agent`
+5. **Install OpenViking** on port 1933 (systemd service)
+6. **Clone framework**: `git clone https://github.com/djebar-rayan/hermes-agent-shopify.git ~/hermes-framework`
+7. **Create `$HERMES_WORKSPACE`** and copy templates from `config/`
+8. **Fill `.env`** + `STORE-BRAND.md` + `MISSION.md` + `cultural-events.json`
+9. **Auth Shopify CLI** + create Theme Access token
+10. **Configure crons** in `/root/.hermes/cron/jobs.json`
+11. **Enable v0.14 hooks**
+12. **Smoke test**: `source lib/theme.sh ; theme_list`
+13. **Launch Telegram gateway**: `hermes gateway run --replace`
 
 ---
 
 ## 5. Hermes config.yaml
 
-Exemple de config recommandée :
+Recommended config example:
 
 ```yaml
 # /root/.hermes/config.yaml
@@ -198,11 +198,11 @@ hooks:
       timeout: 30
 hooks_auto_accept: true
 
-# Toolsets actifs
+# Active toolsets
 toolsets:
   - hermes-cli
 
-# Pour le tool terminal : env vars à passer au sous-shell
+# For the terminal tool: env vars to pass to the subshell
 toolset_terminal:
   workdir: $HERMES_WORKSPACE
   env_passthrough:
@@ -228,9 +228,9 @@ toolset_terminal:
 
 ---
 
-## 6. Maintenance courante
+## 6. Routine maintenance
 
-### Mise à jour Hermes
+### Hermes update
 
 ```bash
 source /usr/local/lib/hermes-agent/bin/activate
@@ -238,22 +238,22 @@ pip install --upgrade hermes-cli
 hermes --version
 ```
 
-⚠️ Tester la nouvelle version sur un cron manuel avant de la laisser tourner en cron auto.
+⚠️ Test the new version on a manual cron before letting it run as an auto cron.
 
-### Rotation des logs
+### Log rotation
 
-Le hook `log-learning` append en continu à `$HERMES_WORKSPACE/learnings.md`. Pour éviter l'inflation, prévoir une rotation manuelle :
+The `log-learning` hook continuously appends to `$HERMES_WORKSPACE/learnings.md`. To avoid inflation, plan a manual rotation:
 
 ```bash
-# Tous les 6 mois, archiver les anciennes entrées
+# Every 6 months, archive old entries
 mv $HERMES_WORKSPACE/learnings.md $HERMES_WORKSPACE/learnings-YYYY-S1.md
 touch $HERMES_WORKSPACE/learnings.md
 ```
 
-### Backup config
+### Config backup
 
 ```bash
-# Sauvegarder régulièrement (cf. règle "Mise en place")
+# Back up regularly (cf. "Setup" rule)
 tar -czf /tmp/hermes-backup-$(date +%Y%m%d).tar.gz \
   /root/.hermes/.env \
   /root/.hermes/config.yaml \
@@ -267,23 +267,23 @@ tar -czf /tmp/hermes-backup-$(date +%Y%m%d).tar.gz \
   $HERMES_WORKSPACE/MEMORY.md
 ```
 
-### Cache Klaviyo
+### Klaviyo cache
 
-Pour forcer un refresh d'un endpoint Klaviyo (bypass cache 6h) :
+To force a refresh of a Klaviyo endpoint (bypass 6h cache):
 
 ```bash
 rm /root/.hermes/cache/klaviyo/<endpoint>-YYYY-MM-DD-HH.json
-# Le prochain appel re-fetchera depuis l'API
+# The next call will re-fetch from the API
 ```
 
 ---
 
-## 7. Monitoring du VPS
+## 7. VPS monitoring
 
-### Status services
+### Service status
 
 ```bash
-# Hermes gateway Telegram
+# Hermes Telegram gateway
 systemctl status hermes-gateway || ps aux | grep hermes
 ls -la /root/.hermes/gateway.lock /root/.hermes/gateway.pid
 
@@ -291,11 +291,11 @@ ls -la /root/.hermes/gateway.lock /root/.hermes/gateway.pid
 systemctl status openviking
 curl http://localhost:1933/health
 
-# Crons (Hermes-managed, pas crontab)
+# Crons (Hermes-managed, not crontab)
 cat /root/.hermes/cron/jobs.json | jq '.jobs[] | {name, last_status, last_run_at, next_run_at}'
 ```
 
-### Insights coût/tokens
+### Cost/token insights
 
 ```bash
 hermes insights --days 7
@@ -306,15 +306,15 @@ hermes insights --days 30
 
 ## 8. Troubleshooting
 
-| Erreur | Cause probable | Solution |
+| Error | Probable cause | Solution |
 |---|---|---|
-| `SHOPIFY_STORE missing in .env` | `.env` non chargé | `set -a; . /root/.hermes/.env; set +a` |
-| `Gemini Text 429` | Rate limit 10req/min | Retry auto 60s, max 3 fois |
-| `blockReason: OTHER` Gemini | `GEMINI_MODEL` (Flash Image) utilisé pour texte | Switch sur `GEMINI_TEXT_MODEL` |
-| `EMAIL_FAIL` SMTP | App Password Gmail expiré | Regénérer sur myaccount.google.com/apppasswords |
-| Token Shopify expiré | OAuth caduc | NE PAS réauth headless — notifier user pour run depuis Windows |
-| Klaviyo 401 | `KLAVIYO_API_KEY` invalide | Vérifier qu'elle commence par `pk_` |
-| `urlRedirectCreate denied` | Scope `write_online_store_navigation` manquant | Différer ou demander réauth avec scope ajouté |
-| `themeFilesUpsert ACCESS_DENIED` | Scope `write_themes` absent + pas d'exemption | Utiliser Theme Access token `shptka_` + `shopify theme push` |
-| Telegram bot ne répond pas | `TELEGRAM_BOT_TOKEN` invalide ou gateway pas lancé | `curl https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getMe` + relancer `hermes gateway run --replace` |
-| Cron `last_status: fail` | Voir détail dans logs Hermes | `tail -50 /root/.hermes/logs/*.log` |
+| `SHOPIFY_STORE missing in .env` | `.env` not loaded | `set -a; . /root/.hermes/.env; set +a` |
+| `Gemini Text 429` | Rate limit 10req/min | Auto retry 60s, max 3 times |
+| `blockReason: OTHER` Gemini | `GEMINI_MODEL` (Flash Image) used for text | Switch to `GEMINI_TEXT_MODEL` |
+| `EMAIL_FAIL` SMTP | Gmail App Password expired | Regenerate at myaccount.google.com/apppasswords |
+| Expired Shopify token | OAuth lapsed | DO NOT re-auth headless — notify user to run from Windows |
+| Klaviyo 401 | `KLAVIYO_API_KEY` invalid | Check that it starts with `pk_` |
+| `urlRedirectCreate denied` | `write_online_store_navigation` scope missing | Defer or request re-auth with added scope |
+| `themeFilesUpsert ACCESS_DENIED` | `write_themes` scope absent + no exemption | Use Theme Access token `shptka_` + `shopify theme push` |
+| Telegram bot not responding | `TELEGRAM_BOT_TOKEN` invalid or gateway not running | `curl https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getMe` + restart `hermes gateway run --replace` |
+| Cron `last_status: fail` | See details in Hermes logs | `tail -50 /root/.hermes/logs/*.log` |

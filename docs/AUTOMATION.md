@@ -1,118 +1,118 @@
 # Automation — Crons, Hooks, STANDING, Memory
 
-> Câblage complet de l'automation Hermes : 4 crons hebdomadaires, hooks v0.14, 14 règles immuables STANDING, memory system OpenViking.
+> Complete wiring of Hermes automation: 4 weekly crons, v0.14 hooks, 14 immutable STANDING rules, OpenViking memory system.
 
 ---
 
-## 1. Les 4 crons
+## 1. The 4 crons
 
-Configuration dans `/root/.hermes/cron/jobs.json` — fuseau **Europe/Paris** (configurable via `config.yaml`).
+Configuration in `/root/.hermes/cron/jobs.json` — timezone **Europe/Paris** (configurable via `config.yaml`).
 
-| Nom (template) | Cron expression | Décodage | Skills invoqués |
+| Name (template) | Cron expression | Decoding | Skills invoked |
 |---|---|---|---|
-| `<store>-weekly-perf-report` | `0 9 * * 1` | Lundi 9h00 | `shopify-weekly-perf-report` + `shopify-baseline-kpi-fetch` + `shopify-low-conversion-diagnostic` + `shopify-klaviyo-weekly-report` |
-| `<store>-weekly-ideas` | `0 10 * * 6` | Samedi 10h00 | `shopify-instagram-ideator` + `shopify-product-ideator` + `shopify-cultural-calendar` + `shopify-klaviyo-campaign-ideator` |
-| `<store>-weekly-meta-review` | `0 20 * * 0` | Dimanche 20h00 | `shopify-weekly-perf-report` + `shopify-cultural-calendar` |
-| `<store>-watchdog-conversion` | `0 */6 * * *` | Toutes les 6h | Script bash + `shopify-klaviyo-drop-watchdog` |
+| `<store>-weekly-perf-report` | `0 9 * * 1` | Monday 9:00am | `shopify-weekly-perf-report` + `shopify-baseline-kpi-fetch` + `shopify-low-conversion-diagnostic` + `shopify-klaviyo-weekly-report` |
+| `<store>-weekly-ideas` | `0 10 * * 6` | Saturday 10:00am | `shopify-instagram-ideator` + `shopify-product-ideator` + `shopify-cultural-calendar` + `shopify-klaviyo-campaign-ideator` |
+| `<store>-weekly-meta-review` | `0 20 * * 0` | Sunday 8:00pm | `shopify-weekly-perf-report` + `shopify-cultural-calendar` |
+| `<store>-watchdog-conversion` | `0 */6 * * *` | Every 6h | Bash script + `shopify-klaviyo-drop-watchdog` |
 
-Remplacer `<store>` par ton handle dans `cron-jobs.json`.
-
----
-
-### Cron 1 : Rapport hebdo performance (lundi 9h)
-
-**Mission** : rapport hebdomadaire constat-actions intégrant KPI Shopify + section Klaviyo.
-
-**Skills invoqués** :
-- `shopify-weekly-perf-report` — orchestre, génère le markdown
-- `shopify-baseline-kpi-fetch` — fetch KPI N et N-1 (sessions, conversions, AOV, CA, paniers abandonnés)
-- `shopify-low-conversion-diagnostic` — détecte produits avec >50 vues/7j sans add-to-cart
-- `shopify-klaviyo-weekly-report` — section markdown KPI emails (open/click/bounce/unsub/order)
-
-**Livrables** :
-- `$HERMES_WORKSPACE/reports/YYYY-Www-perf.md` — rapport complet
-- Résumé Telegram chat `$TELEGRAM_HOME_CHANNEL` (max 20 lignes)
-- Email SMTP Gmail via snippet Python inline avec sentinelle `EMAIL_SMTP_OK`
-
-**Garde-fou phase** : Si `HERMES_MODE=test`, aucune mutation Shopify exécutée. Phase 2+ (= `HERMES_MODE=prod`) : actions vertes 🟢 après /yes Telegram.
-
-**Anti-hallucination** : règles dures embedded dans le prompt — chaque KPI doit avoir source citée, `(donnée non disponible)` sinon.
+Replace `<store>` with your handle in `cron-jobs.json`.
 
 ---
 
-### Cron 2 : Email créatif hebdomadaire (samedi 10h)
+### Cron 1: Weekly performance report (Monday 9am)
 
-**Mission** : email créatif avec EXACTEMENT 3 propositions :
+**Mission**: weekly observation-actions report integrating Shopify KPIs + Klaviyo section.
 
-**Proposition 1 — Nouveau produit** :
-- Nom (+ déclinaison culturelle si pertinent pour ta marque)
-- Catégorie
-- Description 50 mots (concept + univers de marque)
-- Pourquoi maintenant (signal marché, niche identifiée dans `brand-knowledge.md`)
-- Prix cible + marge estimée
-- Concurrents similaires + différenciation
-- Description visuelle textuelle pour moodboard
+**Skills invoked**:
+- `shopify-weekly-perf-report` — orchestrates, generates the markdown
+- `shopify-baseline-kpi-fetch` — fetches KPIs N and N-1 (sessions, conversions, AOV, revenue, abandoned carts)
+- `shopify-low-conversion-diagnostic` — detects products with >50 views/7d without add-to-cart
+- `shopify-klaviyo-weekly-report` — markdown section for email KPIs (open/click/bounce/unsub/order)
 
-**Proposition 2 — Post Instagram** :
-- Format (reel/carrousel/single/story)
-- Thème (storytelling marque / éducation / témoignage client)
-- Caption FR + EN
-- 15 hashtags (5 gros >100k + 5 moyens 10k-100k + 5 niches <10k)
-- Description visuelle textuelle
-- Date + heure recommandée (créneau optimal selon ta marque, ex: 18-22h Paris)
-- CTA explicite
+**Deliverables**:
+- `$HERMES_WORKSPACE/reports/YYYY-Www-perf.md` — full report
+- Telegram summary in `$TELEGRAM_HOME_CHANNEL` chat (max 20 lines)
+- SMTP Gmail email via inline Python snippet with `EMAIL_SMTP_OK` sentinel
 
-**Proposition 3 — Draft campagne Klaviyo** :
-- Aligné `shopify-cultural-calendar` événement J-21 à J-7 (lu depuis `cultural-events.json`)
-- Format markdown read-only (jamais POST direct vers Klaviyo)
-- Sortie : section dans `reports/YYYY-Www-ideas.md` + archive `campaigns/YYYY-Www-klaviyo-draft.md`
+**Phase safeguard**: If `HERMES_MODE=test`, no Shopify mutation executed. Phase 2+ (= `HERMES_MODE=prod`): green 🟢 actions after Telegram /yes.
 
-**Garde-fou** : aucune publication automatique, DRAFTS uniquement, copier-coller manuel par le marchand.
+**Anti-hallucination**: hard rules embedded in the prompt — every KPI must have a cited source, otherwise `(data not available)`.
 
 ---
 
-### Cron 3 : Méta-revue auto-amélioration (dimanche 20h)
+### Cron 2: Weekly creative email (Saturday 10am)
 
-**Mission** : méta-revue hebdomadaire avec auto-création de skills.
+**Mission**: creative email with EXACTLY 3 proposals:
 
-**Procédure** :
-1. Pour chaque action exécutée cette semaine (lue dans `learnings.md`), vérifie impact KPI (avant/après) si data dispo, sinon flag pour mesure W+1
-2. Lance `hermes insights --days 7` → capture tokens / coût / modèles
-3. Identifie 3 patterns : ce qui a marché / ce qui a échoué / ce qui mérite un skill
-4. **Si pattern récurrent > 3 occurrences sur 4 semaines** → crée automatiquement le SKILL.md correspondant dans `/root/.hermes/skills/<store>-<nom>/`
-5. Met à jour `brand-knowledge.md` (max 5 lignes ajoutées par semaine pour éviter inflation)
-6. Vérifie via `shopify-cultural-calendar` si événement à J-21 → alerte préavis Telegram avec cadence J-21/J-14/J-10/J-3
-7. Met à jour `MEMORY.md` ligne Phase courante si transition Phase
+**Proposal 1 — New product**:
+- Name (+ cultural variation if relevant for your brand)
+- Category
+- 50-word description (concept + brand universe)
+- Why now (market signal, niche identified in `brand-knowledge.md`)
+- Target price + estimated margin
+- Similar competitors + differentiation
+- Textual visual description for moodboard
 
-**Livrables** :
-- `$HERMES_WORKSPACE/meta-reviews/YYYY-Www-meta.md` (résumé écrit complet)
-- Telegram chat `$TELEGRAM_HOME_CHANNEL` (max 15 lignes)
-- Éventuellement : 1 nouveau `SKILL.md` créé
-- Éventuellement : 1 alerte préavis culturel
+**Proposal 2 — Instagram post**:
+- Format (reel/carousel/single/story)
+- Theme (brand storytelling / education / customer testimonial)
+- FR + EN caption
+- 15 hashtags (5 large >100k + 5 medium 10k-100k + 5 niche <10k)
+- Textual visual description
+- Recommended date + time (optimal slot for your brand, e.g., 6-10pm Paris)
+- Explicit CTA
 
-**Garde-fou** : aucune mutation Shopify. Seules écritures autorisées : SKILL.md, brand-knowledge.md, MEMORY.md, meta-reviews/.
+**Proposal 3 — Klaviyo campaign draft**:
+- Aligned with `shopify-cultural-calendar` event D-21 to D-7 (read from `cultural-events.json`)
+- Read-only markdown format (never direct POST to Klaviyo)
+- Output: section in `reports/YYYY-Www-ideas.md` + archive in `campaigns/YYYY-Www-klaviyo-draft.md`
 
----
-
-### Cron 4 : Watchdog conversion (toutes les 6h)
-
-**Mode** : `no_agent: true` — exécute un script bash direct, pas une session agent LLM. **Économie tokens** : pas de session ouverte si rien à signaler.
-
-**Mission** : surveille KPI clés :
-- Sessions Shopify (chute > 30% / 24h)
-- Conversions (chute > 30% / 24h)
-- Alertes Klaviyo drop (open ↓>20pp, click ↓>30pp, revenue ↓>40%, unsub >5%)
-- OpenRouter quota probe (alerte si >80% consommé)
-
-**Livrable** : **Silencieux par défaut** — Telegram uniquement si alerte. Si zéro alerte : `{"wakeAgent":false}` (l'agent ne se réveille pas).
+**Safeguard**: no automatic publishing, DRAFTS only, manual copy-paste by the merchant.
 
 ---
 
-## 2. Hooks v0.14
+### Cron 3: Self-improvement meta-review (Sunday 8pm)
 
-Migration v0.13 → v0.14 a changé le format (list → dict) et l'event (`tool_call_completed` → `post_tool_call`).
+**Mission**: weekly meta-review with automatic skill creation.
 
-Configuration dans `/root/.hermes/config.yaml` section `hooks:` :
+**Procedure**:
+1. For each action executed this week (read in `learnings.md`), check KPI impact (before/after) if data available, otherwise flag for W+1 measurement
+2. Run `hermes insights --days 7` → capture tokens / cost / models
+3. Identify 3 patterns: what worked / what failed / what deserves a skill
+4. **If recurrent pattern > 3 occurrences over 4 weeks** → automatically creates the corresponding SKILL.md in `/root/.hermes/skills/<store>-<name>/`
+5. Updates `brand-knowledge.md` (max 5 lines added per week to avoid inflation)
+6. Checks via `shopify-cultural-calendar` if event at D-21 → Telegram advance notice with cadence D-21/D-14/D-10/D-3
+7. Updates `MEMORY.md` Current phase line if Phase transition
+
+**Deliverables**:
+- `$HERMES_WORKSPACE/meta-reviews/YYYY-Www-meta.md` (complete written summary)
+- Telegram in `$TELEGRAM_HOME_CHANNEL` chat (max 15 lines)
+- Possibly: 1 new `SKILL.md` created
+- Possibly: 1 cultural advance-notice alert
+
+**Safeguard**: no Shopify mutation. Only authorized writes: SKILL.md, brand-knowledge.md, MEMORY.md, meta-reviews/.
+
+---
+
+### Cron 4: Conversion watchdog (every 6h)
+
+**Mode**: `no_agent: true` — runs a direct bash script, not an LLM agent session. **Token savings**: no open session if nothing to report.
+
+**Mission**: monitors key KPIs:
+- Shopify sessions (drop > 30% / 24h)
+- Conversions (drop > 30% / 24h)
+- Klaviyo drop alerts (open ↓>20pp, click ↓>30pp, revenue ↓>40%, unsub >5%)
+- OpenRouter quota probe (alert if >80% consumed)
+
+**Deliverable**: **Silent by default** — Telegram only if alert. If zero alert: `{"wakeAgent":false}` (the agent does not wake up).
+
+---
+
+## 2. v0.14 Hooks
+
+The v0.13 → v0.14 migration changed the format (list → dict) and the event (`tool_call_completed` → `post_tool_call`).
+
+Configuration in `/root/.hermes/config.yaml` `hooks:` section:
 
 ```yaml
 hooks:
@@ -129,7 +129,7 @@ hooks_auto_accept: true
 
 ### `inject-standing.sh`
 
-Lit `STANDING-CORE.md` + `$HERMES_WORKSPACE/STORE-BRAND.md`, concatène, renvoie `{"continue": true, "context_injection": "<contenu>"}` via jq.
+Reads `STANDING-CORE.md` + `$HERMES_WORKSPACE/STORE-BRAND.md`, concatenates, returns `{"continue": true, "context_injection": "<content>"}` via jq.
 
 ```bash
 #!/bin/bash
@@ -144,43 +144,43 @@ jq -n --arg s "$COMBINED" '{"continue": true, "context_injection": $s}'
 
 ### `log-learning.sh`
 
-Append automatique dans `$HERMES_WORKSPACE/learnings.md` pour chaque action mutative :
-- Compatible v0.13 (`args`) + v0.14 (`tool_input` + `hook_event_name`)
-- Skip si event = `pre_tool_call` (log uniquement post-exec)
-- Filtre regex sur tool/input : `Update|Create|Delete|publish|email_send|productCreate|productUpdate|customerCreate|webhookCreate|fileUpdate|collectionCreate`
-- Crée `learnings.md` avec header si absent, puis append timestamp UTC + tool + input tronqué 400 chars + 4 placeholders (avant/après/conclusion/futur)
+Automatic append in `$HERMES_WORKSPACE/learnings.md` for every mutative action:
+- Compatible with v0.13 (`args`) + v0.14 (`tool_input` + `hook_event_name`)
+- Skip if event = `pre_tool_call` (log only post-exec)
+- Regex filter on tool/input: `Update|Create|Delete|publish|email_send|productCreate|productUpdate|customerCreate|webhookCreate|fileUpdate|collectionCreate`
+- Creates `learnings.md` with header if missing, then appends UTC timestamp + tool + input truncated to 400 chars + 4 placeholders (before/after/conclusion/future)
 
 ---
 
-## 3. STANDING.md — 14 règles immuables
+## 3. STANDING.md — 14 immutable rules
 
-Injecté à chaque session via le hook `inject-standing`. Décomposé en :
-- **`STANDING-CORE.md`** (11 règles universelles) — vit dans `/root/.hermes/standing/`
-- **`STORE-BRAND.md`** (3 règles brand-specific) — vit dans `$HERMES_WORKSPACE/`
+Injected at every session via the `inject-standing` hook. Decomposed into:
+- **`STANDING-CORE.md`** (11 universal rules) — lives in `/root/.hermes/standing/`
+- **`STORE-BRAND.md`** (3 brand-specific rules) — lives in `$HERMES_WORKSPACE/`
 
-### 11 règles universelles (STANDING-CORE)
+### 11 universal rules (STANDING-CORE)
 
-| # | Règle | Explication |
+| # | Rule | Explanation |
 |---|---|---|
-| 1 | **Pré-lecture obligatoire** | Avant toute mutation : MISSION + MEMORY + STANDING + 7 dernières entrées learnings |
-| 2 | **Jamais `shopify store auth`** | Auth déjà OK, relancer = plantage headless (port 13387 + TTY requis) |
-| 3 | **Jamais publier Instagram sans validation** | Toujours proposer en mode `dry` forcé pendant phase test |
-| 4 | **Prix +5% interdit sans /yes** | Modifier `price` direct = 🔴, préférer `compareAtPrice` |
-| 5 | **Aucune suppression** | Produit / page / client : interdit total |
-| 7 | **Impact mesurable en N+1** | Toute action documentée dans learnings.md la semaine suivante |
-| 8 | **Token Shopify expiré = notify** | Ne pas tenter de réauth seul |
-| 11 | **Anti-hallucination KPI** | Chaque chiffre doit avoir source vérifiable citée |
-| 12 | **Pas de padding répété** | Interdit de répéter un mot N fois pour atteindre un seuil |
-| 13 | **Pas d'invention de champ GraphQL** | Toujours lire `hermes-schema-guard` AVANT toute mutation, introspecter sinon |
-| 14 | **Pas de PASS sur Exception** | Try/except qui retourne PASS = interdit, toujours `EMAIL_FAIL: <cause exacte>` |
+| 1 | **Mandatory pre-reading** | Before any mutation: MISSION + MEMORY + STANDING + last 7 learnings entries |
+| 2 | **Never `shopify store auth`** | Auth already OK, re-running = headless crash (port 13387 + TTY required) |
+| 3 | **Never publish Instagram without validation** | Always propose in forced `dry` mode during test phase |
+| 4 | **+5% price forbidden without /yes** | Modifying `price` directly = 🔴, prefer `compareAtPrice` |
+| 5 | **No deletion** | Product / page / customer: totally forbidden |
+| 7 | **Measurable impact in N+1** | Every action documented in learnings.md the following week |
+| 8 | **Expired Shopify token = notify** | Don't try to re-auth alone |
+| 11 | **Anti-hallucination KPI** | Every number must have a verifiable cited source |
+| 12 | **No repeated padding** | Forbidden to repeat a word N times to reach a threshold |
+| 13 | **No invention of GraphQL field** | Always read `hermes-schema-guard` BEFORE any mutation, otherwise introspect |
+| 14 | **No PASS on Exception** | Try/except returning PASS = forbidden, always `EMAIL_FAIL: <exact cause>` |
 
-### 3 règles brand-specific (STORE-BRAND.md à customiser)
+### 3 brand-specific rules (STORE-BRAND.md to customize)
 
-| # | Règle (template) | À customiser |
+| # | Rule (template) | To customize |
 |---|---|---|
-| 6 | **Vocabulaire de marque obligatoire** | Liste de mots-clés qui DOIVENT apparaître dans tout contenu généré (univers culturel, nom marque, USP). Ex: "amazigh, berbère, tifinagh, yaz" pour Azamoul ; "artisanal, terroir, biodynamie" pour un domaine viticole ; etc. |
-| 9 | **Email via skill `hermes-email-sender`** | Définit le skill canonique pour l'envoi email (utilise smtplib inline + sentinelle `EMAIL_SMTP_OK`) |
-| 10 | **Telegram chat unique** | Le `$TELEGRAM_HOME_CHANNEL` (= user_id du marchand) est le SEUL destinataire autorisé pour les notifications |
+| 6 | **Mandatory brand vocabulary** | List of keywords that MUST appear in any generated content (cultural universe, brand name, USP). Ex: "amazigh, berbère, tifinagh, yaz" for Azamoul; "artisanal, terroir, biodynamie" for a wine estate; etc. |
+| 9 | **Email via `hermes-email-sender` skill** | Defines the canonical skill for email sending (uses inline smtplib + `EMAIL_SMTP_OK` sentinel) |
+| 10 | **Single Telegram chat** | The `$TELEGRAM_HOME_CHANNEL` (= merchant's user_id) is the ONLY authorized recipient for notifications |
 
 ---
 
@@ -189,130 +189,130 @@ Injecté à chaque session via le hook `inject-standing`. Décomposé en :
 ### Architecture
 
 ```
-/root/.hermes/memories/        [framework — partagé]
-├── MEMORY.md                  ← peut rester vide ou pointer vers le workspace
-└── USER.md                    ← profil utilisateur (configuré au setup)
+/root/.hermes/memories/        [framework — shared]
+├── MEMORY.md                  ← can stay empty or point to the workspace
+└── USER.md                    ← user profile (configured at setup)
 
-$HERMES_WORKSPACE/             [user-facing — instance boutique]
-├── MISSION.md                 ← charter spécifique à la boutique
-├── MEMORY.md                  ← mémoire courante (faits permanents)
-├── STORE-BRAND.md             ← vocab + niveaux autonomie + sensibilités
-├── brand-knowledge.md         ← concurrents + USP
-├── cultural-events.json       ← événements/saisons importants
-└── learnings.md               ← journal append-only auto-logué par hook
+$HERMES_WORKSPACE/             [user-facing — store instance]
+├── MISSION.md                 ← charter specific to the store
+├── MEMORY.md                  ← current memory (permanent facts)
+├── STORE-BRAND.md             ← vocab + autonomy levels + sensitivities
+├── brand-knowledge.md         ← competitors + USP
+├── cultural-events.json       ← important events/seasons
+└── learnings.md               ← append-only journal auto-logged by hook
 ```
 
-**Provider** : OpenViking 0.3.16 sur port 1933 (embedding local pour RAG cross-session).
+**Provider**: OpenViking 0.3.16 on port 1933 (local embedding for cross-session RAG).
 
-**Limites typiques** :
-- `memory_char_limit: 3500` (tokens injectés en début de session)
-- `user_char_limit: 1375` (profil utilisateur)
+**Typical limits**:
+- `memory_char_limit: 3500` (tokens injected at start of session)
+- `user_char_limit: 1375` (user profile)
 
-### Contenu type `MEMORY.md`
+### Typical `MEMORY.md` content
 
-Template fourni dans `config/MEMORY.md.template`. Sections recommandées :
+Template provided in `config/MEMORY.md.template`. Recommended sections:
 
-- **Boutique** : handle Shopify, domaine, plan, devise, fuseau, catégories
-- **Stack** : version Hermes, Python/Node, provider LLM
-- **Phase courante** : `HERMES_MODE=test|prod`, date dernière transition
-- **Niveaux autonomie** : récap 🟢/🟡/🔴 (peut référencer STORE-BRAND.md)
-- **Decisions ouvertes** : ce qui attend une décision du marchand
+- **Store**: Shopify handle, domain, plan, currency, timezone, categories
+- **Stack**: Hermes version, Python/Node, LLM provider
+- **Current phase**: `HERMES_MODE=test|prod`, date of last transition
+- **Autonomy levels**: 🟢/🟡/🔴 recap (may reference STORE-BRAND.md)
+- **Open decisions**: what awaits a merchant decision
 
 ### `learnings.md`
 
-Journal append-only. Le hook `log-learning.sh` y ajoute automatiquement chaque action mutative. Le marchand peut aussi ajouter manuellement des notes.
+Append-only journal. The `log-learning.sh` hook automatically adds every mutative action. The merchant can also manually add notes.
 
-Format type d'entrée :
+Typical entry format:
 ```
-- [YYYY-MM-DD HH:MM UTC] toolName: <inputTronqué400chars>
-  Avant: <à compléter en W+1 via méta-revue>
-  Après: <à compléter en W+1>
-  Conclusion: <à compléter en W+1>
-  Futur: <à compléter en W+1>
+- [YYYY-MM-DD HH:MM UTC] toolName: <inputTruncated400chars>
+  Before: <to fill in W+1 via meta-review>
+  After: <to fill in W+1>
+  Conclusion: <to fill in W+1>
+  Future: <to fill in W+1>
 ```
 
 ---
 
-## 5. Gateway Telegram
+## 5. Telegram gateway
 
-| Élément | Valeur (à configurer dans `.env`) |
+| Item | Value (to configure in `.env`) |
 |---|---|
 | Bot token | `TELEGRAM_BOT_TOKEN` (via @BotFather) |
 | Allowed users | `TELEGRAM_ALLOWED_USERS=<user_id>` (via @userinfobot) |
 | Home channel | `TELEGRAM_HOME_CHANNEL=<user_id>` |
-| Commande de lancement | `hermes gateway run --replace` |
+| Launch command | `hermes gateway run --replace` |
 | Lock file | `/root/.hermes/gateway.lock` |
 | Restart drain timeout | 180s |
 | Auto-continue freshness | 3600s |
 
-Le gateway répond aux messages du `TELEGRAM_HOME_CHANNEL` uniquement. Les commandes `/yes`, `/no`, `/edit` reçues pendant qu'un cron attend une validation déclenchent l'action correspondante.
+The gateway responds only to messages from `TELEGRAM_HOME_CHANNEL`. `/yes`, `/no`, `/edit` commands received while a cron is waiting for validation trigger the corresponding action.
 
 ---
 
 ## 6. Insights & monitoring
 
-Source : `hermes insights --days N` — analyse les sessions des N derniers jours.
+Source: `hermes insights --days N` — analyzes sessions from the last N days.
 
-Métriques exposées :
-- Sessions par platform (cron / cli / telegram)
-- Messages échangés (total + user)
+Exposed metrics:
+- Sessions per platform (cron / cli / telegram)
+- Messages exchanged (total + user)
 - Tool calls
 - Tokens (input + output + total)
-- Active time (total + moyenne par session)
-- Top tools utilisés
+- Active time (total + average per session)
+- Top tools used
 - Top skills loaded
-- Pattern d'activité (jours + heures pics)
+- Activity pattern (peak days + hours)
 
-**Utilité** : détecter les dérives (cron qui consomme anormalement, modèle qui coûte trop, skill qui se charge inutilement).
+**Usefulness**: detect drift (cron consuming abnormally, model costing too much, skill loading unnecessarily).
 
 ---
 
-## 7. Pattern de validation `/yes`
+## 7. `/yes` validation pattern
 
-Pour les actions niveau 🟡 :
+For 🟡 level actions:
 
 ```
-1. Hermes prépare la mutation
-   - Snapshot avant → batches/YYYY-Www-batchN-before.json
-   - Preview diff JSON → batches/YYYY-Www-batchN-preview.json
-   - Script rollback bash auto-généré → batches/YYYY-Www-batchN-rollback.sh
-2. Envoi VALIDATION TUTEUR (obligatoire avant mutation) :
-   - Telegram chat $TELEGRAM_HOME_CHANNEL : message avec preview courte + lien fichiers
-   - Email à $EMAIL_TO via Python smtplib inline avec preview détaillée
-   - Message inclut : "Réponds /yes pour appliquer, /no pour annuler, /edit pour ajuster"
-3. ATTENTE de la réponse user (skill se met en pause, le user répond via Telegram)
-   - Timeout 10 min standard (configurable)
-4. Si réponse = /yes :
-   - Exécute les mutations en séquence (espacement 2s anti rate-limit Shopify 1.4 req/s)
-   - Snapshot après → batches/YYYY-Www-batchN-after.json
-   - Diff réel → batches/YYYY-Www-batchN-diff.md
-   - Hook auto-log dans learnings.md
-   - Confirmation Telegram + email
-5. Si réponse = /no : cancel propre, conservation fichiers preview + rollback pour retry futur
-6. Si réponse = /edit <handle> <details> : ajuste, regénère preview, redemande validation
-7. Si timeout : abandon + alerte Telegram
+1. Hermes prepares the mutation
+   - Before snapshot → batches/YYYY-Www-batchN-before.json
+   - JSON diff preview → batches/YYYY-Www-batchN-preview.json
+   - Auto-generated bash rollback script → batches/YYYY-Www-batchN-rollback.sh
+2. Sends USER VALIDATION (mandatory before mutation):
+   - Telegram chat $TELEGRAM_HOME_CHANNEL: message with short preview + file links
+   - Email to $EMAIL_TO via inline Python smtplib with detailed preview
+   - Message includes: "Reply /yes to apply, /no to cancel, /edit to adjust"
+3. WAITS for user response (skill pauses, user replies via Telegram)
+   - Standard 10-min timeout (configurable)
+4. If response = /yes:
+   - Executes mutations sequentially (2s spacing anti Shopify rate-limit 1.4 req/s)
+   - After snapshot → batches/YYYY-Www-batchN-after.json
+   - Actual diff → batches/YYYY-Www-batchN-diff.md
+   - Hook auto-logs in learnings.md
+   - Telegram + email confirmation
+5. If response = /no: clean cancel, keeps preview + rollback files for future retry
+6. If response = /edit <handle> <details>: adjusts, regenerates preview, re-requests validation
+7. If timeout: abort + Telegram alert
 ```
 
 ---
 
-## 8. Pitfalls connus
+## 8. Known pitfalls
 
-- **`/yes` arrivé pendant que l'agent n'attend pas** → ignoré (sécurité). Le marchand doit attendre le message qui demande /yes.
-- **Rate-limit Shopify** (1.4 req/s par défaut) → espacer mutations de 2s minimum. Si batch > 100 items, prévoir cooldown 30s tous les 50 items.
-- **Cache Klaviyo 6h** → ne pas s'attendre à du temps réel sur les KPI emails. Pour forcer un refresh, supprimer le fichier cache correspondant dans `/root/.hermes/cache/klaviyo/`.
-- **Cache CDN Shopify post-push thème** → laisser passer 30-60s avant `theme_verify` pour propagation, ou utiliser cache-bust `?v=$(date +%s)`.
-- **App Password Gmail expiré** → l'envoi email échoue silencieusement. Toujours vérifier la sentinelle `EMAIL_SMTP_OK` en stdout.
-- **Token Shopify expiré** → Hermes ne tente PAS de réauth seul (règle 8). Il notifie le marchand qui doit réauth manuellement depuis son poste Windows (port 13387 + TTY requis).
+- **`/yes` arrived while the agent is not waiting** → ignored (safety). The merchant must wait for the message that requests /yes.
+- **Shopify rate-limit** (1.4 req/s by default) → space mutations by 2s minimum. If batch > 100 items, plan 30s cooldown every 50 items.
+- **Klaviyo 6h cache** → don't expect real-time on email KPIs. To force a refresh, delete the corresponding cache file in `/root/.hermes/cache/klaviyo/`.
+- **Shopify CDN cache after theme push** → wait 30-60s before `theme_verify` for propagation, or use cache-bust `?v=$(date +%s)`.
+- **Expired Gmail App Password** → email send fails silently. Always check the `EMAIL_SMTP_OK` sentinel in stdout.
+- **Expired Shopify token** → Hermes does NOT attempt to re-auth alone (rule 8). It notifies the merchant who must re-auth manually from their Windows workstation (port 13387 + TTY required).
 
 ---
 
-## 9. Verification (checklist par run de cron)
+## 9. Verification (per cron run checklist)
 
-- [ ] Hook `inject-standing` exécuté en début de session (STANDING + STORE-BRAND injectés)
-- [ ] Pré-lecture obligatoire effectuée (MISSION + MEMORY + 7 derniers learnings)
-- [ ] Niveau d'autonomie respecté (🟢 direct, 🟡 /yes, 🔴 refus)
-- [ ] Anti-hallucination : tous les chiffres ont une source citée
-- [ ] Si email : sentinelle `EMAIL_SMTP_OK` vérifiée en stdout
-- [ ] Si Telegram : message reçu par le chat autorisé
-- [ ] Hook `log-learning` a ajouté une entrée dans learnings.md pour chaque action mutative
-- [ ] `last_status: ok` dans `jobs.json` après le run
+- [ ] `inject-standing` hook executed at session start (STANDING + STORE-BRAND injected)
+- [ ] Mandatory pre-reading performed (MISSION + MEMORY + last 7 learnings)
+- [ ] Autonomy level respected (🟢 direct, 🟡 /yes, 🔴 refusal)
+- [ ] Anti-hallucination: all numbers have a cited source
+- [ ] If email: `EMAIL_SMTP_OK` sentinel verified in stdout
+- [ ] If Telegram: message received by the authorized chat
+- [ ] `log-learning` hook added an entry in learnings.md for every mutative action
+- [ ] `last_status: ok` in `jobs.json` after the run

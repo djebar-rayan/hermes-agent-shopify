@@ -1,6 +1,6 @@
 ---
 name: shopify-weekly-perf-report
-description: Génère le rapport de performance hebdomadaire <STORE_NAME> (KPI, top wins/pertes, diagnostic)
+description: Generates the <STORE_NAME> weekly performance report (KPI, top wins/losses, diagnosis)
 version: 1.0.0
 author: Hermes (initial scaffold)
 metadata:
@@ -9,26 +9,26 @@ metadata:
     category: ecommerce
     requires_toolsets: [terminal]
 ---
-# Rapport Performance Hebdomadaire <STORE_NAME>
+# Weekly Performance Report <STORE_NAME>
 
 ## When to Use
-Chaque lundi à 9h (cron `shopify-lundi-perf`), ou sur demande explicite.
+Every Monday at 9am (cron `shopify-lundi-perf`), or on explicit request.
 
 ## Procedure
 1. `cd $HERMES_WORKSPACE/shopify-automation-toolkit`
-2. Si `store-data/` a plus de 7 jours, lance `node fetch-store-data.js` (115s)
-3. Extrais KPI semaine N et N-1 : sessions, conversions, commandes, AOV, CA, panier abandonné
-4. Lis `learnings.md` des 7 derniers jours
-5. Compare vs semaine N-1 : calculer les deltas %
-6. Génère le rapport dans `$HERMES_WORKSPACE/reports/$(date +%Y-W%V)-perf.md`
-7. Résumé Telegram (max 20 lignes) : KPI snapshot, top 3 wins/pertes, diagnostic, actions exécutées + impact, actions proposées
+2. If `store-data/` is more than 7 days old, run `node fetch-store-data.js` (115s)
+3. Extract KPIs for week N and N-1: sessions, conversions, orders, AOV, revenue, abandoned cart
+4. Read `learnings.md` for the last 7 days
+5. Compare vs week N-1: compute % deltas
+6. Generate the report in `$HERMES_WORKSPACE/reports/$(date +%Y-W%V)-perf.md`
+7. Telegram summary (max 20 lines): KPI snapshot, top 3 wins/losses, diagnosis, actions executed + impact, proposed actions
 
 ## Pitfalls
-- Si store-data/ vide → fetch obligatoire
-- Comparer N vs N-1 nécessite >= 2 semaines d'historique, sinon mentionner "baseline"
-- Éviter chiffres absolus très petits dans Telegram → preferer %
+- If store-data/ is empty → fetch mandatory
+- Comparing N vs N-1 requires >= 2 weeks of history, otherwise mention "baseline"
+- Avoid very small absolute numbers in Telegram → prefer %
 
 ## Verification
-- Fichier `reports/YYYY-Www-perf.md` créé
-- Message Telegram envoyé
-- `learnings.md` mis à jour
+- File `reports/YYYY-Www-perf.md` created
+- Telegram message sent
+- `learnings.md` updated

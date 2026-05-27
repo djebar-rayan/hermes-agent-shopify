@@ -1,127 +1,127 @@
-# Hermes — Charter Framework (Architecture)
+# Hermes — Framework Charter (Architecture)
 
-> Charter générique du framework Hermes. Cette doc décrit le **pattern** de fonctionnement de l'agent. Chaque marchand le personnalise via `$HERMES_WORKSPACE/MISSION.md` qui est son instance concrète.
+> Generic charter of the Hermes framework. This doc describes the **operating pattern** of the agent. Each merchant personalizes it via `$HERMES_WORKSPACE/MISSION.md` which is their concrete instance.
 >
-> La version Azamoul complète de ce charter est disponible dans [`../examples/azamoul/MISSION.md`](../examples/azamoul/MISSION.md).
+> The complete Azamoul version of this charter is available in [`../examples/azamoul/MISSION.md`](../examples/azamoul/MISSION.md).
 
 ---
 
-## 1. Mission d'un agent Hermes
+## 1. Mission of a Hermes agent
 
-Un agent Hermes est responsable de la **croissance commerciale autonome** d'une boutique Shopify. Sans plafond. Il optimise en continu :
-- **SEO** : meta titles, descriptions, alt-texts, internal linking, performance GSC
-- **Contenu** : descriptions produit, blogs, pages
-- **Images** : génération, audit visuel, alt-texts
-- **UX** : analyse conversion, frictions, A/B test propositions
-- **Emailing** : drafts Klaviyo, segments, séquences
-- **Posts Instagram** : idéation, drafts, calendrier
-- **Code du thème Liquid** : modifications sections/snippets/templates via Theme Access
+A Hermes agent is responsible for the **autonomous commercial growth** of a Shopify store. Without ceiling. It continuously optimizes:
+- **SEO**: meta titles, descriptions, alt-texts, internal linking, GSC performance
+- **Content**: product descriptions, blogs, pages
+- **Images**: generation, visual audit, alt-texts
+- **UX**: conversion analysis, friction, A/B test proposals
+- **Emailing**: Klaviyo drafts, segments, sequences
+- **Instagram posts**: ideation, drafts, calendar
+- **Liquid theme code**: section/snippet/template modifications via Theme Access
 
-Il propose des **idées créatives chaque semaine** (1 nouveau produit + 1 post Instagram + 1 draft campagne email).
-
----
-
-## 2. Sources surveillées (chaque cycle)
-
-Avant toute action, Hermes lit OBLIGATOIREMENT :
-
-1. **`$HERMES_WORKSPACE/MISSION.md`** — son charter spécifique à la boutique
-2. **`$HERMES_WORKSPACE/MEMORY.md`** — phase courante + faits permanents
-3. **`/root/.hermes/standing/STANDING-CORE.md`** + **`$HERMES_WORKSPACE/STORE-BRAND.md`** — règles immuables (14 au total)
-4. **Les 7 dernières entrées de `$HERMES_WORKSPACE/learnings.md`** — apprentissages récents
-
-Cette pré-lecture est encodée dans le hook `inject-standing.sh` (s'exécute à chaque `on_session_start`).
+It proposes **creative ideas every week** (1 new product + 1 Instagram post + 1 email campaign draft).
 
 ---
 
-## 3. Niveaux d'autonomie
+## 2. Monitored sources (every cycle)
 
-| Niveau | Description | Exemples génériques |
+Before any action, Hermes MANDATORILY reads:
+
+1. **`$HERMES_WORKSPACE/MISSION.md`** — its charter specific to the store
+2. **`$HERMES_WORKSPACE/MEMORY.md`** — current phase + permanent facts
+3. **`/root/.hermes/standing/STANDING-CORE.md`** + **`$HERMES_WORKSPACE/STORE-BRAND.md`** — immutable rules (14 total)
+4. **The last 7 entries of `$HERMES_WORKSPACE/learnings.md`** — recent learnings
+
+This pre-reading is encoded in the `inject-standing.sh` hook (runs at every `on_session_start`).
+
+---
+
+## 3. Autonomy levels
+
+| Level | Description | Generic examples |
 |---|---|---|
-| 🟢 **Auto-exécution** | Hermes applique sans demander validation | Génération alt-texts manquants, normalisation handles ASCII, ajout de tags catégoriels, insertion bloc 📦 livraison au début des descriptions, drafts (non publiés) |
-| 🟡 **Propose en 1-clic** | Hermes prépare la mutation + envoie pour validation Telegram `/yes` | Enrichissement de descriptions, génération d'images, redirects, création de collections, ajustement prix raisonnable (<5%), post Instagram (toujours en mode dry pendant phase test), modif de sections du thème |
-| 🔴 **Jamais sans validation explicite** | Hermes refuse même sur demande directe | Modifier le prix de >5%, supprimer un produit/page/client, refunds, modification du layout du thème, post Instagram en direct, modifications légales, `config/settings_data.json` |
+| 🟢 **Auto-execution** | Hermes applies without requesting validation | Generating missing alt-texts, ASCII handle normalization, adding category tags, inserting 📦 shipping block at start of descriptions, drafts (unpublished) |
+| 🟡 **Proposes in 1-click** | Hermes prepares the mutation + sends for Telegram `/yes` validation | Description enrichment, image generation, redirects, collection creation, reasonable price adjustment (<5%), Instagram post (always in dry mode during test phase), theme section edit |
+| 🔴 **Never without explicit validation** | Hermes refuses even on direct request | Modifying price by >5%, deleting a product/page/customer, refunds, theme layout modification, live Instagram post, legal modifications, `config/settings_data.json` |
 
-Le marchand CUSTOMISE ces niveaux dans `STORE-BRAND.md`. Le pattern reste identique, les actions concrètes varient selon la marque.
+The merchant CUSTOMIZES these levels in `STORE-BRAND.md`. The pattern stays identical, the concrete actions vary by brand.
 
 ---
 
-## 4. Rythme opérationnel
+## 4. Operational rhythm
 
-| Quand | Action | Skills | Output |
+| When | Action | Skills | Output |
 |---|---|---|---|
-| Lundi 9h | Rapport perf hebdo | `shopify-weekly-perf-report` + KPI + diagnostic + Klaviyo | `reports/YYYY-Www-perf.md` |
-| Mardi-Vendredi | Hermes dort | — | (sauf intervention manuelle via `hermes chat`) |
-| Samedi 10h | Email créatif hebdo | `shopify-instagram-ideator` + `shopify-product-ideator` + `shopify-cultural-calendar` + `shopify-klaviyo-campaign-ideator` | `reports/YYYY-Www-ideas.md` |
-| Dimanche 20h | Méta-revue auto-amélioration | `shopify-weekly-perf-report` + `shopify-cultural-calendar` | `meta-reviews/YYYY-Www-meta.md` (+ éventuellement nouveau skill créé) |
-| Toutes les 6h | Watchdog conversion | script `<store>-watchdog-conversion.sh` + `shopify-klaviyo-drop-watchdog` | Silent (sauf alerte Telegram) |
+| Monday 9am | Weekly perf report | `shopify-weekly-perf-report` + KPIs + diagnostic + Klaviyo | `reports/YYYY-Www-perf.md` |
+| Tuesday-Friday | Hermes sleeps | — | (except manual intervention via `hermes chat`) |
+| Saturday 10am | Weekly creative email | `shopify-instagram-ideator` + `shopify-product-ideator` + `shopify-cultural-calendar` + `shopify-klaviyo-campaign-ideator` | `reports/YYYY-Www-ideas.md` |
+| Sunday 8pm | Self-improvement meta-review | `shopify-weekly-perf-report` + `shopify-cultural-calendar` | `meta-reviews/YYYY-Www-meta.md` (+ possibly new skill created) |
+| Every 6h | Conversion watchdog | `<store>-watchdog-conversion.sh` script + `shopify-klaviyo-drop-watchdog` | Silent (except Telegram alert) |
 
 ---
 
-## 5. Auto-amélioration — 5 mécaniques
+## 5. Self-improvement — 5 mechanisms
 
-### 5.1. Memory OpenViking (port 1933)
+### 5.1. OpenViking memory (port 1933)
 
-Service local d'embedding qui sert de RAG cross-session. Chaque fichier `MEMORY*.md` + `learnings.md` est indexé, et lors d'une nouvelle session Hermes peut récupérer du contexte pertinent.
+Local embedding service that acts as cross-session RAG. Every `MEMORY*.md` + `learnings.md` file is indexed, and during a new session Hermes can retrieve relevant context.
 
-Limites typiques :
-- `memory_char_limit: 3500` (tokens injectés en début de session)
-- `user_char_limit: 1375` (profil utilisateur)
+Typical limits:
+- `memory_char_limit: 3500` (tokens injected at start of session)
+- `user_char_limit: 1375` (user profile)
 
-### 5.2. Curator background
+### 5.2. Background curator
 
-Mécanique de nettoyage : Hermes vérifie régulièrement la mémoire courante et compacte ou archive les entrées obsolètes pour éviter l'inflation.
+Cleanup mechanism: Hermes regularly checks current memory and compacts or archives obsolete entries to avoid inflation.
 
-### 5.3. Création automatique de skills
+### 5.3. Automatic skill creation
 
-Dans le cron méta-revue dominicale, Hermes :
-1. Lit `learnings.md` des 7 derniers jours
-2. Identifie 3 patterns : ce qui a marché / ce qui a échoué / ce qui mérite un skill
-3. **Si pattern récurrent > 3 occurrences sur 4 semaines** → crée automatiquement un nouveau SKILL.md dans `/root/.hermes/skills/<store>-<nom>/SKILL.md`
-4. Notifie le marchand via Telegram
+In the Sunday meta-review cron, Hermes:
+1. Reads `learnings.md` from the last 7 days
+2. Identifies 3 patterns: what worked / what failed / what deserves a skill
+3. **If recurrent pattern > 3 occurrences over 4 weeks** → automatically creates a new SKILL.md in `/root/.hermes/skills/<store>-<name>/SKILL.md`
+4. Notifies the merchant via Telegram
 
-Format auto-généré complet : frontmatter YAML + When to Use + Procedure + Pitfalls + Verification.
+Complete auto-generated format: YAML frontmatter + When to Use + Procedure + Pitfalls + Verification.
 
 ### 5.4. `hermes insights --days 7`
 
-Commande qui analyse les sessions des 7 derniers jours et affiche :
-- Sessions totales (par platform : cron / cli / telegram)
-- Messages échangés
+Command that analyzes sessions from the last 7 days and displays:
+- Total sessions (by platform: cron / cli / telegram)
+- Messages exchanged
 - Tool calls
-- Tokens consommés (input + output)
+- Tokens consumed (input + output)
 - Active time
-- Top tools utilisés
+- Top tools used
 - Top skills loaded
 
-Utile pour détecter les dérives (cron qui consomme anormalement, modèle qui coûte trop, etc.).
+Useful to detect drift (cron consuming abnormally, model costing too much, etc.).
 
-### 5.5. Hook `post_tool_call` (log-learning.sh)
+### 5.5. `post_tool_call` hook (log-learning.sh)
 
-Chaque action mutative (productUpdate, collectionCreate, fileUpdate, theme push, email send, ...) déclenche automatiquement l'ajout d'une entrée dans `learnings.md` avec :
-- Timestamp UTC
-- Tool name + input (tronqué à 400 chars)
-- 4 placeholders à compléter (avant / après / conclusion / futur)
+Every mutative action (productUpdate, collectionCreate, fileUpdate, theme push, email send, ...) automatically triggers adding an entry in `learnings.md` with:
+- UTC timestamp
+- Tool name + input (truncated to 400 chars)
+- 4 placeholders to fill (before / after / conclusion / future)
 
-Les placeholders sont remplis en méta-revue (W+1) pour mesurer l'impact KPI.
+The placeholders are filled in meta-review (W+1) to measure KPI impact.
 
 ---
 
-## 6. Anti-hallucination (règles dures)
+## 6. Anti-hallucination (hard rules)
 
-1. **TOUS les chiffres** (KPI, prix, dates, comptes produits, followers, etc.) DOIVENT provenir de sources réelles vérifiables :
+1. **ALL numbers** (KPIs, prices, dates, product counts, followers, etc.) MUST come from verifiable real sources:
    - Shopify GraphQL Admin API via `shopify store execute --query-file ...`
-   - Fichiers existants sur le VPS (baseline-kpi-30j.md, audits/, brand-knowledge.md, learnings.md)
-   - APIs testées (Instagram via web_profile_info, Klaviyo via klaviyo-fetch.sh, ...)
-2. **INTERDICTION ABSOLUE** d'inventer, estimer, ou extrapoler des chiffres. Si une donnée n'est pas disponible, écrire exactement `(donnée non disponible)` ou `(N/A - pas de data)`.
-3. **Format date strict** : `datetime.date.today().isoformat()` (YYYY-MM-DD), `isocalendar()` pour year/week. JAMAIS de date inventée.
-4. Si les données Shopify sont vides ou incohérentes (ex: 0 commandes sur 30j), **MENTIONNER explicitement** dans le rapport plutôt que combler avec des estimations.
-5. **Citer les sources** : chaque KPI ou affirmation doit pointer vers son origine (ex: `source: baseline-kpi-30j.md ligne X`).
+   - Existing files on the VPS (baseline-kpi-30j.md, audits/, brand-knowledge.md, learnings.md)
+   - Tested APIs (Instagram via web_profile_info, Klaviyo via klaviyo-fetch.sh, ...)
+2. **ABSOLUTE BAN** on inventing, estimating, or extrapolating numbers. If a piece of data is not available, write exactly `(data not available)` or `(N/A - no data)`.
+3. **Strict date format**: `datetime.date.today().isoformat()` (YYYY-MM-DD), `isocalendar()` for year/week. NEVER an invented date.
+4. If Shopify data is empty or inconsistent (e.g., 0 orders over 30d), **explicitly MENTION** in the report rather than filling in with estimates.
+5. **Cite sources**: every KPI or statement must point to its origin (e.g., `source: baseline-kpi-30j.md line X`).
 
 ---
 
-## 7. Email — procédure obligatoire
+## 7. Email — mandatory procedure
 
-Le delivery email du cron Hermes est désactivé (telegram only). L'agent DOIT envoyer l'email lui-même via un snippet Python inline avec la sentinelle `EMAIL_SMTP_OK`.
+The email delivery of the Hermes cron is disabled (telegram only). The agent MUST send the email itself via an inline Python snippet with the `EMAIL_SMTP_OK` sentinel.
 
 ```python
 import smtplib
@@ -135,9 +135,9 @@ for l in open('/root/.hermes/.env'):
         k, v = l.split('=', 1)
         env[k] = v.strip()
 
-body = """<corps de ton email>"""
+body = """<your email body>"""
 msg = MIMEText(body, 'plain', 'utf-8')
-msg['Subject'] = '<sujet contextuel>'
+msg['Subject'] = '<contextual subject>'
 msg['From'] = env['EMAIL_FROM']
 msg['To'] = env['EMAIL_TO']
 msg['Date'] = formatdate(localtime=True)
@@ -150,62 +150,62 @@ with smtplib.SMTP(env['EMAIL_SMTP_HOST'], int(env['EMAIL_SMTP_PORT']), timeout=1
 print('EMAIL_SMTP_OK')
 ```
 
-**Règle critique** : si la sentinelle `EMAIL_SMTP_OK` n'apparaît pas en stdout, l'email N'A PAS été envoyé. L'agent doit alors écrire `Email NON envoyé (cause: <message exact>)` dans son résumé Telegram. Mentir sur l'envoi = violation grave anti-hallucination.
+**Critical rule**: if the `EMAIL_SMTP_OK` sentinel does not appear in stdout, the email was NOT sent. The agent must then write `Email NOT sent (cause: <exact message>)` in its Telegram summary. Lying about sending = serious anti-hallucination violation.
 
 ---
 
-## 8. Pattern de validation Telegram `/yes`
+## 8. Telegram `/yes` validation pattern
 
-Pour les actions niveau 🟡, Hermes attend une validation explicite :
+For 🟡 level actions, Hermes waits for explicit validation:
 
 ```
-1. Hermes prépare la mutation (preview JSON + script rollback)
-2. Envoie Telegram + email au tuteur : "Voici ce que je veux faire. /yes pour appliquer, /no pour annuler, /edit pour ajuster"
-3. Pause de l'exécution (timeout 10 min standard)
-4. Réception :
-   - /yes → applique séquentiellement (espacement 2s anti rate-limit Shopify)
-   - /no → annule, conserve preview pour retry futur
-   - /edit <handle> <details> → ajuste, regénère preview, redemande validation
-   - timeout → abandon + alerte
+1. Hermes prepares the mutation (preview JSON + rollback script)
+2. Sends Telegram + email to the user: "Here's what I want to do. /yes to apply, /no to cancel, /edit to adjust"
+3. Pauses execution (standard 10-min timeout)
+4. Reception:
+   - /yes → applies sequentially (2s spacing anti Shopify rate-limit)
+   - /no → cancels, keeps preview for future retry
+   - /edit <handle> <details> → adjusts, regenerates preview, re-requests validation
+   - timeout → abort + alert
 ```
 
 ---
 
-## 9. Phase courante : `HERMES_MODE`
+## 9. Current phase: `HERMES_MODE`
 
-| Mode | Comportement |
+| Mode | Behavior |
 |---|---|
-| `HERMES_MODE=test` (défaut) | Toute mutation Shopify est apply + rollback dans le même run (éphémère). Snapshots avant/intermédiaire/après mailés au tuteur. Aucun impact persistant. |
-| `HERMES_MODE=prod` | Mutation persistante après /yes Telegram obligatoire. Script rollback disponible mais non auto-exécuté. |
+| `HERMES_MODE=test` (default) | Every Shopify mutation is apply + rollback in the same run (ephemeral). Before/intermediate/after snapshots emailed to the user. No persistent impact. |
+| `HERMES_MODE=prod` | Persistent mutation after mandatory Telegram /yes. Rollback script available but not auto-executed. |
 
-Toute variable absente ou autre valeur → **comportement test par défaut (sécurité)**.
+Any missing variable or other value → **test behavior by default (safety)**.
 
-La bascule en prod est une **décision marchand** après validation des bons comportements en phase test. Voir [`PRODUCTION-CHECKLIST.md`](./PRODUCTION-CHECKLIST.md).
+The switch to prod is a **merchant decision** after validation of the right behaviors in test phase. See [`PRODUCTION-CHECKLIST.md`](./PRODUCTION-CHECKLIST.md).
 
 ---
 
-## 10. Customisation par boutique
+## 10. Customization per store
 
-Le framework définit le **squelette**. Chaque marchand customise dans son workspace :
+The framework defines the **skeleton**. Each merchant customizes in their workspace:
 
-| Fichier | Quoi y mettre |
+| File | What to put in it |
 |---|---|
-| `MISSION.md` | Mission narrative de l'agent pour TA boutique (univers de marque, USP, objectifs) |
-| `STORE-BRAND.md` | Vocabulaire obligatoire, niveaux 🟢/🟡/🔴, sensibilités |
-| `brand-knowledge.md` | Concurrents (5-10), positionnement |
-| `cultural-events.json` | Événements/saisons importants pour ta marque (Noël, BFCM, lancements, événements culturels...) |
-| `MEMORY.md` | Faits permanents (plan Shopify, devise, fuseau, catégories produits, comptes IG/Klaviyo) |
+| `MISSION.md` | Narrative mission of the agent for YOUR store (brand universe, USP, objectives) |
+| `STORE-BRAND.md` | Mandatory vocabulary, levels 🟢/🟡/🔴, sensitivities |
+| `brand-knowledge.md` | Competitors (5-10), positioning |
+| `cultural-events.json` | Events/seasons important to your brand (Christmas, BFCM, launches, cultural events...) |
+| `MEMORY.md` | Permanent facts (Shopify plan, currency, timezone, product categories, IG/Klaviyo accounts) |
 
-Voir [`../examples/azamoul/`](../examples/azamoul/) pour un exemple complet d'instance configurée sur une vraie boutique.
+See [`../examples/azamoul/`](../examples/azamoul/) for a complete example of an instance configured on a real store.
 
 ---
 
 ## 11. Skills graph
 
-Dépendances entre skills (à connaître pour le bon ordering des cycles) :
+Dependencies between skills (to know for proper cycle ordering):
 
 ```
-shopify-batch-executor ──→ hermes-schema-guard (dependency obligatoire)
+shopify-batch-executor ──→ hermes-schema-guard (mandatory dependency)
 shopify-seo-mutation-batcher ──→ hermes-schema-guard
 shopify-cultural-campaign-drafter ──→ shopify-cultural-calendar
 shopify-klaviyo-campaign-ideator ──→ shopify-cultural-calendar
@@ -214,29 +214,29 @@ shopify-description-enricher ──→ shopify-catalog-gap-analyzer (workflow)
 shopify-metatitle-generator ──→ shopify-catalog-gap-analyzer (workflow)
 ```
 
-Le skill `hermes-schema-guard` est **central** : tout skill qui mute Shopify doit le charger AVANT d'écrire les requêtes GraphQL pour ne pas inventer de champs.
+The `hermes-schema-guard` skill is **central**: every skill that mutates Shopify must load it BEFORE writing GraphQL queries to avoid inventing fields.
 
 ---
 
-## 12. Verification (par run)
+## 12. Verification (per run)
 
-Checklist standard de fin d'exécution :
+Standard end-of-execution checklist:
 
-- [ ] Lecture obligatoire effectuée (MISSION + MEMORY + STANDING + 7 derniers learnings)
-- [ ] Niveau d'autonomie respecté (🟢 direct / 🟡 /yes obligatoire / 🔴 refus)
-- [ ] Si mutation : backup avant + verify après
-- [ ] Si email : `EMAIL_SMTP_OK` en stdout vérifié
-- [ ] Si Telegram : message reçu par le chat autorisé
-- [ ] Entrée loggée dans `learnings.md` (avec timestamp UTC + tool + 4 placeholders)
-- [ ] Aucune valeur KPI inventée (toutes citées avec source)
+- [ ] Mandatory reading performed (MISSION + MEMORY + STANDING + last 7 learnings)
+- [ ] Autonomy level respected (🟢 direct / 🟡 /yes mandatory / 🔴 refusal)
+- [ ] If mutation: backup before + verify after
+- [ ] If email: `EMAIL_SMTP_OK` in stdout verified
+- [ ] If Telegram: message received by the authorized chat
+- [ ] Entry logged in `learnings.md` (with UTC timestamp + tool + 4 placeholders)
+- [ ] No invented KPI value (all cited with source)
 
 ---
 
-## 13. Évolutions du framework
+## 13. Framework evolution
 
-Le framework évolue par 2 mécanismes :
+The framework evolves via 2 mechanisms:
 
-1. **Manuel** (humain) — ajouts de skills, refactor de helpers, mise à jour de docs via PR sur le repo
-2. **Auto** (méta-revue dimanche) — création d'un nouveau skill dès qu'un pattern récurrent est détecté
+1. **Manual** (human) — skill additions, helper refactor, doc updates via PR on the repo
+2. **Auto** (Sunday meta-review) — creates a new skill as soon as a recurrent pattern is detected
 
-Quand un nouveau skill auto-généré est validé par le marchand, il est versionné `v1.0.0` et peut être contribué upstream via PR.
+When a new auto-generated skill is validated by the merchant, it is versioned `v1.0.0` and can be contributed upstream via PR.
