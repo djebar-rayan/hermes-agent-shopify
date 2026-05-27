@@ -1,0 +1,72 @@
+# ============================================================
+# .gitignore — Hermes Shopify Framework
+# Ce dossier sert de vitrine technique publique.
+# JAMAIS committer de secrets, tokens, ou données clients.
+# ============================================================
+
+# Secrets / credentials (NE JAMAIS commit)
+.env
+.env.*
+!.env.example
+!.env.template
+!config/.env.template
+*.key
+*.pem
+*_token.json
+*_secret.json
+*_credentials.json
+*_service_account.json
+client_secret.json
+hermes-*-*.json
+.gsc_token.json
+ACCES-BOUTIQUE-*.md
+ACCES-AZAMOUL.md
+ACCES-*.md
+
+# Sensitive instance data (workspace-level)
+**/learnings.md
+!examples/**/learnings.md
+**/MEMORY.md
+!examples/**/MEMORY.md
+!config/MEMORY.md.template
+
+# Personnel
+Carnet_bord_*.xlsx
+
+# Backups & temp
+*.bak
+*.bak.*
+*.tmp
+*.swp
+*~
+.DS_Store
+Thumbs.db
+tmp/
+
+# Caches
+__pycache__/
+*.pyc
+node_modules/
+.cache/
+.audit-tmp/
+
+# Output local volumineux
+config-backup/
+phase1/
+phase2/
+phase2-v2/
+phase3/
+phase4/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+desktop.ini
+$RECYCLE.BIN/

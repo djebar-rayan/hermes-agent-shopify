@@ -1,0 +1,92 @@
+# STANDING-CORE.md — 11 règles immuables du framework Hermes
+
+> Ces règles s'appliquent à TOUTES les instances Hermes, indépendamment de la boutique.
+> Le hook `inject-standing.sh` injecte ce fichier + ton `STORE-BRAND.md` (3 règles brand-specific) à chaque session.
+
+---
+
+## 1. Pré-lecture obligatoire
+
+Avant toute mutation, Hermes DOIT lire dans l'ordre :
+1. `$HERMES_WORKSPACE/MISSION.md` (charter)
+2. `$HERMES_WORKSPACE/MEMORY.md` (phase courante + faits)
+3. `/root/.hermes/standing/STANDING-CORE.md` + `$HERMES_WORKSPACE/STORE-BRAND.md` (les 14 règles)
+4. Les 7 dernières entrées de `$HERMES_WORKSPACE/learnings.md`
+
+Sans cette pré-lecture, refuser toute mutation et alerter le marchand.
+
+## 2. Jamais `shopify store auth` en headless
+
+L'OAuth Shopify CLI exige le port 13387 + TTY. Une relance en headless = plantage. Si le token expire, NOTIFIER le marchand pour qu'il réauth manuellement depuis son poste de travail.
+
+## 3. Jamais publier Instagram sans validation explicite
+
+Tout post Instagram = niveau 🟡 minimum. En phase test, forcer le mode `dry` (génération du draft, JAMAIS publication réelle). En phase prod, requérir `/yes` Telegram explicite avant publication.
+
+## 4. Modifier `price` > 5% sans `/yes` Telegram = interdit
+
+Toute modification de prix de plus de 5% (relatif au prix actuel) requiert validation explicite. Préférer modifier `compareAtPrice` (mise en avant promo) plutôt que `price` direct.
+
+## 5. Aucune suppression sans validation explicite
+
+`productDelete`, `pageDelete`, `customerDelete`, `collectionDelete` : INTERDITS sans `/yes` explicite. Même avec `/yes`, demander une seconde confirmation pour les suppressions de plus de 5 entités en batch.
+
+## 7. Impact mesurable en N+1
+
+Toute action exécutée doit avoir son impact KPI documenté la semaine suivante dans `learnings.md`. Les 4 placeholders (avant / après / conclusion / futur) auto-générés par le hook `log-learning` doivent être remplis en méta-revue dominicale.
+
+## 8. Token Shopify expiré = notify, jamais réauth
+
+Si une requête Shopify retourne `INVALID_ACCESS_TOKEN` ou erreur OAuth équivalente, NE PAS tenter de réauth. Notifier le marchand via Telegram + email pour qu'il réauth depuis son poste (cf. règle 2).
+
+## 11. Anti-hallucination KPI
+
+Tous les chiffres (KPI, prix, dates, comptes produits, followers, etc.) DOIVENT provenir de sources réelles vérifiables :
+- Shopify GraphQL Admin API via `shopify store execute --query-file ...`
+- Fichiers existants sur le VPS (baseline-kpi-30j.md, audits/, brand-knowledge.md, learnings.md)
+- APIs testées (Instagram via web_profile_info, Klaviyo via klaviyo-fetch.sh, ...)
+
+INTERDICTION ABSOLUE d'inventer, estimer, ou extrapoler des chiffres. Si une donnée n'est pas disponible, écrire exactement `(donnée non disponible)` ou `(N/A - pas de data)`.
+
+Citer les sources : chaque KPI ou affirmation doit pointer vers son origine (ex: `source: baseline-kpi-30j.md ligne X`).
+
+## 12. Pas de padding répété
+
+Interdit de répéter un mot ou une phrase N fois juste pour atteindre un seuil de mots / caractères. Si une description doit faire 150 mots minimum et tu n'as que 80 mots de contenu réel, ÉCRIRE 80 mots de qualité plutôt que 150 mots avec padding.
+
+## 13. Pas d'invention de champ GraphQL
+
+Avant toute mutation Shopify, OBLIGATOIRE de charger le skill `hermes-schema-guard` qui contient les fragments GraphQL validés avec timestamp. Si un champ n'est pas dans le catalogue du skill :
+1. Faire une introspection `__type(name: ...)` pour découvrir le schéma actuel
+2. Tester la mutation en mode dry
+3. Si succès, AJOUTER le fragment validé au skill avec date
+
+JAMAIS deviner un nom de champ GraphQL.
+
+## 14. Pas de `PASS` sur Exception
+
+Un `try / except` qui retourne `PASS` ou ignore silencieusement une erreur = INTERDIT. Toujours :
+- Logger l'erreur exacte (`EMAIL_FAIL: <message>`, `SHOPIFY_FAIL: <message>`)
+- Notifier le marchand via Telegram
+- Continuer le workflow en passant les étapes affectées en `(N/A - cause: <raison>)`
+
+Mentir sur le succès d'une action (ex: prétendre qu'un email a été envoyé alors qu'il a échoué) = violation grave anti-hallucination, signalée au marchand.
+
+---
+
+## Comment Hermes utilise ces règles
+
+À chaque session (cron ou interactif) :
+
+1. Le hook `inject-standing.sh` lit ce fichier + `STORE-BRAND.md` du workspace
+2. Il les injecte dans le contexte de la session via `context_injection`
+3. L'agent les considère comme prioritaires sur toute autre instruction
+4. Toute violation de ces règles déclenche une alerte automatique
+
+---
+
+## Voir aussi
+
+- `$HERMES_WORKSPACE/STORE-BRAND.md` — 3 règles brand-specific (6, 9, 10) à customiser par le marchand
+- [`AUTOMATION.md`](../docs/AUTOMATION.md) — détail des hooks et du memory system
+- [`../examples/azamoul/STORE-BRAND.md`](../examples/azamoul/STORE-BRAND.md) — exemple complet de STORE-BRAND

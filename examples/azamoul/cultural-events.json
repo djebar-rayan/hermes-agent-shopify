@@ -1,0 +1,126 @@
+{
+  "_comment_": "cultural-events.json — Cas d'étude Azamoul (marque française culture amazighe). Voir ../../config/cultural-events.json.template pour le format.",
+  "_brand_": "Azamoul",
+  "events": [
+    {
+      "name": "Yennayer",
+      "description": "Nouvel an amazigh (calendrier berbère). Date traditionnelle 12 janvier. Asseggas amegaz = bonne année.",
+      "date": "2026-01-12",
+      "lead_days": 30,
+      "category": "culturel",
+      "campaign_type": "both",
+      "vocabulary_boost": ["yennayer", "asseggas", "amegaz", "nouvel an", "amazigh", "tradition"],
+      "recurring": true
+    },
+    {
+      "name": "Tafsut",
+      "description": "Printemps amazigh. Référence à Tafsut Imazighen (Printemps Berbère), mouvement culturel de 1980. Équinoxe de printemps.",
+      "date": "2026-03-20",
+      "lead_days": 21,
+      "category": "culturel",
+      "campaign_type": "both",
+      "vocabulary_boost": ["tafsut", "printemps", "renaissance", "amazigh", "tifinagh"],
+      "recurring": true
+    },
+    {
+      "name": "Aïd al-Fitr",
+      "description": "Fin du Ramadan. Pour marque française avec public diaspora nord-africaine.",
+      "date": "2026-03-20",
+      "lead_days": 30,
+      "category": "religieux",
+      "campaign_type": "both",
+      "vocabulary_boost": ["aïd", "fête", "famille", "tradition"],
+      "recurring": true
+    },
+    {
+      "name": "Aïd al-Adha",
+      "description": "Fête du sacrifice. Public diaspora nord-africaine.",
+      "date": "2026-06-26",
+      "lead_days": 30,
+      "category": "religieux",
+      "campaign_type": "both",
+      "vocabulary_boost": ["aïd", "tafaska", "fête", "famille"],
+      "recurring": true
+    },
+    {
+      "name": "Achoura",
+      "description": "Fête religieuse + culturelle marquée en Afrique du Nord (10 muharram).",
+      "date": "2026-07-25",
+      "lead_days": 14,
+      "category": "religieux",
+      "campaign_type": "email",
+      "vocabulary_boost": ["achoura", "tradition", "famille"],
+      "recurring": true
+    },
+    {
+      "name": "Fête de l'indépendance algérienne",
+      "description": "5 juillet 1962. Public algérien et kabyle.",
+      "date": "2026-07-05",
+      "lead_days": 21,
+      "category": "culturel",
+      "campaign_type": "instagram",
+      "vocabulary_boost": ["thilelli", "indépendance", "liberté", "algérie"],
+      "recurring": true
+    },
+    {
+      "name": "Fête du trône marocain",
+      "description": "30 juillet. Public marocain.",
+      "date": "2026-07-30",
+      "lead_days": 14,
+      "category": "culturel",
+      "campaign_type": "instagram",
+      "vocabulary_boost": ["maroc", "tradition", "amazigh"],
+      "recurring": true
+    },
+    {
+      "name": "Congrès de la Soummam",
+      "description": "20 août 1956, événement historique kabyle.",
+      "date": "2026-08-20",
+      "lead_days": 14,
+      "category": "culturel",
+      "campaign_type": "instagram",
+      "vocabulary_boost": ["kabyle", "soummam", "histoire", "résistance"],
+      "recurring": true
+    },
+    {
+      "name": "Festival d'Imilchil",
+      "description": "Festival amazigh berbère de fiançailles dans le Haut Atlas (Maroc), septembre.",
+      "date": "2026-09-15",
+      "lead_days": 21,
+      "category": "culturel",
+      "campaign_type": "both",
+      "vocabulary_boost": ["imilchil", "mariage", "tradition", "amazigh", "afzim"],
+      "recurring": true
+    },
+    {
+      "name": "Révolution Algérienne",
+      "description": "1er novembre 1954, déclenchement guerre d'indépendance. Public algérien.",
+      "date": "2026-11-01",
+      "lead_days": 21,
+      "category": "culturel",
+      "campaign_type": "both",
+      "vocabulary_boost": ["thilelli", "dihya", "résistance", "liberté", "algérie"],
+      "recurring": true
+    },
+    {
+      "name": "Black Friday",
+      "description": "Pour public diaspora avec pouvoir d'achat européen.",
+      "date": "2026-11-27",
+      "lead_days": 30,
+      "category": "commercial",
+      "campaign_type": "both",
+      "vocabulary_boost": ["promo", "exclusif", "amazigh"],
+      "recurring": true
+    },
+    {
+      "name": "Noël",
+      "description": "Pour public français + cadeaux culturels.",
+      "date": "2026-12-25",
+      "lead_days": 30,
+      "category": "saisonnier",
+      "campaign_type": "both",
+      "vocabulary_boost": ["cadeau", "fêtes", "azamoul"],
+      "recurring": true
+    }
+  ]
+}

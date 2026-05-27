@@ -1,0 +1,104 @@
+# brand-knowledge.md — Concurrents et positionnement
+
+> Copie ce fichier dans `$HERMES_WORKSPACE/brand-knowledge.md` et remplis avec 5-10 concurrents de ta marque.
+> Hermes lit ce fichier pour ses propositions samedi-ideas (différenciation produit, opportunités niche).
+
+---
+
+## 1. Positionnement de la marque
+
+**Mission** : <ta mission en 1 phrase>
+
+**USP unique** : <ce qui te différencie de la concurrence>
+
+**Public cible** : <description audience principale>
+
+**Promesse de marque** : <ce que le client attend en achetant chez toi>
+
+---
+
+## 2. Concurrents directs (5-10)
+
+> Marques qui vendent des produits similaires aux tiens, avec un positionnement et un public proches.
+
+| # | Marque | URL | Niche | USP concurrente | Opportunité différenciation |
+|---|---|---|---|---|---|
+| 1 | <Nom> | https://... | <ex: streetwear engagé> | <ex: collections capsule limitées> | <ex: motifs uniques + collection permanente> |
+| 2 | <Nom> | https://... | <ex: couture héritage> | <ex: haute couture sur-mesure> | <ex: prêt-à-porter accessible> |
+| 3 | <Nom> | https://... | <ex: bijoux artisanaux> | <ex: pièces uniques peintes main> | <ex: bijoux modernisés industrialisables> |
+| 4 | <Nom> | https://... | <niche> | <USP eux> | <ta différenciation> |
+| 5 | <Nom> | https://... | <niche> | <USP eux> | <ta différenciation> |
+
+---
+
+## 3. Concurrents indirects (3-5)
+
+> Marques qui ciblent ton public mais avec des produits différents (substitution possible).
+
+| # | Marque | URL | Pourquoi indirect |
+|---|---|---|---|
+| 1 | <Nom> | https://... | <ex: même public mais catégorie déco au lieu de mode> |
+| 2 | <Nom> | https://... | <raison> |
+| 3 | <Nom> | https://... | <raison> |
+
+---
+
+## 4. Niches sous-exploitées
+
+> Opportunités identifiées dans le marché que Hermes peut explorer avec `shopify-product-ideator`.
+
+- **Niche A** : <description + signal marché + concurrents qui ne couvrent pas>
+- **Niche B** : <...>
+- **Niche C** : <...>
+
+---
+
+## 5. Hashtags Instagram performants pour ta marque
+
+Pour `shopify-instagram-ideator`. Hermes les utilisera comme base et les complétera.
+
+### Hashtags gros (>100k)
+- `#<tag1>` (~Xk posts)
+- `#<tag2>` (~Xk posts)
+- `#<tag3>`
+- `#<tag4>`
+- `#<tag5>`
+
+### Hashtags moyens (10k-100k)
+- `#<tag1>`
+- `#<tag2>`
+- ...
+
+### Hashtags niches (<10k, à fort engagement)
+- `#<tag1>`
+- `#<tag2>`
+- ...
+
+---
+
+## 6. Saisons commerciales
+
+> Cf. `cultural-events.json` pour le format structuré machine-readable. Ici résumé human-readable.
+
+- **<Saison 1>** : <description, impact attendu sur CA>
+- **<Saison 2>** : <...>
+- **<Saison 3>** : <...>
+
+---
+
+## 7. Apprentissages cumulés
+
+> Section append-only où le cron `weekly-meta-review` ajoute (max 5 lignes/semaine) des apprentissages.
+
+- [YYYY-MM-DD] <apprentissage>
+- [YYYY-MM-DD] <apprentissage>
+- ...
+
+---
+
+## Voir aussi
+
+- [`MISSION.md`](./MISSION.md) — charter complet
+- [`STORE-BRAND.md`](./STORE-BRAND.md) — vocabulaire + niveaux autonomie
+- [`cultural-events.json`](./cultural-events.json) — calendrier événementiel structuré
+- [`../examples/azamoul/brand-knowledge.md`](../examples/azamoul/brand-knowledge.md) — exemple complet (marque française mode amazighe)

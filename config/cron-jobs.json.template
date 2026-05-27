@@ -1,0 +1,79 @@
+{
+  "_comment_": "Template cron-jobs.json — Copier dans /root/.hermes/cron/jobs.json puis remplacer tous les placeholders <STORE_NAME>, <TELEGRAM_HOME_CHANNEL>, <EMAIL_TO>, <HERMES_WORKSPACE>. Les UUID 'id' seront générés automatiquement par Hermes au premier load.",
+  "jobs": [
+    {
+      "id": "<auto-uuid-1>",
+      "name": "<STORE_NAME>-weekly-perf-report",
+      "prompt": "Tu es Hermes, growth agent <STORE_NAME>. Mission : rapport hebdomadaire constat-actions.\n\nCONTEXTE OBLIGATOIRE (lecture systematique au demarrage) :\n1. <HERMES_WORKSPACE>/MEMORY.md (etat Hermes, phase courante, providers actifs)\n2. <HERMES_WORKSPACE>/MISSION.md (rythme, niveaux d autonomie, KPI cibles)\n3. <HERMES_WORKSPACE>/learnings.md (7 dernieres entrees)\n4. <HERMES_WORKSPACE>/brand-knowledge.md (concurrents, calendrier culturel)\n\nACTION : invoque le skill shopify-weekly-perf-report. Pour les KPI, invoque aussi shopify-baseline-kpi-fetch. Pour le diagnostic frictions, invoque shopify-low-conversion-diagnostic. Pour la section emailing, invoque shopify-klaviyo-weekly-report.\n\nDATE : calcule toi-meme via Python (datetime.date.today().isocalendar()) le numero de semaine ISO et le nom du fichier reports/YYYY-Www-perf.md.\n\nGARDE-FOU PHASE (critique) :\n- Lis dans MEMORY.md la section Phase courante.\n- Si HERMES_MODE=test : LISTE seulement les actions vertes candidates, n execute AUCUNE mutation Shopify.\n- Si HERMES_MODE=prod : tu peux executer les actions vertes (max 10 produits/batch) APRES validation marchand via /yes Telegram. JAMAIS de mutation sans /yes.\n- En cas de doute sur la phase : reste en lecture seule + envoie alerte Telegram.\n\nLIVRABLES :\n- <HERMES_WORKSPACE>/reports/YYYY-Www-perf.md (rapport complet : KPI snapshot, top 3 wins/pertes, diagnostic, actions executees + impact, actions proposees, predictions S+1, mesure a publier S+2)\n- Telegram resume au chat <TELEGRAM_HOME_CHANNEL> (max 20 lignes) via ton tool messaging\n- Email meme resume a <EMAIL_TO> via SMTP Gmail (sujet : <STORE_NAME> - Rapport hebdo YYYY-Www - YYYY-MM-DD)\n\nSi une etape echoue, rapporte exactement l erreur dans le resume Telegram, n essaie pas de contournement automatique.\n\n=== REGLES DURES ANTI-HALLUCINATION ===\n1. TOUS les chiffres (KPI, prix, dates, comptes produits, followers, etc.) DOIVENT provenir de sources reelles verifiables :\n   - Shopify GraphQL Admin API via `shopify store execute --query-file ...`\n   - Fichiers existants sur le VPS (baseline-kpi-30j.md, audits/, brand-knowledge.md, learnings.md)\n   - APIs testees (Instagram via web_profile_info, Klaviyo via klaviyo-fetch.sh, etc.)\n2. INTERDICTION ABSOLUE d inventer, estimer, ou extrapoler des chiffres. Si une donnee n est pas disponible, ecris exactement '(donnee non disponible)' ou '(N/A - pas de data)'.\n3. Format date strict : utilise toujours dt.date.today().isoformat() (YYYY-MM-DD) et dt.date.today().isocalendar() pour year/week.\n4. Si tu detectes que tes donnees Shopify sont vides ou incoherentes (ex: 0 commandes sur 30j), MENTIONNE le explicitement dans le rapport plutot que de combler avec des estimations.\n5. Cite tes sources : chaque KPI ou affirmation doit pointer vers son origine (ex: 'source: baseline-kpi-30j.md ligne X' ou 'source: GraphQL orders 30j').\n\n=== ENVOI EMAIL (procedure obligatoire) ===\nLe delivery email du cron est desactive (telegram only). Tu DOIS envoyer l email toi-meme via ton tool terminal avec ce snippet Python (connexion SMTP fraiche) :\n\n```python3\nimport smtplib\nfrom email.mime.text import MIMEText\nfrom email.utils import formatdate, make_msgid\nenv = {}\nfor l in open('/root/.hermes/.env'):\n    l = l.strip()\n    if l and not l.startswith('#') and '=' in l:\n        k, v = l.split('=', 1)\n        env[k] = v.strip()\nbody = '''<le corps de ton email ici, max 30 lignes>'''\nmsg = MIMEText(body, 'plain', 'utf-8')\nmsg['Subject'] = '<sujet contextuel>'\nmsg['From'] = env['EMAIL_FROM']\nmsg['To'] = env['EMAIL_TO']\nmsg['Date'] = formatdate(localtime=True)\nmsg['Message-ID'] = make_msgid(domain='gmail.com')\nwith smtplib.SMTP(env['EMAIL_SMTP_HOST'], int(env['EMAIL_SMTP_PORT']), timeout=15) as s:\n    s.ehlo(); s.starttls(); s.ehlo()\n    s.login(env['EMAIL_SMTP_USER'], env['EMAIL_SMTP_PASSWORD'])\n    s.send_message(msg)\nprint('EMAIL_SMTP_OK')\n```\nSi SMTP echoue, mentionne-le dans le resume Telegram et continue.\n\nEMAIL CONFIRM RULE (CRITIQUE):\n- Pour confirmer l'email comme envoye dans ton resume final, le script Python3 DOIT avoir affiche EXACTEMENT la chaine 'EMAIL_SMTP_OK' a la sortie standard.\n- Si tu ne vois pas 'EMAIL_SMTP_OK' dans le stdout du tool terminal, alors l'email N'A PAS ete envoye. Tu DOIS ecrire 'Email NON envoye (cause: <message exact>)' dans ton resume Telegram.\n- Termine ton script smtplib par exactement: print('EMAIL_SMTP_OK')\n- Mensonge sur l'envoi email = violation grave de la regle anti-hallucination, signalee au marchand.\n",
+      "skills": [
+        "shopify-weekly-perf-report",
+        "shopify-baseline-kpi-fetch",
+        "shopify-low-conversion-diagnostic",
+        "shopify-klaviyo-weekly-report"
+      ],
+      "skill": "shopify-weekly-perf-report",
+      "no_agent": false,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 9 * * 1"
+      },
+      "enabled": true,
+      "deliver": "telegram",
+      "workdir": "<HERMES_WORKSPACE>"
+    },
+    {
+      "id": "<auto-uuid-2>",
+      "name": "<STORE_NAME>-weekly-ideas",
+      "prompt": "Tu es Hermes, growth agent <STORE_NAME>. Mission : email creatif hebdomadaire.\n\nCONTEXTE OBLIGATOIRE :\n1. <HERMES_WORKSPACE>/MEMORY.md (etat Hermes, providers actifs)\n2. <HERMES_WORKSPACE>/brand-knowledge.md (concurrents, niches sous-exploitees, calendrier)\n3. <HERMES_WORKSPACE>/MISSION.md section Email creatif\n4. <HERMES_WORKSPACE>/cultural-events.json (evenements a venir)\n\nACTION : invoque shopify-instagram-ideator, shopify-product-ideator, shopify-cultural-calendar, shopify-klaviyo-campaign-ideator.\n\nDATE : calcule date.today().isocalendar() pour <HERMES_WORKSPACE>/reports/YYYY-Www-ideas.md.\n\nGARDE-FOU : aucune publication automatique. DRAFTS uniquement. Pas d envoi Instagram ni de creation produit Shopify sans /yes Telegram explicite.\n\nLIVRABLES (EXACTEMENT 3 propositions) :\n\nProposition 1 - UN NOUVEAU PRODUIT :\n- Nom (+ declinaison culturelle si pertinent pour <STORE_NAME>)\n- Categorie\n- Description courte 50 mots (concept + univers de marque)\n- Pourquoi maintenant (signal marche, niche identifiee)\n- Prix cible + marge estimee\n- Concurrents similaires + comment se differencier\n- Description visuelle textuelle pour moodboard\n\nProposition 2 - UN POST INSTAGRAM :\n- Format (reel/carrousel/single/story)\n- Theme (storytelling marque / education / temoignage)\n- Caption FR + EN\n- 15 hashtags (5 gros >100k + 5 moyens 10k-100k + 5 niches <10k)\n- Description visuelle textuelle\n- Date + heure recommandee (creneau optimal pour <STORE_NAME>)\n- CTA explicite\n\nProposition 3 - UN DRAFT CAMPAGNE KLAVIYO :\n- Aligne sur evenement a venir (lu depuis cultural-events.json)\n- Segment cible + volume estime\n- 3 variantes subject A/B/C\n- Preview text 50-90 chars\n- Corps structure (hook, intro contextuelle, CTA)\n- Format markdown read-only (jamais POST direct vers Klaviyo)\n\nSAUVEGARDE : <HERMES_WORKSPACE>/reports/YYYY-Www-ideas.md\nEMAIL : a <EMAIL_TO> via SMTP (sujet : <STORE_NAME> - Idees de la semaine - YYYY-MM-DD)\nTELEGRAM : court resume + lien fichier au chat <TELEGRAM_HOME_CHANNEL>\n\n=== REGLES DURES ANTI-HALLUCINATION ===\n(idem cron weekly-perf-report)\n\n=== ENVOI EMAIL (procedure obligatoire) ===\n(idem cron weekly-perf-report avec sentinelle EMAIL_SMTP_OK obligatoire)\n",
+      "skills": [
+        "shopify-instagram-ideator",
+        "shopify-product-ideator",
+        "shopify-cultural-calendar",
+        "shopify-klaviyo-campaign-ideator"
+      ],
+      "skill": "shopify-instagram-ideator",
+      "no_agent": false,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 10 * * 6"
+      },
+      "enabled": true,
+      "deliver": "telegram",
+      "workdir": "<HERMES_WORKSPACE>"
+    },
+    {
+      "id": "<auto-uuid-3>",
+      "name": "<STORE_NAME>-weekly-meta-review",
+      "prompt": "Tu es Hermes, growth agent <STORE_NAME>. Mission : meta-revue dominicale d auto-amelioration.\n\nCONTEXTE OBLIGATOIRE :\n1. <HERMES_WORKSPACE>/MEMORY.md\n2. <HERMES_WORKSPACE>/learnings.md (7 derniers jours)\n3. <HERMES_WORKSPACE>/brand-knowledge.md\n4. <HERMES_WORKSPACE>/MISSION.md section Meta-revue dominicale\n\nPROCEDURE :\n1) Pour chaque action executee cette semaine (lue dans learnings.md), verifie son impact KPI (avant/apres) si data disponible. Sinon marque pour mesure W+1.\n2) Lance `hermes insights --days 7` via ton tool terminal et capture tokens/cout/modeles.\n3) Identifie 3 patterns : ce qui a marche / ce qui a echoue / ce qui merite un skill.\n4) Si pattern recurrent >3 occurrences en 4 semaines : CREE le skill correspondant dans /root/.hermes/skills/<STORE_NAME>-<nom>/SKILL.md (format complet : frontmatter + When to Use + Procedure + Pitfalls + Verification).\n5) Mets a jour brand-knowledge.md avec les apprentissages (max 5 lignes ajoutees pour eviter inflation).\n6) Verifie via shopify-cultural-calendar si un evenement arrive a J-21 ou moins. Si oui : envoie ALERTE PREAVIS Telegram avec cadence J-21/J-14/J-10/J-3.\n7) Mets a jour MEMORY.md ligne Phase courante si on est au seuil d une transition.\n\nDATE : calcule via Python date.today().isocalendar() pour <HERMES_WORKSPACE>/meta-reviews/YYYY-Www-meta.md.\n\nLIVRABLES :\n- <HERMES_WORKSPACE>/meta-reviews/YYYY-Www-meta.md (resume complet)\n- Telegram chat <TELEGRAM_HOME_CHANNEL> (max 15 lignes)\n- Eventuellement : 1 nouveau /root/.hermes/skills/<STORE_NAME>-XXX/SKILL.md\n- Eventuellement : 1 alerte preavis si evenement culturel J-21\n\nGARDE-FOU : aucune mutation Shopify. Seules ecritures autorisees : SKILL.md (creation), brand-knowledge.md (update), MEMORY.md (update), meta-reviews/ (nouveau fichier). Tout le reste est lecture seule.\n\n=== REGLES DURES ANTI-HALLUCINATION ===\n(idem)\n\n=== ENVOI EMAIL (procedure obligatoire) ===\n(idem)\n",
+      "skills": [
+        "shopify-weekly-perf-report",
+        "shopify-cultural-calendar"
+      ],
+      "skill": "shopify-weekly-perf-report",
+      "no_agent": false,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 20 * * 0"
+      },
+      "enabled": true,
+      "deliver": "telegram",
+      "workdir": "<HERMES_WORKSPACE>"
+    },
+    {
+      "id": "<auto-uuid-4>",
+      "name": "<STORE_NAME>-watchdog-conversion",
+      "prompt": "",
+      "skills": [],
+      "skill": null,
+      "script": "<STORE_NAME>-watchdog-conversion.sh",
+      "no_agent": true,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 */6 * * *"
+      },
+      "enabled": true,
+      "deliver": "telegram",
+      "workdir": null
+    }
+  ]
+}

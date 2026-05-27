@@ -1,0 +1,68 @@
+{
+  "_comment_": "Template cultural-events.json — Liste des événements/saisons importants pour ta boutique. Lu par le skill shopify-cultural-calendar. Copier dans $HERMES_WORKSPACE/cultural-events.json et personnaliser.",
+  "_schema_": {
+    "name": "Nom human-readable de l'événement",
+    "date": "YYYY-MM-DD (date exacte ou approchée selon calendrier hijri/lunaire)",
+    "lead_days": "Nb jours avant l'événement où Hermes doit commencer à proposer des campagnes (typiquement 14, 21, ou 30)",
+    "category": "religieux | commercial | culturel | saisonnier | marque",
+    "campaign_type": "email | instagram | both | product",
+    "vocabulary_boost": "Liste de mots-clés à mettre en avant dans les campagnes liées",
+    "recurring": "true si l'événement revient chaque année (Noël, anniversaire marque), false si one-shot (lancement produit)"
+  },
+  "events": [
+    {
+      "name": "Black Friday",
+      "date": "2026-11-27",
+      "lead_days": 30,
+      "category": "commercial",
+      "campaign_type": "both",
+      "vocabulary_boost": ["promo", "réduction", "exclusif", "limité"],
+      "recurring": true
+    },
+    {
+      "name": "Cyber Monday",
+      "date": "2026-11-30",
+      "lead_days": 14,
+      "category": "commercial",
+      "campaign_type": "email",
+      "vocabulary_boost": ["digital", "online", "dernier jour"],
+      "recurring": true
+    },
+    {
+      "name": "Fête des mères",
+      "date": "2026-05-31",
+      "lead_days": 21,
+      "category": "saisonnier",
+      "campaign_type": "both",
+      "vocabulary_boost": ["maman", "cadeau", "amour", "tendresse"],
+      "recurring": true
+    },
+    {
+      "name": "Noël",
+      "date": "2026-12-25",
+      "lead_days": 30,
+      "category": "saisonnier",
+      "campaign_type": "both",
+      "vocabulary_boost": ["cadeau", "fêtes", "famille", "réveillon"],
+      "recurring": true
+    },
+    {
+      "name": "Lancement collection printemps",
+      "date": "2026-03-21",
+      "lead_days": 14,
+      "category": "marque",
+      "campaign_type": "both",
+      "vocabulary_boost": ["printemps", "nouveauté", "collection", "fraîcheur"],
+      "recurring": true
+    },
+    {
+      "name": "Anniversaire <STORE_NAME>",
+      "date": "<YYYY-MM-DD>",
+      "lead_days": 21,
+      "category": "marque",
+      "campaign_type": "both",
+      "vocabulary_boost": ["anniversaire", "merci", "communauté", "exclusif"],
+      "recurring": true
+    }
+  ]
+}

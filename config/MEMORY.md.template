@@ -1,0 +1,55 @@
+# Faits <STORE_NAME> (mémoire persistante Hermes)
+
+> Copie ce fichier dans `$HERMES_WORKSPACE/MEMORY.md` et remplis avec les faits permanents de ta boutique.
+> Reste compact (< 60 lignes recommandées). Pour l'historique détaillé, utilise `MEMORY-HISTORY.md` séparé.
+
+## Boutique
+- Shop : <store_handle>.myshopify.com (Shopify <plan>, <devise>), domaine custom <store>.com
+- ~<N> produits actifs / <N> collections / <N> pages
+- Marque <pays/région>, univers <thème de marque>.
+- Instagram : @<handle> (<N> followers, <N> posts). Créneau publi : <heures Paris ou autre>.
+
+## Vocabulaire de marque (obligatoire)
+Cf. `STORE-BRAND.md` règle 6. Résumé : <liste de 10-20 mots-clés>.
+
+## Stack VPS
+- Ubuntu 24.04, Node 20+, Python 3.11+, Shopify CLI 3.94+
+- Workdir : `$HERMES_WORKSPACE` (= /root/<store>-shopify)
+- Hermes v0.14.0, OpenViking 0.3.16 (port 1933)
+- <N> crons : weekly-perf-report, weekly-ideas, weekly-meta-review, watchdog-conversion
+- Hooks v0.14 : post_tool_call (log-learning) + on_session_start (inject-standing)
+- 25 skills (21 shopify-* + 4 hermes-*)
+
+## Modèle LLM
+- Principal : `google/gemini-3.1-flash-lite-preview` via OpenRouter
+- Alternatifs : <selon ton setup>
+- Context 262144 tokens, timezone <ton fuseau>
+
+## Credentials .env (noms uniquement, valeurs dans /root/.hermes/.env chmod 600)
+- OPENROUTER_API_KEY, KLAVIYO_API_KEY, SHOPIFY_STORE, SHOPIFY_CLI_THEME_TOKEN
+- GEMINI_API_KEY, OPENAI_API_KEY, FIRECRAWL_API_KEY, GSC_SERVICE_ACCOUNT
+- SMTP Gmail (<your_email> sender et recipient)
+- TELEGRAM_BOT_TOKEN, TELEGRAM_ALLOWED_USERS, TELEGRAM_HOME_CHANNEL
+
+## Phase courante : TEST EXCLUSIVE
+- `HERMES_MODE=test` dans .env (test = apply+rollback même run, prod = persistant)
+- `HERMES_TEST_EMAIL_TO=<your_email>`
+- Bascule prod = décision marchand après validation phase test (cf. docs/PRODUCTION-CHECKLIST.md)
+
+## Intégrations actives
+- Shopify Admin API (OAuth + Theme Access)
+- Klaviyo (read-only via lib/klaviyo-fetch.sh, cache 6h) — <N> flows, <N> campagnes
+- Google Search Console (si configuré)
+- Firecrawl (veille concurrentielle)
+- SMTP Gmail (envoi via snippet Python inline)
+- Telegram Bot (validation /yes, alertes watchdog)
+
+## Niveaux autonomie Hermes (résumé — détail dans STORE-BRAND.md)
+- 🟢 seul : <liste actions 🟢>
+- 🟡 validation marchand : <liste actions 🟡>
+- 🔴 jamais seul : <liste actions 🔴>
+
+## Decisions ouvertes
+- <ex: Bascule prod, configurer Klaviyo, ajouter X skill, ...>
+
+Pour historique détaillé (Phases d'install, Grand Run, bugs corrigés, etc.) : voir `learnings.md` + `MEMORY-HISTORY.md`.
