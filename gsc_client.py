@@ -1,16 +1,16 @@
 """Google Search Console API client for Hermes Agent.
 
-Deux modes d'auth supportés, priorité dans cet ordre:
-  1. OAuth2 user-consent via refresh_token (.gsc_token.json) — produit par
-     oauth_setup.py. Recommandé depuis le bug Google du 23/04/2026 qui
-     empêche d'ajouter un service account comme utilisateur GSC.
-  2. Service account JSON (legacy), avec ou sans impersonation
-     (`with_subject`). L'impersonation nécessite Google Workspace
-     Domain-Wide Delegation configurée — incompatible Gmail standard.
+Two auth modes supported, priority in this order:
+  1. OAuth2 user-consent via refresh_token (.gsc_token.json) — produced by
+     oauth_setup.py. Recommended since the Google bug from 2026-04-23 that
+     prevents adding a service account as a GSC user.
+  2. Service account JSON (legacy), with or without impersonation
+     (`with_subject`). Impersonation requires Google Workspace
+     Domain-Wide Delegation configured — incompatible with standard Gmail.
 
-Le mode actif est déterminé automatiquement : si GSC_TOKEN_PATH
-(ou ./.gsc_token.json) existe, le refresh_token est utilisé. Sinon
-fallback service account.
+Active mode is determined automatically: if GSC_TOKEN_PATH
+(or ./.gsc_token.json) exists, the refresh_token is used. Otherwise
+falls back to service account.
 """
 
 from __future__ import annotations
@@ -36,34 +36,34 @@ DEFAULT_TOKEN_PATH = ".gsc_token.json"
 
 
 class GSCAuthError(Exception):
-    """Erreur d'authentification ou de permission GSC."""
+    """GSC authentication or permission error."""
 
 
 class GSCRateLimitError(Exception):
-    """Quota API GSC dépassé après retries."""
+    """GSC API quota exceeded after retries."""
 
 
 class GSCAPIError(Exception):
-    """Autre erreur HTTP de l'API GSC."""
+    """Other GSC API HTTP error."""
 
 
 def _load_oauth_credentials(token_path: str) -> OAuth2Credentials:
-    """Reconstruit des Credentials OAuth2 user à partir du fichier
-    `.gsc_token.json` produit par oauth_setup.py."""
+    """Rebuilds OAuth2 user Credentials from the
+    `.gsc_token.json` file produced by oauth_setup.py."""
     try:
         with open(token_path, "r", encoding="utf-8") as f:
             payload = json.load(f)
     except OSError as e:
-        raise GSCAuthError(f"Token GSC illisible ({token_path}): {e}") from e
+        raise GSCAuthError(f"GSC token unreadable ({token_path}): {e}") from e
     except json.JSONDecodeError as e:
-        raise GSCAuthError(f"Token GSC mal formé ({token_path}): {e}") from e
+        raise GSCAuthError(f"GSC token malformed ({token_path}): {e}") from e
 
     required = ("refresh_token", "client_id", "client_secret")
     missing = [k for k in required if not payload.get(k)]
     if missing:
         raise GSCAuthError(
-            f"Token GSC incomplet — champs manquants: {missing}. "
-            f"Relance oauth_setup.py."
+            f"GSC token incomplete — missing fields: {missing}. "
+            f"Re-run oauth_setup.py."
         )
 
     return OAuth2Credentials(
@@ -79,10 +79,10 @@ def _load_oauth_credentials(token_path: str) -> OAuth2Credentials:
 def _build_service(impersonate_email: Optional[str] = None,
                    credentials_path: Optional[str] = None,
                    token_path: Optional[str] = None):
-    """Construit un client GSC authentifié.
+    """Builds an authenticated GSC client.
 
-    Priorité: (1) refresh_token via .gsc_token.json si présent,
-              (2) service account JSON (avec ou sans impersonation).
+    Priority: (1) refresh_token via .gsc_token.json if present,
+              (2) service account JSON (with or without impersonation).
     """
     token = token_path or os.environ.get("GSC_TOKEN_PATH", DEFAULT_TOKEN_PATH)
     sa_path = credentials_path or os.environ.get(
@@ -101,8 +101,8 @@ def _build_service(impersonate_email: Optional[str] = None,
 
     if not os.path.isfile(sa_path):
         raise GSCAuthError(
-            f"Ni token OAuth ({token}) ni service account ({sa_path}) trouvés. "
-            "Lance oauth_setup.py ou fournis GSC_CREDENTIALS_PATH."
+            f"Neither OAuth token ({token}) nor service account ({sa_path}) found. "
+            "Run oauth_setup.py or provide GSC_CREDENTIALS_PATH."
         )
 
     try:
@@ -122,7 +122,7 @@ def _build_service(impersonate_email: Optional[str] = None,
     except GSCAuthError:
         raise
     except Exception as e:
-        raise GSCAuthError(f"Auth GSC (SA) failed: {e}") from e
+        raise GSCAuthError(f"GSC auth (SA) failed: {e}") from e
 
 
 def get_search_analytics(
@@ -136,25 +136,25 @@ def get_search_analytics(
     token_path: Optional[str] = None,
     max_retries: int = 5,
 ) -> dict:
-    """Récupère les données Search Analytics GSC.
+    """Fetches GSC Search Analytics data.
 
     Args:
-        site_url: identifiant de la propriété, soit `sc-domain:<domain>`
-            (Domain property) soit `https://<domain>/` (URL-prefix property).
-        start_date / end_date: format ISO `YYYY-MM-DD`.
-        dimensions: parmi `query`, `page`, `country`, `device`,
-            `searchAppearance`, `date`. Défaut: `["query", "page"]`.
-        row_limit: max 25 000 par requête (API GSC).
-        impersonate_email: compte à impersonner via Domain-Wide Delegation.
-            Mettre `None` si le service account est ajouté directement
-            comme utilisateur de la propriété.
-        credentials_path: override du chemin du JSON (sinon env
-            `GSC_CREDENTIALS_PATH` puis défaut module).
-        max_retries: nombre de tentatives en cas de rate-limit (backoff exp).
+        site_url: property identifier, either `sc-domain:<domain>`
+            (Domain property) or `https://<domain>/` (URL-prefix property).
+        start_date / end_date: ISO format `YYYY-MM-DD`.
+        dimensions: among `query`, `page`, `country`, `device`,
+            `searchAppearance`, `date`. Default: `["query", "page"]`.
+        row_limit: max 25,000 per request (GSC API).
+        impersonate_email: account to impersonate via Domain-Wide Delegation.
+            Set `None` if the service account is added directly as a property
+            user.
+        credentials_path: override JSON path (otherwise env
+            `GSC_CREDENTIALS_PATH` then module default).
+        max_retries: number of attempts on rate-limit (exp backoff).
 
     Returns:
-        Le dict brut renvoyé par `searchanalytics().query()`, contenant
-        notamment `rows: [{keys, clicks, impressions, ctr, position}, ...]`.
+        Raw dict returned by `searchanalytics().query()`, containing
+        notably `rows: [{keys, clicks, impressions, ctr, position}, ...]`.
     """
     dimensions = dimensions or ["query", "page"]
     service = _build_service(
@@ -176,7 +176,7 @@ def get_search_analytics(
                 .execute()
             )
         except RefreshError as e:
-            raise GSCAuthError(f"Token refresh GSC échoué: {e}") from e
+            raise GSCAuthError(f"GSC token refresh failed: {e}") from e
         except HttpError as e:
             status = getattr(e.resp, "status", None) if hasattr(e, "resp") else None
             msg = str(e)
@@ -186,7 +186,7 @@ def get_search_analytics(
             if is_rate_limit:
                 if attempt == max_retries:
                     raise GSCRateLimitError(
-                        f"Rate-limit GSC après {max_retries} tentatives: {e}"
+                        f"GSC rate-limit after {max_retries} attempts: {e}"
                     ) from e
                 wait = min(2 ** attempt, 60)
                 logger.warning(
@@ -197,15 +197,15 @@ def get_search_analytics(
                 continue
             if status in (401, 403):
                 raise GSCAuthError(
-                    f"Auth/permission GSC ({status}): {e}"
+                    f"GSC auth/permission ({status}): {e}"
                 ) from e
-            raise GSCAPIError(f"Erreur API GSC ({status}): {e}") from e
+            raise GSCAPIError(f"GSC API error ({status}): {e}") from e
 
 
 def list_sites(impersonate_email: Optional[str] = None,
                credentials_path: Optional[str] = None,
                token_path: Optional[str] = None) -> list[dict]:
-    """Liste les propriétés accessibles au compte authentifié."""
+    """Lists properties accessible to the authenticated account."""
     service = _build_service(
         impersonate_email=impersonate_email,
         credentials_path=credentials_path,
@@ -215,12 +215,12 @@ def list_sites(impersonate_email: Optional[str] = None,
         resp = service.sites().list().execute()
         return resp.get("siteEntry", [])
     except RefreshError as e:
-        raise GSCAuthError(f"Token refresh GSC échoué: {e}") from e
+        raise GSCAuthError(f"GSC token refresh failed: {e}") from e
     except HttpError as e:
         status = getattr(e.resp, "status", None) if hasattr(e, "resp") else None
         if status in (401, 403):
-            raise GSCAuthError(f"Auth/permission GSC ({status}): {e}") from e
-        raise GSCAPIError(f"Erreur API GSC ({status}): {e}") from e
+            raise GSCAuthError(f"GSC auth/permission ({status}): {e}") from e
+        raise GSCAPIError(f"GSC API error ({status}): {e}") from e
 
 
 if __name__ == "__main__":
@@ -238,7 +238,7 @@ if __name__ == "__main__":
         if impersonate:
             auth_mode += f" impersonating {impersonate}"
     else:
-        auth_mode = "NONE — aucun credential disponible"
+        auth_mode = "NONE — no credential available"
 
     today = dt.date.today()
     start = (today - dt.timedelta(days=30)).isoformat()
@@ -264,24 +264,24 @@ if __name__ == "__main__":
         print(f"AUTH ERROR — {e}")
         print()
         if "unauthorized_client" in msg:
-            print("Diagnostic: Domain-Wide Delegation non opérationnelle.")
-            print(f"  Le compte {impersonate!r} n'est probablement pas dans un")
-            print("  Google Workspace, ou la DWD n'est pas configurée pour ce SA.")
-            print("  → Recommandé: utiliser le flow OAuth2 user-consent.")
-            print("    Lance oauth_setup.py pour générer .gsc_token.json.")
+            print("Diagnosis: Domain-Wide Delegation not operational.")
+            print(f"  The account {impersonate!r} is probably not in a")
+            print("  Google Workspace, or DWD is not configured for this SA.")
+            print("  → Recommended: use OAuth2 user-consent flow.")
+            print("    Run oauth_setup.py to generate .gsc_token.json.")
         elif "403" in msg or "forbidden" in msg.lower() or "sufficient permission" in msg.lower():
-            print("Diagnostic: 403 Forbidden — le compte authentifié n'a pas")
-            print(f"  accès à la propriété {site!r}.")
-            print("  → Si tu utilises le service account: ajoute son email à la")
-            print("    propriété (mais bug Google connu depuis 23/04/2026 →")
-            print("    préfère OAuth user-consent via oauth_setup.py).")
-            print("  → Si tu utilises OAuth: vérifie que le compte ayant autorisé")
-            print("    est bien propriétaire de la propriété GSC.")
+            print("Diagnosis: 403 Forbidden — the authenticated account has no")
+            print(f"  access to the property {site!r}.")
+            print("  → If you're using the service account: add its email to the")
+            print("    property (but Google bug known since 2026-04-23 →")
+            print("    prefer OAuth user-consent via oauth_setup.py).")
+            print("  → If you're using OAuth: check that the account that authorized")
+            print("    is indeed the owner of the GSC property.")
         elif "invalid_grant" in msg.lower():
-            print("Diagnostic: refresh_token invalide ou révoqué.")
-            print("  → Relance oauth_setup.py pour en générer un nouveau.")
+            print("Diagnosis: refresh_token invalid or revoked.")
+            print("  → Run oauth_setup.py to generate a new one.")
         else:
-            print("Diagnostic: voir le message ci-dessus.")
+            print("Diagnosis: see message above.")
         raise SystemExit(1)
     except GSCRateLimitError as e:
         print(f"RATE LIMIT — {e}")
@@ -292,11 +292,11 @@ if __name__ == "__main__":
 
     rows = data.get("rows", [])
     if not rows:
-        print("(Aucune donnée — la propriété n'a peut-être pas encore d'historique GSC,")
-        print(" ou aucune requête n'a généré d'impression sur la période.)")
+        print("(No data — the property may not have GSC history yet,")
+        print(" or no query generated impressions over the period.)")
         raise SystemExit(0)
 
-    print(f"Top {len(rows)} requêtes (30 derniers jours) sur {site}")
+    print(f"Top {len(rows)} queries (last 30 days) on {site}")
     print()
     print(f"{'Query':<42} {'Clicks':>7} {'Impr.':>8} {'CTR':>7} {'Pos.':>6}")
     print("-" * 74)

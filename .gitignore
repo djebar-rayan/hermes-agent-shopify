@@ -1,10 +1,10 @@
 # ============================================================
 # .gitignore — Hermes Shopify Framework
-# Ce dossier sert de vitrine technique publique.
-# JAMAIS committer de secrets, tokens, ou données clients.
+# This folder serves as a public technical showcase.
+# NEVER commit secrets, tokens, or customer data.
 # ============================================================
 
-# Secrets / credentials (NE JAMAIS commit)
+# Secrets / credentials (NEVER commit)
 .env
 .env.*
 !.env.example
